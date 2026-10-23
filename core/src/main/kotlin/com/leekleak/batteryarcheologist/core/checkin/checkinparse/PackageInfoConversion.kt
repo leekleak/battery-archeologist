@@ -20,16 +20,17 @@
 package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
 import com.leekleak.batteryarcheologist.core.model.PackageInfoModel
-import com.leekleak.batteryarcheologist.proto.usagestats.AndroidPackageInfo
+import com.leekleak.batteryarcheologist.proto.usagestats.PackageInfo
 
 /** Converts an app package model into the generated usagestats PackageInfo proto. */
-internal fun PackageInfoModel.toProtoPackageInfo(): AndroidPackageInfo.PackageInfo =
-    AndroidPackageInfo.PackageInfo.newBuilder()
-        .setPkgName(name)
-        .setUid(uid)
-        .setVersionCode(versionCode.toInt())
-        .setVersionName(versionName)
-        .setFirstInstallTime(firstInstallTime)
-        .setLastUpdateTime(lastUpdateTime)
-        .setSharedUserId(sharedUserId)
-        .build()
+internal fun PackageInfoModel.toProtoPackageInfo(): PackageInfo {
+    val builder = PackageInfo.Builder()
+    builder.pkg_name = name
+    builder.uid = uid
+    builder.version_code = versionCode.toInt()
+    builder.version_name = versionName
+    builder.first_install_time = firstInstallTime
+    builder.last_update_time = lastUpdateTime
+    builder.shared_user_id = sharedUserId
+    return builder.build()
+}

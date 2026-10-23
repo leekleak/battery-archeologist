@@ -19,7 +19,7 @@
   capacity, CPU, foreground, wakeups, traffic, camera, audio, and flashlight.
 - Overview/System includes a top-power-consumers card.
 - Saved reports can be shared as attachments through the system share sheet.
-- Full debug and release builds pass, including R8 and protobuf.
+- Full debug and release builds pass, including R8 and Wire code generation.
 - Agentic scripts: `ready`, `smoke`, `layout`, `tap`, `text`, `scroll`, `shot`,
   `logs`.
 
@@ -28,7 +28,7 @@
 - `historianutils`, `bugreportutils`, `packageutils`
 - `history/csv`, `history/parseutils`, `checkin/sliceparse`,
   `checkin/checkinutil`, `checkin/checkinparse`
-- Generated protobuf models from the upstream `.proto` files
+- Wire-generated Kotlin models from the upstream `.proto` files
 
 ## Remaining backlog
 

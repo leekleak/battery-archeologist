@@ -17,7 +17,7 @@ This repository is at the first working vertical slice:
   intervals, doze, and network-connectivity events; ported checkin parser and
   per-app power predictions rounded to thousandths, with sortable app/power
   lists and detail sheets.
-- Full debug/release builds pass, including R8 and protobuf.
+- Full debug/release builds pass, including R8 and Wire code generation.
 - Go oracle fixtures for regression testing.
 - Headless emulator + agentic scripts.
 - Saved reports can be reopened, shared, and re-parsed; text/zip bugreports
@@ -28,7 +28,7 @@ This repository is at the first working vertical slice:
 
 Full app/system drill-down, import, and comparison are the next waves. See
 `docs/implementation-status.md`, `docs/architecture.md`, `docs/ui-expressive.md`,
-and `AGENTS.md`.
+`docs/android-studio.md`, and `AGENTS.md`.
 
 ## Requirements
 

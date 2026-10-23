@@ -38,6 +38,10 @@ RawCapture
   is the interchange format.
 - Parser outputs are typed Kotlin models; CSV serialization exists for golden
   tests and parity with the Go oracle.
+- The schemas in `core/src/main/proto` are compiled to Kotlin by Wire
+  (`javaInterop = true`). Wire has no descriptor API, so `FieldTables.kt`
+  mirrors the `.proto` declaration order for the checkin parser's positional
+  columns.
 - Parser errors/warnings are data, shown in a diagnostics panel.
 
 ## Modern Android compatibility

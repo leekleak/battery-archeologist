@@ -16,21 +16,47 @@
 // third_party/battery-historian/checkinparse/checkin_parse.go (parseLine,
 // parseAndAccumulate and accumulate).
 //
-// The original code reflects over generated Go structs. The Kotlin port instead uses the
-// protobuf runtime's own descriptors, which preserve declaration order and the exact
-// scalar field types, so the same "fill fields in proto order" behaviour is retained.
-// These helpers only support messages whose fields are all scalar; every message that the
-// upstream code parses with parseLine has that shape.
+// The original code reflects over generated Go structs. The Kotlin port used the
+// protobuf runtime's descriptors; Wire has no descriptor API, so each message that the
+// checkin format parses positionally declares its scalar fields in a [MessageSpec].
+// Declaration order is the column order, exactly as in the .proto file.
 
 package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
-import com.google.protobuf.Descriptors.FieldDescriptor
-import com.google.protobuf.Message
 import com.leekleak.batteryarcheologist.core.checkin.sliceparse.SliceParseException
 import com.leekleak.batteryarcheologist.core.checkin.sliceparse.SliceReader
 
 /** Fatal checkin parsing problem. Unknown checkin sections are warnings, not this. */
 class CheckinParseException(message: String, cause: Throwable? = null) : Exception(message, cause)
+
+/** Scalar type of a checkin column. */
+internal enum class FieldType {
+    STRING,
+    INT32,
+    INT64,
+    FLOAT,
+    DOUBLE,
+    BOOL,
+    ENUM,
+    ;
+
+    val isNumeric: Boolean
+        get() = this == INT32 || this == INT64 || this == FLOAT || this == DOUBLE
+}
+
+/** One scalar field of a Wire message builder, in .proto declaration order. */
+internal class FieldSpec<B : Any>(
+    val name: String,
+    val type: FieldType,
+    val get: (B) -> Any?,
+    val set: (B, Any) -> Unit,
+)
+
+/** Scalar fields and a fresh builder factory for one Wire message. */
+internal class MessageSpec<B : Any>(
+    val fields: List<FieldSpec<B>>,
+    val factory: () -> B,
+)
 
 /**
  * Parses [record] into [builder] field by field.
@@ -41,14 +67,19 @@ class CheckinParseException(message: String, cause: Throwable? = null) : Excepti
  *
  * @return a warning, or null when no warning was produced.
  */
-internal fun parseLine(section: String, record: List<String>, builder: Message.Builder): String? {
-    val fields = scalarFields(builder)
-    var num = record.size
-    var warning: String? = null
-    if (record.size > fields.size) {
-        num = fields.size
-        warning = "The underlying format for $section has ${record.size - num} additional " +
+internal fun <B : Any> parseLine(
+    section: String,
+    record: List<String>,
+    builder: B,
+    spec: MessageSpec<B>,
+): String? {
+    val fields = spec.fields
+    val num = minOf(record.size, fields.size)
+    val warning = if (record.size > fields.size) {
+        "The underlying format for $section has ${record.size - fields.size} additional " +
             "field(s) that are not captured."
+    } else {
+        null
     }
     for (i in 0 until num) {
         val field = fields[i]
@@ -59,23 +90,24 @@ internal fun parseLine(section: String, record: List<String>, builder: Message.B
         } catch (e: IllegalArgumentException) {
             throw CheckinParseException("error parsing $section: ${e.message}", e)
         }
-        builder.setField(field, value)
+        field.set(builder, value)
     }
     return warning
 }
 
 /**
- * Parses [record] into a fresh instance of [target]'s message type, then adds every
- * parsed numeric value to [target].
+ * Parses [record] into a fresh instance of [spec]'s message type, then adds every parsed
+ * numeric value to [target].
  */
-internal fun parseAndAccumulate(
+internal fun <B : Any> parseAndAccumulate(
     section: String,
     record: List<String>,
-    target: Message.Builder,
+    target: B,
+    spec: MessageSpec<B>,
 ): String? {
-    val temp = target.defaultInstanceForType.newBuilderForType()
-    val warning = parseLine(section, record, temp)
-    accumulate(target, temp.build())
+    val temp = spec.factory()
+    val warning = parseLine(section, record, temp, spec)
+    accumulate(target, temp, spec)
     return warning
 }
 
@@ -85,82 +117,50 @@ internal fun parseAndAccumulate(
  * String, enum and message fields are left alone. [skipFields] lets callers protect
  * numeric identifier fields (for example a sensor number) from being summed.
  */
-internal fun accumulate(
-    target: Message.Builder,
-    source: Message,
+internal fun <B : Any> accumulate(
+    target: B,
+    source: B,
+    spec: MessageSpec<B>,
     skipFields: Set<String> = emptySet(),
 ) {
-    val descriptor = target.descriptorForType
-    for (field in descriptor.fields) {
-        if (field.isRepeated || field.name in skipFields) continue
-        if (field.javaType == FieldDescriptor.JavaType.MESSAGE) continue
-        if (field.javaType == FieldDescriptor.JavaType.ENUM) continue
-        if (!source.hasField(field)) continue
+    for (field in spec.fields) {
+        if (field.name in skipFields) continue
+        if (!field.type.isNumeric) continue
 
-        val add = source.getField(field)
-        if (add !is Number) continue
-
-        if (!target.hasField(field)) {
-            target.setField(field, add)
-            continue
-        }
-        val current = target.getField(field) as? Number ?: continue
-        val sum: Number = when (field.javaType) {
-            FieldDescriptor.JavaType.INT -> current.toInt() + add.toInt()
-            FieldDescriptor.JavaType.LONG -> current.toLong() + add.toLong()
-            FieldDescriptor.JavaType.FLOAT -> current.toFloat() + add.toFloat()
-            FieldDescriptor.JavaType.DOUBLE -> current.toDouble() + add.toDouble()
+        val add = field.get(source) ?: continue
+        val current = field.get(target)
+        val sum: Number = when (field.type) {
+            FieldType.INT32 -> (current as? Int ?: 0) + (add as Int)
+            FieldType.INT64 -> (current as? Long ?: 0L) + (add as Long)
+            FieldType.FLOAT -> (current as? Float ?: 0f) + (add as Float)
+            FieldType.DOUBLE -> (current as? Double ?: 0.0) + (add as Double)
             else -> continue
         }
-        target.setField(field, sum)
+        field.set(target, sum)
     }
 }
 
-/**
- * Returns the non-repeated, non-message fields of [builder] in declaration order.
- *
- * Enum fields are kept so a caller that accidentally passes an enum-bearing message gets a
- * clear parse error instead of silently shifting every following field.
- */
-private fun scalarFields(builder: Message.Builder): List<FieldDescriptor> =
-    builder.descriptorForType.fields.filter { field ->
-        !field.isRepeated && field.javaType != FieldDescriptor.JavaType.MESSAGE
-    }
-
-/** Converts [raw] to the Java value expected by [field]'s setter. */
-private fun parseValue(raw: String, field: FieldDescriptor): Any {
+/** Converts [raw] to the Kotlin value expected by [field]'s setter. */
+private fun parseValue(raw: String, field: FieldSpec<*>): Any {
     return when (field.type) {
-        FieldDescriptor.Type.STRING -> raw
-        FieldDescriptor.Type.INT32,
-        FieldDescriptor.Type.SINT32,
-        FieldDescriptor.Type.SFIXED32,
-        FieldDescriptor.Type.UINT32,
-        FieldDescriptor.Type.FIXED32,
-        -> SliceReader.parseInt32(raw)
+        FieldType.STRING -> raw
 
-        FieldDescriptor.Type.INT64,
-        FieldDescriptor.Type.SINT64,
-        FieldDescriptor.Type.SFIXED64,
-        FieldDescriptor.Type.UINT64,
-        FieldDescriptor.Type.FIXED64,
-        -> SliceReader.parseInt64(raw)
+        FieldType.INT32 -> SliceReader.parseInt32(raw)
+        FieldType.INT64 -> SliceReader.parseInt64(raw)
 
-        FieldDescriptor.Type.FLOAT -> raw.toFloatOrNull()
+        FieldType.FLOAT -> raw.toFloatOrNull()
             ?: throw SliceParseException("cannot parse float32 from '$raw'")
 
-        FieldDescriptor.Type.DOUBLE -> raw.toDoubleOrNull()
+        FieldType.DOUBLE -> raw.toDoubleOrNull()
             ?: throw SliceParseException("cannot parse float64 from '$raw'")
 
-        FieldDescriptor.Type.BOOL -> when (raw.lowercase()) {
+        FieldType.BOOL -> when (raw.lowercase()) {
             "true", "1" -> true
             "false", "0" -> false
             else -> throw SliceParseException("cannot parse bool from '$raw'")
         }
 
-        FieldDescriptor.Type.ENUM ->
-            throw CheckinParseException("enum fields are not supported by parseLine (${field.fullName})")
-
-        else ->
-            throw CheckinParseException("unsupported field type ${field.type} for ${field.fullName}")
+        FieldType.ENUM ->
+            throw CheckinParseException("enum fields are not supported by parseLine (${field.name})")
     }
 }

@@ -26,18 +26,17 @@ import com.leekleak.batteryarcheologist.core.model.PackageInfoModel
 import com.leekleak.batteryarcheologist.core.packageinfo.appId
 import com.leekleak.batteryarcheologist.core.packageinfo.guessPackage
 import com.leekleak.batteryarcheologist.core.packageinfo.isSandboxedProcess
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats as BatteryStatsProto
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App as BatteryApp
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Apk as BatteryAppApk
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Apk.Service as BatteryAppService
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Child as BatteryAppChild
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Wifi as BatteryAppWifi
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.ControllerActivity as BatteryController
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.ControllerActivity.TxLevel as BatteryTxLevel
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.System as BatterySystem
-import com.leekleak.batteryarcheologist.proto.build.BuildOuterClass
-import com.leekleak.batteryarcheologist.proto.usagestats.AndroidPackageInfo
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats as BatteryStatsProto
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App as BatteryApp
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Apk as BatteryAppApk
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Apk.Service as BatteryAppService
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Child as BatteryAppChild
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Wifi as BatteryAppWifi
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.ControllerActivity as BatteryController
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.ControllerActivity.TxLevel as BatteryTxLevel
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System as BatterySystem
+import com.leekleak.batteryarcheologist.proto.build.Build
+import com.leekleak.batteryarcheologist.proto.usagestats.PackageInfo
 
 /**
  * Parses `dumpsys batterystats --checkin` captures into a battery stats proto.
@@ -100,7 +99,7 @@ private class CheckinParserImpl(
         // Use maps to ensure we don't double count packages. `models` is what guessPackage
         // consumes; `protos` is the generated usagestats shape used for App.Child entries.
         val models = LinkedHashMap<String, PackageInfoModel>()
-        val protos = LinkedHashMap<String, AndroidPackageInfo.PackageInfo>()
+        val protos = LinkedHashMap<String, PackageInfo>()
         for (pkg in state.packages) {
             models[pkg.name] = pkg
             protos[pkg.name] = pkg.toProtoPackageInfo()
@@ -116,14 +115,14 @@ private class CheckinParserImpl(
                 val uid = appId(rawUid)
                 val existing = protos[name]
                 if (existing == null) {
-                    protos[name] = AndroidPackageInfo.PackageInfo.newBuilder()
-                        .setPkgName(name)
-                        .setUid(uid)
-                        .build()
+                    val builder = PackageInfo.Builder()
+                    builder.pkg_name = name
+                    builder.uid = uid
+                    protos[name] = builder.build()
                     models[name] = PackageInfoModel(name = name, uid = uid)
-                } else if (appId(existing.uid) == 0) {
+                } else if (appId(existing.uid ?: 0) == 0) {
                     // Some uploaded package entries have a uid of 0; prefer the checkin uid.
-                    protos[name] = existing.toBuilder().setUid(uid).build()
+                    protos[name] = existing.newBuilder().also { it.uid = uid }.build()
                     models[name]?.let { models[name] = it.copy(uid = uid) }
                 }
             } catch (e: Exception) {
@@ -135,13 +134,15 @@ private class CheckinParserImpl(
         // The package list is now complete. Create one App proto per UID and attach every
         // package as a Child.
         for (pkg in protos.values) {
-            val uid = appId(pkg.uid)
+            val uid = appId(pkg.uid ?: 0)
             if (uid == 0) {
                 // Packages uploaded with an unknown uid cannot be attributed.
                 continue
             }
-            val app = state.apps.getOrPut(uid) { BatteryApp.newBuilder().setUid(uid) }
-            app.addChild(childFrom(pkg))
+            val app = state.apps.getOrPut(uid) {
+                BatteryApp.Builder().also { it.uid = uid }
+            }
+            app.child = app.child + childFrom(pkg)
         }
         state.resolvedPackages = models
         state.resolvedUsagePackages = protos
@@ -207,10 +208,10 @@ private class CheckinParserImpl(
             if (app == null) {
                 val guessed = guessPackage(remaining.joinToString(","), "", packageList).packageInfo
                 if (guessed != null && guessed.name.isNotEmpty() && guessed.name != "android") {
-                    app = BatteryApp.newBuilder()
-                        .setName(guessed.name)
-                        .setUid(uid)
-                    app.addChild(childFrom(guessed))
+                    app = BatteryApp.Builder()
+                    app.name = guessed.name
+                    app.uid = uid
+                    app.child = app.child + childFrom(guessed)
                     state.apps[uid] = app
                 } else {
                     if (!knownUids.containsKey(uid)) {
@@ -220,7 +221,8 @@ private class CheckinParserImpl(
                             state.warnings += "found unexpected uid $uid for section \"$section\""
                         }
                     }
-                    app = BatteryApp.newBuilder().setUid(uid)
+                    app = BatteryApp.Builder()
+                    app.uid = uid
                     state.apps[uid] = app
                 }
             }
@@ -257,7 +259,7 @@ private class CheckinParserImpl(
     }
 
     /** Assembles and post-processes the final proto. */
-    private fun buildStats(): Batterystats.BatteryStats {
+    private fun buildStats(): BatteryStatsProto {
         processAppInfo()
 
         for (app in state.apps.values) {
@@ -266,57 +268,51 @@ private class CheckinParserImpl(
         }
 
         // The system APP power item is the sum of all per-app pwi values.
-        state.system.addPowerUseItem(
-            BatterySystem.PowerUseItem.newBuilder()
-                .setName(BatterySystem.PowerUseItem.Name.APP)
-                .setComputedPowerMah(state.allAppComputedPowerMah),
-        )
+        val appPower = BatterySystem.PowerUseItem.Builder()
+        appPower.name = BatterySystem.PowerUseItem.Name.APP
+        appPower.computed_power_mah = state.allAppComputedPowerMah
+        state.system.power_use_item = state.system.power_use_item + appPower.build()
 
         // Screen-off time is not printed; derive it from battery realtime and screen-on time.
-        if (state.system.hasMisc()) {
-            val misc = state.system.misc.toBuilder()
-            val batteryRealtime = if (state.system.hasBattery()) {
-                state.system.battery.batteryRealtimeMsec
-            } else {
-                0f
-            }
-            val difference = batteryRealtime - misc.screenOnTimeMsec
-            misc.setScreenOffTimeMsec(difference)
+        state.system.misc?.let { miscMessage ->
+            val misc = miscMessage.newBuilder()
+            val batteryRealtime = state.system.battery?.battery_realtime_msec ?: 0f
+            val difference = batteryRealtime - (misc.screen_on_time_msec ?: 0f)
+            misc.screen_off_time_msec = difference
             if (difference < 0) {
                 state.errors += "negative screen off time"
             }
-            state.system.setMisc(misc)
+            state.system.misc = misc.build()
         }
 
         postProcessSystem(state.system, reportVersion)
 
-        val root = BatteryStatsProto.newBuilder()
-            .setReportVersion(reportVersion)
-            .setAggregationType(aggregationType)
-            .setStartTimeUsec(
-                (if (state.system.hasBattery()) state.system.battery.startClockTimeMsec else 0L) * 1000L,
-            )
-            .setEndTimeUsec(report.timeUsec)
-            .setBuild(BuildOuterClass.Build.newBuilder().setFingerprint(report.buildId))
-            .addAllDeviceGroup(report.deviceGroup)
-            .addAllCheckinRule(report.checkinRule)
-            .setSdkVersion(report.sdkVersion)
-            .setRadio(report.radio)
-            .setBootloader(report.bootloader)
-            .setCountryCode(report.countryCode)
-            .setTimeZone(report.timeZone)
+        val root = BatteryStatsProto.Builder()
+        root.report_version = reportVersion
+        root.aggregation_type = aggregationType
+        root.start_time_usec =
+            ((state.system.battery?.start_clock_time_msec ?: 0L) * 1000L)
+        root.end_time_usec = report.timeUsec
+        val build = Build.Builder()
+        build.fingerprint = report.buildId
+        root.build = build.build()
+        root.device_group = report.deviceGroup
+        root.checkin_rule = report.checkinRule
+        root.sdk_version = report.sdkVersion
+        root.radio = report.radio
+        root.bootloader = report.bootloader
+        root.country_code = report.countryCode
+        root.time_zone = report.timeZone
 
         if (report.cellOperator.isNotEmpty()) {
-            root.setCarrier(report.cellOperator + "/" + report.countryCode)
+            root.carrier = report.cellOperator + "/" + report.countryCode
         }
         state.resolvedUsagePackages["com.google.android.gms"]?.let {
-            root.setGmsVersion(it.versionCode)
+            root.gms_version = it.version_code
         }
 
-        root.setSystem(state.system)
-        for (app in state.apps.values) {
-            root.addApp(app)
-        }
+        root.system = state.system.build()
+        root.app = state.apps.values.map { it.build() }
         return root.build()
     }
 
@@ -344,48 +340,48 @@ private class CheckinParserImpl(
 
             val label = groupName(sharedUid)
             if (label.isNotEmpty()) {
-                app.setName(label)
+                app.name = label
                 known = true
             }
 
             val childNames = ArrayList<String>()
-            for (child in app.childList) {
-                childNames += child.name
-                val group = packageUidGroupName(child.name)
+            for (child in app.child) {
+                childNames += child.name.orEmpty()
+                val group = packageUidGroupName(child.name.orEmpty())
                 if (!known && group.isNotEmpty()) {
-                    app.setName(group)
+                    app.name = group
                     known = true
                 }
             }
 
-            app.setUid(uid)
+            app.uid = uid
             knownUids[uid]?.let {
-                app.setName(it)
+                app.name = it
                 known = true
             }
 
-            if (app.childCount == 1) {
-                val headChild = app.getChild(0)
-                app.setVersionCode(headChild.versionCode)
-                app.setVersionName(headChild.versionName)
+            if (app.child.size == 1) {
+                val headChild = app.child[0]
+                app.version_code = headChild.version_code
+                app.version_name = headChild.version_name
             }
 
             if (!known) {
                 if (sharedUid.isNotEmpty() && childNames.size != 1) {
-                    app.setName("SharedUserID($sharedUid)")
+                    app.name = "SharedUserID($sharedUid)"
                     continue
                 }
 
                 var prefix = ""
-                if (childNames.isEmpty() && app.processCount > 0) {
+                if (childNames.isEmpty() && app.process.isNotEmpty()) {
                     // No package metadata, but process names may reveal what this UID is.
-                    for (process in app.processList) {
-                        childNames += process.name
+                    for (process in app.process) {
+                        childNames += process.name.orEmpty()
                     }
                     prefix = "process:"
                 }
                 childNames.sort()
-                app.setName(prefix + childNames.joinToString("|"))
+                app.name = prefix + childNames.joinToString("|")
             }
         }
     }
@@ -395,20 +391,21 @@ private class CheckinParserImpl(
         var wakeups = 0f
         val services = LinkedHashMap<String, BatteryAppService>()
 
-        for (child in app.childList) {
-            if (!child.hasApk()) continue
-            val apk = child.apk
-            wakeups += apk.wakeups
-            for (service in apk.serviceList) {
-                val existing = services[service.name]
-                services[service.name] = if (existing == null) {
+        for (child in app.child) {
+            val childApk = child.apk ?: continue
+            wakeups += childApk.wakeups ?: 0f
+            for (service in childApk.service) {
+                val key = service.name.orEmpty()
+                val existing = services[key]
+                services[key] = if (existing == null) {
                     service
                 } else {
-                    existing.toBuilder()
-                        .setStartTimeMsec(existing.startTimeMsec + service.startTimeMsec)
-                        .setStarts(existing.starts + service.starts)
-                        .setLaunches(existing.launches + service.launches)
-                        .build()
+                    val b = existing.newBuilder()
+                    b.start_time_msec =
+                        (b.start_time_msec ?: 0f) + (service.start_time_msec ?: 0f)
+                    b.starts = (b.starts ?: 0f) + (service.starts ?: 0f)
+                    b.launches = (b.launches ?: 0f) + (service.launches ?: 0f)
+                    b.build()
                 }
             }
         }
@@ -418,25 +415,28 @@ private class CheckinParserImpl(
             return
         }
 
-        val apk = BatteryAppApk.newBuilder().setWakeups(wakeups)
-        for (service in services.values) {
-            apk.addService(service)
-        }
-        app.setApk(apk)
+        val apk = BatteryAppApk.Builder()
+        apk.wakeups = wakeups
+        apk.service = services.values.toList()
+        app.apk = apk.build()
     }
 }
 
-private fun childFrom(pkg: PackageInfoModel): BatteryAppChild.Builder =
-    BatteryAppChild.newBuilder()
-        .setName(pkg.name)
-        .setVersionCode(pkg.versionCode.toInt())
-        .setVersionName(pkg.versionName)
+private fun childFrom(pkg: PackageInfoModel): BatteryAppChild {
+    val child = BatteryAppChild.Builder()
+    child.name = pkg.name
+    child.version_code = pkg.versionCode.toInt()
+    child.version_name = pkg.versionName
+    return child.build()
+}
 
-private fun childFrom(pkg: AndroidPackageInfo.PackageInfo): BatteryAppChild.Builder =
-    BatteryAppChild.newBuilder()
-        .setName(pkg.pkgName)
-        .setVersionCode(pkg.versionCode)
-        .setVersionName(pkg.versionName)
+private fun childFrom(pkg: PackageInfo): BatteryAppChild {
+    val child = BatteryAppChild.Builder()
+    child.name = pkg.pkg_name
+    child.version_code = pkg.version_code
+    child.version_name = pkg.version_name
+    return child.build()
+}
 
 /**
  * Post-processes system-level data whose old/new representations overlap.
@@ -447,83 +447,70 @@ private fun childFrom(pkg: AndroidPackageInfo.PackageInfo): BatteryAppChild.Buil
  */
 private fun postProcessSystem(system: BatterySystem.Builder, reportVersion: Int) {
     // Charge and discharge steps are printed in reverse chronological order.
-    if (system.chargeStepCount > 1) {
-        val reversed = system.chargeStepList.reversed()
-        system.clearChargeStep()
-        system.addAllChargeStep(reversed)
+    if (system.charge_step.size > 1) {
+        system.charge_step = system.charge_step.reversed()
     }
-    if (system.dischargeStepCount > 1) {
-        val reversed = system.dischargeStepList.reversed()
-        system.clearDischargeStep()
-        system.addAllDischargeStep(reversed)
+    if (system.discharge_step.size > 1) {
+        system.discharge_step = system.discharge_step.reversed()
     }
 
     fun makeGlobalWifiController() {
-        if (!system.hasGlobalWifi()) return
-        val gw = system.globalWifi
-        system.setGlobalWifiController(
-            BatteryController.newBuilder()
-                .setIdleTimeMsec(gw.wifiIdleTimeMsec.toLong())
-                .setRxTimeMsec(gw.wifiRxTimeMsec.toLong())
-                .setPowerMah(gw.wifiPowerMah.toLong())
-                .addTx(
-                    BatteryTxLevel.newBuilder()
-                        .setLevel(0)
-                        .setTimeMsec(gw.wifiTxTimeMsec.toLong()),
-                ),
-        )
+        val gw = system.global_wifi ?: return
+        val controller = BatteryController.Builder()
+        controller.idle_time_msec = (gw.wifi_idle_time_msec ?: 0f).toLong()
+        controller.rx_time_msec = (gw.wifi_rx_time_msec ?: 0f).toLong()
+        controller.power_mah = (gw.wifi_power_mah ?: 0f).toLong()
+        val tx = BatteryTxLevel.Builder()
+        tx.level = 0
+        tx.time_msec = (gw.wifi_tx_time_msec ?: 0f).toLong()
+        controller.tx = controller.tx + tx.build()
+        system.global_wifi_controller = controller.build()
     }
 
     fun makeGlobalBluetooth() {
-        if (!system.hasGlobalBluetoothController()) return
-        val controller = system.globalBluetoothController
-        var txTime = 0L
-        for (tx in controller.txList) txTime += tx.timeMsec
-        system.setGlobalBluetooth(
-            BatterySystem.GlobalBluetooth.newBuilder()
-                .setBluetoothIdleTimeMsec(controller.idleTimeMsec.toFloat())
-                .setBluetoothRxTimeMsec(controller.rxTimeMsec.toFloat())
-                .setBluetoothPowerMah(controller.powerMah.toFloat())
-                .setBluetoothTxTimeMsec(txTime.toFloat()),
-        )
+        val controller = system.global_bluetooth_controller ?: return
+        val txTime = controller.tx.sumOf { it.time_msec ?: 0L }
+        val gb = BatterySystem.GlobalBluetooth.Builder()
+        gb.bluetooth_idle_time_msec = (controller.idle_time_msec ?: 0L).toFloat()
+        gb.bluetooth_rx_time_msec = (controller.rx_time_msec ?: 0L).toFloat()
+        gb.bluetooth_power_mah = (controller.power_mah ?: 0L).toFloat()
+        gb.bluetooth_tx_time_msec = txTime.toFloat()
+        system.global_bluetooth = gb.build()
     }
 
     if (reportVersion >= 17) {
-        val globalWifiController =
-            if (system.hasGlobalWifiController()) system.globalWifiController else null
+        val globalWifiController = system.global_wifi_controller
         if (reportVersion >= 18 || globalWifiController != null) {
             // This report is post-controller-activity-change. Populate legacy fields where
             // possible.
             if (globalWifiController != null) {
-                val globalWifi = if (system.hasGlobalWifi()) {
-                    system.globalWifi.toBuilder()
-                } else {
-                    BatterySystem.GlobalWifi.newBuilder()
-                }
-                globalWifi.setWifiIdleTimeMsec(globalWifiController.idleTimeMsec.toFloat())
-                globalWifi.setWifiRxTimeMsec(globalWifiController.rxTimeMsec.toFloat())
-                globalWifi.setWifiPowerMah(globalWifiController.powerMah.toFloat())
-                var txTime = 0L
-                for (tx in globalWifiController.txList) txTime += tx.timeMsec
-                globalWifi.setWifiTxTimeMsec(txTime.toFloat())
-                system.setGlobalWifi(globalWifi)
+                val globalWifi = system.global_wifi?.newBuilder()
+                    ?: BatterySystem.GlobalWifi.Builder()
+                globalWifi.wifi_idle_time_msec =
+                    (globalWifiController.idle_time_msec ?: 0L).toFloat()
+                globalWifi.wifi_rx_time_msec =
+                    (globalWifiController.rx_time_msec ?: 0L).toFloat()
+                globalWifi.wifi_power_mah =
+                    (globalWifiController.power_mah ?: 0L).toFloat()
+                val txTime = globalWifiController.tx.sumOf { it.time_msec ?: 0L }
+                globalWifi.wifi_tx_time_msec = txTime.toFloat()
+                system.global_wifi = globalWifi.build()
             }
             makeGlobalBluetooth()
         } else {
             makeGlobalWifiController()
 
-            if (system.hasGlobalBluetoothController()) {
-                val controller = system.globalBluetoothController
-                if (controller.txCount == 1) {
+            system.global_bluetooth_controller?.let { controller ->
+                if (controller.tx.size == 1) {
                     // Version 17 swapped power and tx_time for the old gble layout.
-                    val builder = controller.toBuilder()
-                    val tx = builder.getTx(0).toBuilder()
-                    val power = builder.powerMah
-                    val txTime = tx.timeMsec
-                    builder.setPowerMah(txTime)
-                    tx.setTimeMsec(power)
-                    builder.setTx(0, tx)
-                    system.setGlobalBluetoothController(builder)
+                    val builder = controller.newBuilder()
+                    val tx = controller.tx[0].newBuilder()
+                    val power = builder.power_mah ?: 0L
+                    val txTime = tx.time_msec ?: 0L
+                    builder.power_mah = txTime
+                    tx.time_msec = power
+                    builder.tx = listOf(tx.build())
+                    system.global_bluetooth_controller = builder.build()
                 }
                 makeGlobalBluetooth()
             }
@@ -531,70 +518,62 @@ private fun postProcessSystem(system: BatterySystem.Builder, reportVersion: Int)
     }
 
     if (reportVersion < 17) {
-        if (system.hasGlobalBluetooth()) {
-            val gb = system.globalBluetooth
-            system.setGlobalBluetoothController(
-                BatteryController.newBuilder()
-                    .setIdleTimeMsec(gb.bluetoothIdleTimeMsec.toLong())
-                    .setRxTimeMsec(gb.bluetoothRxTimeMsec.toLong())
-                    .setPowerMah(gb.bluetoothPowerMah.toLong())
-                    .addTx(
-                        BatteryTxLevel.newBuilder()
-                            .setLevel(0)
-                            .setTimeMsec(gb.bluetoothTxTimeMsec.toLong()),
-                    ),
-            )
+        system.global_bluetooth?.let { gb ->
+            val controller = BatteryController.Builder()
+            controller.idle_time_msec = (gb.bluetooth_idle_time_msec ?: 0f).toLong()
+            controller.rx_time_msec = (gb.bluetooth_rx_time_msec ?: 0f).toLong()
+            controller.power_mah = (gb.bluetooth_power_mah ?: 0f).toLong()
+            val tx = BatteryTxLevel.Builder()
+            tx.level = 0
+            tx.time_msec = (gb.bluetooth_tx_time_msec ?: 0f).toLong()
+            controller.tx = controller.tx + tx.build()
+            system.global_bluetooth_controller = controller.build()
         }
         makeGlobalWifiController()
     }
 
-    if (system.hasMisc()) {
-        val misc = system.misc.toBuilder()
+    system.misc?.let { miscMessage ->
+        val misc = miscMessage.newBuilder()
         if (reportVersion >= 14) {
-            if (system.hasGlobalWifi()) {
-                misc.setWifiOnTimeMsec(system.globalWifi.wifiOnTimeMsec)
-                misc.setWifiRunningTimeMsec(system.globalWifi.wifiRunningTimeMsec)
+            system.global_wifi?.let { gw ->
+                misc.wifi_on_time_msec = gw.wifi_on_time_msec
+                misc.wifi_running_time_msec = gw.wifi_running_time_msec
             }
-            if (system.hasGlobalNetwork()) {
-                val network = system.globalNetwork
-                misc.setMobileBytesRx(network.mobileBytesRx)
-                misc.setMobileBytesTx(network.mobileBytesTx)
-                misc.setWifiBytesRx(network.wifiBytesRx)
-                misc.setWifiBytesTx(network.wifiBytesTx)
+            system.global_network?.let { network ->
+                misc.mobile_bytes_rx = network.mobile_bytes_rx
+                misc.mobile_bytes_tx = network.mobile_bytes_tx
+                misc.wifi_bytes_rx = network.wifi_bytes_rx
+                misc.wifi_bytes_tx = network.wifi_bytes_tx
             }
         } else {
-            system.setGlobalWifi(
-                BatterySystem.GlobalWifi.newBuilder()
-                    .setWifiOnTimeMsec(misc.wifiOnTimeMsec)
-                    .setWifiRunningTimeMsec(misc.wifiRunningTimeMsec),
-            )
+            val gw = BatterySystem.GlobalWifi.Builder()
+            gw.wifi_on_time_msec = misc.wifi_on_time_msec
+            gw.wifi_running_time_msec = misc.wifi_running_time_msec
+            system.global_wifi = gw.build()
         }
-        system.setMisc(misc)
+        system.misc = misc.build()
     }
 }
 
 /** Fills the legacy app wifi fields from controller data (and vice versa). */
 private fun postProcessApp(app: BatteryApp.Builder) {
-    if (app.hasWifiController()) {
-        val controller = app.wifiController
-        val wifi = if (app.hasWifi()) app.wifi.toBuilder() else BatteryAppWifi.newBuilder()
-        wifi.setIdleTimeMsec(controller.idleTimeMsec.toFloat())
-        wifi.setRxTimeMsec(controller.rxTimeMsec.toFloat())
-        var txTime = 0L
-        for (tx in controller.txList) txTime += tx.timeMsec
-        wifi.setTxTimeMsec(txTime.toFloat())
-        app.setWifi(wifi)
-    } else if (app.hasWifi()) {
-        val wifi = app.wifi
-        app.setWifiController(
-            BatteryController.newBuilder()
-                .setIdleTimeMsec(wifi.idleTimeMsec.toLong())
-                .setRxTimeMsec(wifi.rxTimeMsec.toLong())
-                .addTx(
-                    BatteryTxLevel.newBuilder()
-                        .setLevel(0)
-                        .setTimeMsec(wifi.txTimeMsec.toLong()),
-                ),
-        )
+    val controller = app.wifi_controller
+    if (controller != null) {
+        val wifi = app.wifi?.newBuilder() ?: BatteryAppWifi.Builder()
+        wifi.idle_time_msec = (controller.idle_time_msec ?: 0L).toFloat()
+        wifi.rx_time_msec = (controller.rx_time_msec ?: 0L).toFloat()
+        val txTime = controller.tx.sumOf { it.time_msec ?: 0L }
+        wifi.tx_time_msec = txTime.toFloat()
+        app.wifi = wifi.build()
+    } else {
+        val wifi = app.wifi ?: return
+        val c = BatteryController.Builder()
+        c.idle_time_msec = (wifi.idle_time_msec ?: 0f).toLong()
+        c.rx_time_msec = (wifi.rx_time_msec ?: 0f).toLong()
+        val tx = BatteryTxLevel.Builder()
+        tx.level = 0
+        tx.time_msec = (wifi.tx_time_msec ?: 0f).toLong()
+        c.tx = c.tx + tx.build()
+        app.wifi_controller = c.build()
     }
 }

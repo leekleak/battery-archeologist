@@ -19,9 +19,9 @@ package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 import com.leekleak.batteryarcheologist.core.checkin.checkinutil.BatteryReport
 import com.leekleak.batteryarcheologist.core.checkin.checkinutil.IntCounter
 import com.leekleak.batteryarcheologist.core.model.PackageInfoModel
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App as BatteryApp
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.System as BatterySystem
-import com.leekleak.batteryarcheologist.proto.usagestats.AndroidPackageInfo
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App as BatteryApp
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System as BatterySystem
+import com.leekleak.batteryarcheologist.proto.usagestats.PackageInfo
 import java.util.TreeMap
 
 /** Identifies an APK line independently of multi-user UID remapping. */
@@ -46,7 +46,7 @@ internal class ParserState(
     val apps = TreeMap<Int, BatteryApp.Builder>()
 
     /** System-level stats; attached to the root proto once parsing finishes. */
-    val system: BatterySystem.Builder = BatterySystem.newBuilder()
+    val system: BatterySystem.Builder = BatterySystem.Builder()
 
     /** APK wakeup counts are only counted once per raw UID/package pair. */
     val apkSeen = HashSet<ApkId>()
@@ -58,5 +58,5 @@ internal class ParserState(
     var resolvedPackages: Map<String, PackageInfoModel> = emptyMap()
 
     /** Same data as [resolvedPackages], in the generated usagestats proto shape. */
-    var resolvedUsagePackages: Map<String, AndroidPackageInfo.PackageInfo> = emptyMap()
+    var resolvedUsagePackages: Map<String, PackageInfo> = emptyMap()
 }

@@ -1,7 +1,7 @@
 package com.leekleak.batteryarcheologist.core.analytics
 
 import com.leekleak.batteryarcheologist.core.checkin.checkinparse.CheckinParser
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -10,28 +10,25 @@ import java.io.File
 class AppPowerStatsTest {
     @Test
     fun `computes device and cpu percentages from capacity`() {
-        val stats = Batterystats.BatteryStats.newBuilder()
-            .setSystem(
-                Batterystats.BatteryStats.System.newBuilder()
-                    .setPowerUseSummary(
-                        Batterystats.BatteryStats.System.PowerUseSummary.newBuilder()
-                            .setBatteryCapacityMah(3000f),
+        val stats = BatteryStats(
+            system = BatteryStats.System(
+                power_use_summary = BatteryStats.System.PowerUseSummary(
+                    battery_capacity_mah = 3000f,
+                ),
+            ),
+            app = listOf(
+                BatteryStats.App(
+                    name = "com.example.app",
+                    uid = 10123,
+                    power_use_item = BatteryStats.App.PowerUseItem(
+                        computed_power_mah = 0.0209f,
                     ),
-            )
-            .addApp(
-                Batterystats.BatteryStats.App.newBuilder()
-                    .setName("com.example.app")
-                    .setUid(10123)
-                    .setPowerUseItem(
-                        Batterystats.BatteryStats.App.PowerUseItem.newBuilder()
-                            .setComputedPowerMah(0.0209f),
-                    )
-                    .setCpu(
-                        Batterystats.BatteryStats.App.Cpu.newBuilder()
-                            .setPowerMaMs(3_600_000f),
+                    cpu = BatteryStats.App.Cpu(
+                        power_ma_ms = 3_600_000f,
                     ),
-            )
-            .build()
+                ),
+            ),
+        )
 
         val report = AppPowerStats.calculate(stats)
         assertEquals(3000f, report.capacityMah, 0f)
@@ -47,24 +44,22 @@ class AppPowerStatsTest {
 
     @Test
     fun `falls back to estimated battery capacity`() {
-        val stats = Batterystats.BatteryStats.newBuilder()
-            .setSystem(
-                Batterystats.BatteryStats.System.newBuilder()
-                    .setBattery(
-                        Batterystats.BatteryStats.System.Battery.newBuilder()
-                            .setEstimatedBatteryCapacityMah(2500L),
+        val stats = BatteryStats(
+            system = BatteryStats.System(
+                battery = BatteryStats.System.Battery(
+                    estimated_battery_capacity_mah = 2500L,
+                ),
+            ),
+            app = listOf(
+                BatteryStats.App(
+                    name = "app",
+                    uid = 10001,
+                    power_use_item = BatteryStats.App.PowerUseItem(
+                        computed_power_mah = 25f,
                     ),
-            )
-            .addApp(
-                Batterystats.BatteryStats.App.newBuilder()
-                    .setName("app")
-                    .setUid(10001)
-                    .setPowerUseItem(
-                        Batterystats.BatteryStats.App.PowerUseItem.newBuilder()
-                            .setComputedPowerMah(25f),
-                    ),
-            )
-            .build()
+                ),
+            ),
+        )
 
         val report = AppPowerStats.calculate(stats)
         assertTrue(report.capacityEstimated)
@@ -74,17 +69,17 @@ class AppPowerStatsTest {
 
     @Test
     fun `zero capacity produces unavailable predictions`() {
-        val stats = Batterystats.BatteryStats.newBuilder()
-            .addApp(
-                Batterystats.BatteryStats.App.newBuilder()
-                    .setName("app")
-                    .setUid(10001)
-                    .setPowerUseItem(
-                        Batterystats.BatteryStats.App.PowerUseItem.newBuilder()
-                            .setComputedPowerMah(1f),
+        val stats = BatteryStats(
+            app = listOf(
+                BatteryStats.App(
+                    name = "app",
+                    uid = 10001,
+                    power_use_item = BatteryStats.App.PowerUseItem(
+                        computed_power_mah = 1f,
                     ),
-            )
-            .build()
+                ),
+            ),
+        )
 
         val report = AppPowerStats.calculate(stats)
         assertTrue(!report.isAvailable)

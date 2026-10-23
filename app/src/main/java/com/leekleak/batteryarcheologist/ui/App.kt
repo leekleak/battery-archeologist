@@ -73,7 +73,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.core.model.CheckinSnapshot
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App as ProtoApp
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App as ProtoApp
 import com.leekleak.batteryarcheologist.core.parse.CheckinInspector
 import com.leekleak.batteryarcheologist.core.analytics.AppPowerStats
 import com.leekleak.batteryarcheologist.core.analytics.AppPowerStat
@@ -384,7 +384,7 @@ private fun ContentScreen(gateway: ShizukuGateway, ready: ShizukuState.Ready) {
         checkin.getOrNull()?.let { parsed ->
             Timber.i(
                 "CheckinParser: apps=%d warnings=%d errors=%d",
-                parsed.stats?.appList?.size ?: 0,
+                parsed.stats?.app?.size ?: 0,
                 parsed.warnings.size,
                 parsed.errors.size,
             )
@@ -761,9 +761,11 @@ private fun AppsTab(success: CaptureState.Success) {
     }
 
     val apps = remember(stats) {
-        stats.appList
-            .filter { it.name.isNotBlank() }
-            .sortedByDescending { it.cpu.userTimeMs + it.cpu.systemTimeMs }
+        stats.app
+            .filter { !it.name.isNullOrBlank() }
+            .sortedByDescending {
+                (it.cpu?.user_time_ms ?: 0f) + (it.cpu?.system_time_ms ?: 0f)
+            }
     }
     var selectedApp by remember { mutableStateOf<ProtoApp?>(null) }
     val powerReport = remember(stats) { AppPowerStats.calculate(stats) }
@@ -773,9 +775,10 @@ private fun AppsTab(success: CaptureState.Success) {
     val sortedApps = remember(apps, powerByKey) {
         apps.sortedWith(
             compareByDescending<ProtoApp> {
-                powerByKey["${it.uid}:${it.name}"]?.devicePowerPct ?: 0f
-            }.thenByDescending { it.cpu.userTimeMs + it.cpu.systemTimeMs }
-                .thenBy { it.name },
+                powerByKey["${it.uid}:${it.name.orEmpty()}"]?.devicePowerPct ?: 0f
+            }.thenByDescending {
+                (it.cpu?.user_time_ms ?: 0f) + (it.cpu?.system_time_ms ?: 0f)
+            }.thenBy { it.name.orEmpty() },
         )
     }
 
@@ -795,10 +798,10 @@ private fun AppsTab(success: CaptureState.Success) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        items(sortedApps, key = { "${it.uid}:${it.name}" }) { app ->
+        items(sortedApps, key = { "${it.uid}:${it.name.orEmpty()}" }) { app ->
             AppRow(
                 app = app,
-                power = powerByKey["${app.uid}:${app.name}"],
+                power = powerByKey["${app.uid}:${app.name.orEmpty()}"],
                 onClick = { selectedApp = app },
             )
         }
@@ -811,7 +814,7 @@ private fun AppsTab(success: CaptureState.Success) {
         ) {
             AppDetailSheet(
                 app = app,
-                power = powerByKey["${app.uid}:${app.name}"],
+                power = powerByKey["${app.uid}:${app.name.orEmpty()}"],
                 capacityMah = powerReport.capacityMah,
                 capacityEstimated = powerReport.capacityEstimated,
             )
@@ -826,7 +829,10 @@ private fun AppDetailSheet(
     capacityMah: Float,
     capacityEstimated: Boolean,
 ) {
-    val cpuMs = app.cpu.userTimeMs + app.cpu.systemTimeMs
+    val cpu = app.cpu
+    val cpuUser = cpu?.user_time_ms ?: 0f
+    val cpuSystem = cpu?.system_time_ms ?: 0f
+    val cpuMs = cpuUser + cpuSystem
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -835,9 +841,14 @@ private fun AppDetailSheet(
             .testTag("app_detail"),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(app.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(
-            "uid ${app.uid}${if (app.versionName.isNotBlank()) " · ${app.versionName}" else ""}",
+            app.name.orEmpty(),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            "uid ${app.uid ?: 0}" +
+                if (!app.version_name.isNullOrBlank()) " · ${app.version_name}" else "",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -861,15 +872,29 @@ private fun AppDetailSheet(
             HorizontalDivider(Modifier.padding(vertical = 4.dp))
         }
         SummaryRow("CPU total", "%.1f s".format(cpuMs / 1000.0))
-        SummaryRow("CPU user", "%.1f s".format(app.cpu.userTimeMs / 1000.0))
-        SummaryRow("CPU system", "%.1f s".format(app.cpu.systemTimeMs / 1000.0))
-        SummaryRow("Foreground", "%.1f s".format(app.foreground.totalTimeMsec / 1000.0))
-        SummaryRow("Wakeups", app.apk.wakeups.toInt().toString())
-        SummaryRow("Mobile traffic", formatByteCount(app.network.mobileBytesRx + app.network.mobileBytesTx))
-        SummaryRow("Wi-Fi traffic", formatByteCount(app.network.wifiBytesRx + app.network.wifiBytesTx))
-        SummaryRow("Camera", "%.1f s".format(app.camera.totalTimeMsec / 1000.0))
-        SummaryRow("Audio", "%.1f s".format(app.audio.totalTimeMsec / 1000.0))
-        SummaryRow("Flashlight", "%.1f s".format(app.flashlight.totalTimeMsec / 1000.0))
+        SummaryRow("CPU user", "%.1f s".format(cpuUser / 1000.0))
+        SummaryRow("CPU system", "%.1f s".format(cpuSystem / 1000.0))
+        SummaryRow(
+            "Foreground",
+            "%.1f s".format((app.foreground?.total_time_msec ?: 0f) / 1000.0),
+        )
+        SummaryRow("Wakeups", (app.apk?.wakeups ?: 0f).toInt().toString())
+        SummaryRow(
+            "Mobile traffic",
+            formatByteCount(
+                (app.network?.mobile_bytes_rx ?: 0f) + (app.network?.mobile_bytes_tx ?: 0f),
+            ),
+        )
+        SummaryRow(
+            "Wi-Fi traffic",
+            formatByteCount((app.network?.wifi_bytes_rx ?: 0f) + (app.network?.wifi_bytes_tx ?: 0f)),
+        )
+        SummaryRow("Camera", "%.1f s".format((app.camera?.total_time_msec ?: 0f) / 1000.0))
+        SummaryRow("Audio", "%.1f s".format((app.audio?.total_time_msec ?: 0f) / 1000.0))
+        SummaryRow(
+            "Flashlight",
+            "%.1f s".format((app.flashlight?.total_time_msec ?: 0f) / 1000.0),
+        )
         Spacer(Modifier.height(12.dp))
     }
 }
@@ -978,7 +1003,7 @@ private fun SavedReportsCard(reportNames: List<String>) {
 
 @Composable
 private fun AppRow(app: ProtoApp, power: AppPowerStat?, onClick: () -> Unit) {
-    val cpuMs = app.cpu.userTimeMs + app.cpu.systemTimeMs
+    val cpuMs = (app.cpu?.user_time_ms ?: 0f) + (app.cpu?.system_time_ms ?: 0f)
     Card(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Row(
             modifier = Modifier
@@ -988,9 +1013,13 @@ private fun AppRow(app: ProtoApp, power: AppPowerStat?, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(app.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                 Text(
-                    "uid ${app.uid}",
+                    app.name.orEmpty(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                )
+                Text(
+                    "uid ${app.uid ?: 0}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -1173,23 +1202,26 @@ private fun CheckinSummaryCard(checkin: CheckinResult?, failure: String?) {
         return
     }
 
-    val battery = stats.system.battery
+    val battery = stats.system?.battery
     Card(Modifier.fillMaxWidth().testTag("system_summary")) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("System stats", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(
-                "Report version ${stats.reportVersion} · ${stats.appList.size} apps",
+                "Report version ${stats.report_version ?: 0} · ${stats.app.size} apps",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            SummaryRow("Battery capacity", "${battery.estimatedBatteryCapacityMah} mAh")
+            SummaryRow(
+                "Battery capacity",
+                "${battery?.estimated_battery_capacity_mah ?: 0L} mAh",
+            )
             SummaryRow(
                 "Battery realtime",
-                "%.1f h".format(battery.batteryRealtimeMsec / 3_600_000.0),
+                "%.1f h".format((battery?.battery_realtime_msec ?: 0f) / 3_600_000.0),
             )
             SummaryRow(
                 "Total realtime",
-                "%.1f h".format(battery.totalRealtimeMsec / 3_600_000.0),
+                "%.1f h".format((battery?.total_realtime_msec ?: 0f) / 3_600_000.0),
             )
             if (checkin.warnings.isNotEmpty()) {
                 Text(

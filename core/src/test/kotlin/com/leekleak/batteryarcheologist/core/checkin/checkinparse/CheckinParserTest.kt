@@ -19,7 +19,7 @@
 package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
 import com.leekleak.batteryarcheologist.core.model.PackageInfoModel
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -36,8 +36,8 @@ class CheckinParserTest {
         return candidates.first { it.isFile }.readText()
     }
 
-    private fun app(stats: Batterystats.BatteryStats, uid: Int): Batterystats.BatteryStats.App =
-        stats.appList.first { it.uid == uid }
+    private fun app(stats: BatteryStats, uid: Int): BatteryStats.App =
+        stats.app.first { it.uid.v() == uid }
 
     @Test
     fun `parses a minimal checkin and warns about unknown sections`() {
@@ -53,12 +53,12 @@ class CheckinParserTest {
 
         assertTrue(result.errors.toString(), result.errors.isEmpty())
         val stats = requireStats(result.stats)
-        assertEquals(36, stats.reportVersion)
-        assertEquals(Batterystats.BatteryStats.AggregationType.SINCE_CHARGED, stats.aggregationType)
-        assertEquals(1_700_000_000_000_000L, stats.startTimeUsec)
-        assertEquals(100f, stats.system.battery.batteryRealtimeMsec, 0f)
-        assertEquals(10f, app(stats, 1000).cpu.userTimeMs, 0f)
-        assertEquals(20f, app(stats, 1000).cpu.systemTimeMs, 0f)
+        assertEquals(36, stats.report_version.v())
+        assertEquals(BatteryStats.AggregationType.SINCE_CHARGED, stats.aggregation_type)
+        assertEquals(1_700_000_000_000_000L, stats.start_time_usec.v())
+        assertEquals(100f, stats.system!!.battery!!.battery_realtime_msec.v(), 0f)
+        assertEquals(10f, app(stats, 1000).cpu!!.user_time_ms.v(), 0f)
+        assertEquals(20f, app(stats, 1000).cpu!!.system_time_ms.v(), 0f)
         assertTrue(result.warnings.contains("unknown data category my-new-section"))
         assertTrue(result.warnings.contains("newer report version 36 found"))
     }
@@ -75,22 +75,22 @@ class CheckinParserTest {
 
         assertTrue(result.errors.toString(), result.errors.isEmpty())
         val stats = requireStats(result.stats)
-        val wakelock = app(stats, 1000).wakelockList.single { it.name == "lock" }
-        assertEquals(5f, wakelock.fullTimeMsec, 0f)
-        assertEquals(2f, wakelock.fullCount, 0f)
-        assertEquals(3L, wakelock.fullCurrentDurationMsec)
-        assertEquals(4L, wakelock.fullMaxDurationMsec)
-        assertEquals(5L, wakelock.fullTotalDurationMsec)
-        assertEquals(7f, wakelock.partialTimeMsec, 0f)
-        assertEquals(8f, wakelock.partialCount, 0f)
-        assertEquals(9L, wakelock.partialCurrentDurationMsec)
-        assertEquals(10L, wakelock.partialMaxDurationMsec)
-        assertEquals(11L, wakelock.partialTotalDurationMsec)
-        assertEquals(12f, wakelock.windowTimeMsec, 0f)
-        assertEquals(13f, wakelock.windowCount, 0f)
-        assertEquals(14L, wakelock.windowCurrentDurationMsec)
-        assertEquals(15L, wakelock.windowMaxDurationMsec)
-        assertEquals(16L, wakelock.windowTotalDurationMsec)
+        val wakelock = app(stats, 1000).wakelock.single { it.name == "lock" }
+        assertEquals(5f, wakelock.full_time_msec.v(), 0f)
+        assertEquals(2f, wakelock.full_count.v(), 0f)
+        assertEquals(3L, wakelock.full_current_duration_msec.v())
+        assertEquals(4L, wakelock.full_max_duration_msec.v())
+        assertEquals(5L, wakelock.full_total_duration_msec.v())
+        assertEquals(7f, wakelock.partial_time_msec.v(), 0f)
+        assertEquals(8f, wakelock.partial_count.v(), 0f)
+        assertEquals(9L, wakelock.partial_current_duration_msec.v())
+        assertEquals(10L, wakelock.partial_max_duration_msec.v())
+        assertEquals(11L, wakelock.partial_total_duration_msec.v())
+        assertEquals(12f, wakelock.window_time_msec.v(), 0f)
+        assertEquals(13f, wakelock.window_count.v(), 0f)
+        assertEquals(14L, wakelock.window_current_duration_msec.v())
+        assertEquals(15L, wakelock.window_max_duration_msec.v())
+        assertEquals(16L, wakelock.window_total_duration_msec.v())
         // The bp (background partial) group has no field in this proto.
         assertTrue(result.warnings.contains("wl has 6 new fields"))
     }
@@ -107,11 +107,11 @@ class CheckinParserTest {
 
         assertTrue(result.errors.toString(), result.errors.isEmpty())
         val stats = requireStats(result.stats)
-        val stateTime = app(stats, 1000).stateTime
-        assertEquals(10f, stateTime.foregroundTimeMsec, 0f)
-        assertEquals(20f, stateTime.activeTimeMsec, 0f)
-        assertEquals(30f, stateTime.cachedTimeMsec, 0f)
-        assertEquals(0L, stateTime.topTimeMsec)
+        val stateTime = app(stats, 1000).state_time!!
+        assertEquals(10f, stateTime.foreground_time_msec.v(), 0f)
+        assertEquals(20f, stateTime.active_time_msec.v(), 0f)
+        assertEquals(30f, stateTime.cached_time_msec.v(), 0f)
+        assertEquals(0L, stateTime.top_time_msec.v())
     }
 
     @Test
@@ -126,14 +126,31 @@ class CheckinParserTest {
 
         assertTrue(result.errors.toString(), result.errors.isEmpty())
         val stats = requireStats(result.stats)
-        val stateTime = app(stats, 1000).stateTime
-        assertEquals(10L, stateTime.topTimeMsec)
-        assertEquals(20L, stateTime.foregroundServiceTimeMsec)
-        assertEquals(30L, stateTime.topSleepingTimeMsec)
-        assertEquals(40f, stateTime.foregroundTimeMsec, 0f)
-        assertEquals(50L, stateTime.backgroundTimeMsec)
-        assertEquals(60f, stateTime.cachedTimeMsec, 0f)
+        val stateTime = app(stats, 1000).state_time!!
+        assertEquals(10L, stateTime.top_time_msec.v())
+        assertEquals(20L, stateTime.foreground_service_time_msec.v())
+        assertEquals(30L, stateTime.top_sleeping_time_msec.v())
+        assertEquals(40f, stateTime.foreground_time_msec.v(), 0f)
+        assertEquals(50L, stateTime.background_time_msec.v())
+        assertEquals(60f, stateTime.cached_time_msec.v(), 0f)
         assertTrue(result.warnings.none { it.startsWith("st has") })
+    }
+
+    @Test
+    fun `checkin uid repairs package entries uploaded with uid zero`() {
+        val raw = """
+            9,0,i,vers,36,216,BUILD,BUILD
+            9,0,i,uid,10123,com.example.app
+        """.trimIndent()
+        val packages = listOf(PackageInfoModel(name = "com.example.app", uid = 0))
+
+        val result = CheckinParser.parse(raw, packages)
+
+        assertTrue(result.errors.toString(), result.errors.isEmpty())
+        val stats = requireStats(result.stats)
+        val parsed = stats.app.single()
+        assertEquals(10123, parsed.uid.v())
+        assertEquals("com.example.app", parsed.child.single().name.v())
     }
 
     @Test
@@ -165,196 +182,198 @@ class CheckinParserTest {
 
         assertTrue("parser errors: ${result.errors}", result.errors.isEmpty())
         val stats = requireStats(result.stats)
+        val system = requireNotNull(stats.system)
+        val reportBuild = requireNotNull(stats.build)
 
         // Report metadata.
-        assertEquals(36, stats.reportVersion)
-        assertEquals(Batterystats.BatteryStats.AggregationType.SINCE_CHARGED, stats.aggregationType)
-        assertEquals(1_792_753_721_991_000L, stats.startTimeUsec)
-        assertEquals(0L, stats.endTimeUsec)
-        assertEquals("BE4B.251210.005", stats.build.fingerprint)
-        assertEquals(1234, stats.gmsVersion)
-        assertEquals(70, stats.appCount)
+        assertEquals(36, stats.report_version.v())
+        assertEquals(BatteryStats.AggregationType.SINCE_CHARGED, stats.aggregation_type)
+        assertEquals(1_792_753_721_991_000L, stats.start_time_usec.v())
+        assertEquals(0L, stats.end_time_usec.v())
+        assertEquals("BE4B.251210.005", reportBuild.fingerprint)
+        assertEquals(1234, stats.gms_version.v())
+        assertEquals(70, stats.app.size)
 
         // System battery / discharge / misc.
-        with(stats.system.battery) {
-            assertEquals(0f, startCount, 0f)
-            assertEquals(500_973f, batteryRealtimeMsec, 0f)
-            assertEquals(500_973f, batteryUptimeMsec, 0f)
-            assertEquals(500_973f, totalRealtimeMsec, 0f)
-            assertEquals(500_973f, totalUptimeMsec, 0f)
-            assertEquals(1_792_753_721_991L, startClockTimeMsec)
-            assertEquals(0f, screenOffRealtimeMsec, 0f)
-            assertEquals(3000L, estimatedBatteryCapacityMah)
+        with(system.battery!!) {
+            assertEquals(0f, start_count.v(), 0f)
+            assertEquals(500_973f, battery_realtime_msec.v(), 0f)
+            assertEquals(500_973f, battery_uptime_msec.v(), 0f)
+            assertEquals(500_973f, total_realtime_msec.v(), 0f)
+            assertEquals(500_973f, total_uptime_msec.v(), 0f)
+            assertEquals(1_792_753_721_991L, start_clock_time_msec.v())
+            assertEquals(0f, screen_off_realtime_msec.v(), 0f)
+            assertEquals(3000L, estimated_battery_capacity_mah.v())
         }
-        with(stats.system.batteryDischarge) {
-            assertEquals(49f, lowerBound, 0f)
-            assertEquals(50f, upperBound, 0f)
-            assertEquals(50f, screenOn, 0f)
-            assertEquals(0f, screenOff, 0f)
+        with(system.battery_discharge!!) {
+            assertEquals(49f, lower_bound.v(), 0f)
+            assertEquals(50f, upper_bound.v(), 0f)
+            assertEquals(50f, screen_on.v(), 0f)
+            assertEquals(0f, screen_off.v(), 0f)
         }
-        with(stats.system.misc) {
-            assertEquals(500_973f, screenOnTimeMsec, 0f)
-            assertEquals(20_399f, mobileActiveTimeMsec, 0f)
-            assertEquals(500_973f, interactiveTimeMsec, 0f)
-            assertEquals(2f, mobileActiveCount, 0f)
-            assertEquals(8108f, mobileActiveUnknownTime, 0f)
+        with(system.misc!!) {
+            assertEquals(500_973f, screen_on_time_msec.v(), 0f)
+            assertEquals(20_399f, mobile_active_time_msec.v(), 0f)
+            assertEquals(500_973f, interactive_time_msec.v(), 0f)
+            assertEquals(2f, mobile_active_count.v(), 0f)
+            assertEquals(8108f, mobile_active_unknown_time.v(), 0f)
         }
-        with(stats.system.powerUseSummary) {
-            assertEquals(3000f, batteryCapacityMah, 0f)
-            assertEquals(1200f, computedPowerMah, 0f)
-            assertEquals(1200f, minDrainedPowerMah, 0f)
-            assertEquals(1200f, maxDrainedPowerMah, 0f)
+        with(system.power_use_summary!!) {
+            assertEquals(3000f, battery_capacity_mah.v(), 0f)
+            assertEquals(1200f, computed_power_mah.v(), 0f)
+            assertEquals(1200f, min_drained_power_mah.v(), 0f)
+            assertEquals(1200f, max_drained_power_mah.v(), 0f)
         }
-        assertEquals(67, stats.system.kernelWakelockCount)
-        with(stats.system.kernelWakelockList.first {
+        assertEquals(67, system.kernel_wakelock.size)
+        with(system.kernel_wakelock.first {
             it.name == "PowerManagerService.WakeLocks"
         }) {
-            assertEquals(0f, timeMsec, 0f)
-            assertEquals(0f, count, 0f)
-            assertEquals(-1L, maxDurationMsec)
+            assertEquals(0f, time_msec.v(), 0f)
+            assertEquals(0f, count.v(), 0f)
+            assertEquals(-1L, max_duration_msec.v())
         }
-        with(stats.system.globalNetwork) {
-            assertEquals(192f, mobileBytesRx, 0f)
-            assertEquals(503_560f, wifiBytesRx, 0f)
-            assertEquals(276_546f, wifiBytesTx, 0f)
-            assertEquals(2f, mobilePacketsRx, 0f)
-            assertEquals(633f, wifiPacketsRx, 0f)
-            assertEquals(481f, wifiPacketsTx, 0f)
+        with(system.global_network!!) {
+            assertEquals(192f, mobile_bytes_rx.v(), 0f)
+            assertEquals(503_560f, wifi_bytes_rx.v(), 0f)
+            assertEquals(276_546f, wifi_bytes_tx.v(), 0f)
+            assertEquals(2f, mobile_packets_rx.v(), 0f)
+            assertEquals(633f, wifi_packets_rx.v(), 0f)
+            assertEquals(481f, wifi_packets_tx.v(), 0f)
         }
-        assertEquals(500_973f, stats.system.globalWifi.wifiOnTimeMsec, 0f)
-        with(stats.system.globalModemController) {
-            assertEquals(154L, idleTimeMsec)
-            assertEquals(99L, rxTimeMsec)
-            assertEquals(6, txCount)
-            assertEquals(listOf(0L, 11L, 33L, 66L, 88L, 99L), txList.map { it.timeMsec })
-            assertEquals((0 until 6).toList(), txList.map { it.level })
+        assertEquals(500_973f, system.global_wifi!!.wifi_on_time_msec.v(), 0f)
+        with(system.global_modem_controller!!) {
+            assertEquals(154L, idle_time_msec.v())
+            assertEquals(99L, rx_time_msec.v())
+            assertEquals(6, tx.size)
+            assertEquals(listOf(0L, 11L, 33L, 66L, 88L, 99L), tx.map { it.time_msec.v() })
+            assertEquals((0 until 6).toList(), tx.map { it.level.v() })
         }
 
         // 11 recognized pwi names plus the synthesized APP entry.
-        assertEquals(12, stats.system.powerUseItemCount)
+        assertEquals(12, system.power_use_item.size)
         assertEquals(
             listOf("APP", "BLUETOOTH", "CELL", "DEFAULT", "DEFAULT", "DEFAULT", "DEFAULT",
                 "FLASHLIGHT", "IDLE", "PHONE", "SCREEN", "WIFI"),
-            stats.system.powerUseItemList.map { it.name.name }.sorted(),
+            system.power_use_item.map { it.name?.name ?: "" }.sorted(),
         )
-        assertEquals(0.04068f, stats.system.powerUseItemList.first {
-            it.name == Batterystats.BatteryStats.System.PowerUseItem.Name.APP
-        }.computedPowerMah, 1e-6f)
-        assertEquals(0.0209f, stats.system.powerUseItemList.first {
-            it.name == Batterystats.BatteryStats.System.PowerUseItem.Name.SCREEN
-        }.computedPowerMah, 1e-9f)
+        assertEquals(0.04068f, system.power_use_item.first {
+            it.name == BatteryStats.System.PowerUseItem.Name.APP
+        }.computed_power_mah.v(), 1e-6f)
+        assertEquals(0.0209f, system.power_use_item.first {
+            it.name == BatteryStats.System.PowerUseItem.Name.SCREEN
+        }.computed_power_mah.v(), 1e-9f)
 
         // Time/count sections. The last six data-connection enum numbers are newer than this
-        // proto; they still get entries (values retained) but generated Java proto2 getters
-        // cannot expose the unknown enum name.
-        assertEquals(23, stats.system.dataConnectionCount)
-        assertEquals(500_973f, stats.system.getDataConnection(20).timeMsec, 0f)
-        assertEquals(5, stats.system.signalStrengthCount)
-        assertEquals(120_000f, stats.system.signalStrengthList.first {
-            it.name == Batterystats.BatteryStats.System.SignalStrength.Name.GOOD
-        }.timeMsec, 0f)
-        assertEquals(4f, stats.system.signalStrengthList.first {
-            it.name == Batterystats.BatteryStats.System.SignalStrength.Name.GOOD
-        }.count, 0f)
-        assertEquals(500_973f, stats.system.wifiSignalStrengthList.first {
-            it.name == Batterystats.BatteryStats.System.WifiSignalStrength.Name.GREAT
-        }.timeMsec, 0f)
-        assertEquals(500_973f, stats.system.wifiStateList.first {
-            it.name == Batterystats.BatteryStats.System.WifiState.Name.ON_CONNECTED_STA
-        }.timeMsec, 0f)
-        assertEquals(500_973f, stats.system.wifiSupplicantStateList.first {
-            it.name == Batterystats.BatteryStats.System.WifiSupplicantState.Name.COMPLETED
-        }.timeMsec, 0f)
-        assertEquals(5, stats.system.screenBrightnessCount)
-        assertEquals(500_973f, stats.system.screenBrightnessList.single {
-            it.name == Batterystats.BatteryStats.System.ScreenBrightness.Name.MEDIUM
-        }.timeMsec, 0f)
+        // proto; they still get entries (values retained) but the generated enum has no
+        // constant for them, so the name is left unset.
+        assertEquals(23, system.data_connection.size)
+        assertEquals(500_973f, system.data_connection[20].time_msec.v(), 0f)
+        assertEquals(5, system.signal_strength.size)
+        assertEquals(120_000f, system.signal_strength.first {
+            it.name == BatteryStats.System.SignalStrength.Name.GOOD
+        }.time_msec.v(), 0f)
+        assertEquals(4f, system.signal_strength.first {
+            it.name == BatteryStats.System.SignalStrength.Name.GOOD
+        }.count.v(), 0f)
+        assertEquals(500_973f, system.wifi_signal_strength.first {
+            it.name == BatteryStats.System.WifiSignalStrength.Name.GREAT
+        }.time_msec.v(), 0f)
+        assertEquals(500_973f, system.wifi_state.first {
+            it.name == BatteryStats.System.WifiState.Name.ON_CONNECTED_STA
+        }.time_msec.v(), 0f)
+        assertEquals(500_973f, system.wifi_supplicant_state.first {
+            it.name == BatteryStats.System.WifiSupplicantState.Name.COMPLETED
+        }.time_msec.v(), 0f)
+        assertEquals(5, system.screen_brightness.size)
+        assertEquals(500_973f, system.screen_brightness.single {
+            it.name == BatteryStats.System.ScreenBrightness.Name.MEDIUM
+        }.time_msec.v(), 0f)
 
         // The system-level rows are also attributed to UID 0, like upstream.
         val root = app(stats, 0)
         assertEquals("ROOT", root.name)
-        assertEquals(0.00164f, root.powerUseItem.computedPowerMah, 1e-9f)
-        assertEquals(63f, root.cpu.userTimeMs, 0f)
-        assertEquals(1014f, root.cpu.systemTimeMs, 0f)
-        assertEquals(14, root.processCount)
-        assertEquals(256f, root.network.wifiBytesTx, 0f)
-        assertEquals(4f, root.network.wifiPacketsTx, 0f)
+        assertEquals(0.00164f, root.power_use_item!!.computed_power_mah.v(), 1e-9f)
+        assertEquals(63f, root.cpu!!.user_time_ms.v(), 0f)
+        assertEquals(1014f, root.cpu!!.system_time_ms.v(), 0f)
+        assertEquals(14, root.process.size)
+        assertEquals(256f, root.network!!.wifi_bytes_tx.v(), 0f)
+        assertEquals(4f, root.network!!.wifi_packets_tx.v(), 0f)
 
         // Apps and their common sections.
         val systemUi = app(stats, 10185)
         assertEquals("SYSTEM_UI", systemUi.name)
-        assertEquals(500_973L, systemUi.stateTime.topSleepingTimeMsec)
-        assertEquals(193f, systemUi.cpu.userTimeMs, 0f)
-        assertEquals(57f, systemUi.cpu.systemTimeMs, 0f)
+        assertEquals(500_973L, systemUi.state_time!!.top_sleeping_time_msec.v())
+        assertEquals(193f, systemUi.cpu!!.user_time_ms.v(), 0f)
+        assertEquals(57f, systemUi.cpu!!.system_time_ms.v(), 0f)
 
         val gms = app(stats, 10152)
         assertEquals("GOOGLE_SERVICES", gms.name)
-        assertEquals(listOf("com.google.android.gms"), gms.childList.map { it.name })
-        assertEquals(1234, gms.childList.single().versionCode)
-        assertEquals("1.2.3", gms.childList.single().versionName)
-        assertEquals(0.00702f, gms.powerUseItem.computedPowerMah, 1e-9f)
-        assertEquals(564f, gms.cpu.userTimeMs, 0f)
-        assertEquals(135f, gms.cpu.systemTimeMs, 0f)
-        assertEquals(500_973L, gms.stateTime.foregroundServiceTimeMsec)
-        assertTrue(gms.wakelockList.any { it.name == "GCM_WORK" })
-        assertTrue(gms.wakelockList.any { it.name == "GCM_HB_ALARM" })
-        assertEquals(3, gms.sensorCount)
-        assertEquals(545f, gms.sensorList.first { it.number == 0 }.totalTimeMsec, 0f)
-        assertEquals(1089L, gms.sensorList.first { it.number == 0 }.actualTimeMsec)
-        with(gms.network) {
-            assertEquals(503_224f, wifiBytesRx, 0f)
-            assertEquals(276_290f, wifiBytesTx, 0f)
-            assertEquals(629f, wifiPacketsRx, 0f)
-            assertEquals(477f, wifiPacketsTx, 0f)
-            assertEquals(4, wifiWakeupCount)
+        assertEquals(listOf("com.google.android.gms"), gms.child.map { it.name })
+        assertEquals(1234, gms.child.single().version_code.v())
+        assertEquals("1.2.3", gms.child.single().version_name)
+        assertEquals(0.00702f, gms.power_use_item!!.computed_power_mah.v(), 1e-9f)
+        assertEquals(564f, gms.cpu!!.user_time_ms.v(), 0f)
+        assertEquals(135f, gms.cpu!!.system_time_ms.v(), 0f)
+        assertEquals(500_973L, gms.state_time!!.foreground_service_time_msec.v())
+        assertTrue(gms.wakelock.any { it.name == "GCM_WORK" })
+        assertTrue(gms.wakelock.any { it.name == "GCM_HB_ALARM" })
+        assertEquals(3, gms.sensor.size)
+        assertEquals(545f, gms.sensor.first { it.number.v() == 0 }.total_time_msec.v(), 0f)
+        assertEquals(1089L, gms.sensor.first { it.number.v() == 0 }.actual_time_msec.v())
+        with(gms.network!!) {
+            assertEquals(503_224f, wifi_bytes_rx.v(), 0f)
+            assertEquals(276_290f, wifi_bytes_tx.v(), 0f)
+            assertEquals(629f, wifi_packets_rx.v(), 0f)
+            assertEquals(477f, wifi_packets_tx.v(), 0f)
+            assertEquals(4, wifi_wakeup_count.v())
         }
-        assertTrue(gms.wakeupAlarmList.any { it.name.contains("HEARTBEAT_ALARM") })
-        assertTrue(gms.processList.any { it.name == "com.google.android.gms.unstable" })
+        assertTrue(gms.wakeup_alarm.any { it.name.orEmpty().contains("HEARTBEAT_ALARM") })
+        assertTrue(gms.process.any { it.name == "com.google.android.gms.unstable" })
 
         val androidSystem = app(stats, 1000)
         assertEquals("ANDROID_SYSTEM", androidSystem.name)
-        assertEquals(11, androidSystem.childCount)
-        assertEquals(0.00842f, androidSystem.powerUseItem.computedPowerMah, 1e-9f)
-        assertEquals(1860f, androidSystem.cpu.userTimeMs, 0f)
-        assertEquals(3530f, androidSystem.cpu.systemTimeMs, 0f)
-        with(androidSystem.network) {
-            assertEquals(192f, mobileBytesRx, 0f)
-            assertEquals(336f, wifiBytesRx, 0f)
-            assertEquals(2f, mobilePacketsRx, 0f)
-            assertEquals(4f, wifiPacketsRx, 0f)
-            assertEquals(10_159f, mobileActiveTimeMsec, 0f)
-            assertEquals(2f, mobileActiveCount, 0f)
+        assertEquals(11, androidSystem.child.size)
+        assertEquals(0.00842f, androidSystem.power_use_item!!.computed_power_mah.v(), 1e-9f)
+        assertEquals(1860f, androidSystem.cpu!!.user_time_ms.v(), 0f)
+        assertEquals(3530f, androidSystem.cpu!!.system_time_ms.v(), 0f)
+        with(androidSystem.network!!) {
+            assertEquals(192f, mobile_bytes_rx.v(), 0f)
+            assertEquals(336f, wifi_bytes_rx.v(), 0f)
+            assertEquals(2f, mobile_packets_rx.v(), 0f)
+            assertEquals(4f, wifi_packets_rx.v(), 0f)
+            assertEquals(10_159f, mobile_active_time_msec.v(), 0f)
+            assertEquals(2f, mobile_active_count.v(), 0f)
         }
-        with(androidSystem.modemController) {
-            assertEquals(9L, rxTimeMsec)
-            assertEquals(2, txCount)
-            assertEquals(listOf(0L, 0L), txList.map { it.timeMsec })
+        with(androidSystem.modem_controller!!) {
+            assertEquals(9L, rx_time_msec.v())
+            assertEquals(2, tx.size)
+            assertEquals(listOf(0L, 0L), tx.map { it.time_msec.v() })
         }
-        assertEquals(500_429f, androidSystem.sensorList.single { it.number == 0 }.totalTimeMsec, 0f)
-        assertEquals(500_973L, androidSystem.sensorList.single { it.number == 0 }.actualTimeMsec)
+        assertEquals(500_429f, androidSystem.sensor.single { it.number.v() == 0 }.total_time_msec.v(), 0f)
+        assertEquals(500_973L, androidSystem.sensor.single { it.number.v() == 0 }.actual_time_msec.v())
         assertEquals(
             "android/com.android.server.notification.NotificationHistoryJobService",
-            androidSystem.scheduledJobList.single().name,
+            androidSystem.scheduled_job.single().name.v(),
         )
-        assertEquals(1f, androidSystem.scheduledJobList.single().totalTimeMsec, 0f)
+        assertEquals(1f, androidSystem.scheduled_job.single().total_time_msec.v(), 0f)
 
         val messaging = app(stats, 10141)
-        assertTrue(messaging.wakelockList.any {
+        assertTrue(messaging.wakelock.any {
             it.name ==
                 "*job*r/XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService"
         })
         assertEquals(
             "XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService",
-            messaging.scheduledJobList.single().name,
+            messaging.scheduled_job.single().name.v(),
         )
-        assertEquals(791f, messaging.scheduledJobList.single().totalTimeMsec, 0f)
-        assertEquals(500_973L, messaging.stateTime.foregroundServiceTimeMsec)
+        assertEquals(791f, messaging.scheduled_job.single().total_time_msec.v(), 0f)
+        assertEquals(500_973L, messaging.state_time!!.foreground_service_time_msec.v())
 
         val dialer = app(stats, 10157)
-        assertEquals(7f, dialer.stateTime.foregroundTimeMsec, 0f)
+        assertEquals(7f, dialer.state_time!!.foreground_time_msec.v(), 0f)
         assertEquals(
             "XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService",
-            dialer.scheduledJobList.single().name,
+            dialer.scheduled_job.single().name.v(),
         )
 
         val radio = app(stats, 1001)
@@ -367,10 +386,10 @@ class CheckinParserTest {
                 "com.android.providers.telephony",
                 "com.android.stk",
             ),
-            radio.childList.map { it.name }.sorted(),
+            radio.child.map { it.name.orEmpty() }.sorted(),
         )
-        assertTrue(radio.wakelockList.any { it.name == "*telephony-radio*" })
-        assertEquals(500_973L, radio.stateTime.topSleepingTimeMsec)
+        assertTrue(radio.wakelock.any { it.name == "*telephony-radio*" })
+        assertEquals(500_973L, radio.state_time!!.top_sleeping_time_msec.v())
 
         val composite = app(stats, 1073)
         assertEquals(
@@ -378,28 +397,28 @@ class CheckinParserTest {
                 "com.google.android.networkstack.tethering",
             composite.name,
         )
-        assertEquals(3, composite.childCount)
+        assertEquals(3, composite.child.size)
 
         val statsd = app(stats, 1066)
         assertEquals("process:statsd", statsd.name)
-        assertEquals(6f, statsd.cpu.userTimeMs, 0f)
-        assertEquals(15f, statsd.cpu.systemTimeMs, 0f)
+        assertEquals(6f, statsd.cpu!!.user_time_ms.v(), 0f)
+        assertEquals(15f, statsd.cpu!!.system_time_ms.v(), 0f)
 
         val unnamed = app(stats, 1092)
         assertEquals("", unnamed.name)
 
         val appWifi = app(stats, 1010)
         assertEquals("WIFI", appWifi.name)
-        assertEquals(1, appWifi.wifiController.txCount)
-        assertEquals(0, appWifi.wifiController.getTx(0).level)
+        assertEquals(1, appWifi.wifi_controller!!.tx.size)
+        assertEquals(0, appWifi.wifi_controller!!.tx[0].level.v())
 
         // The four fields the oracle summary highlights for the target app.
         val target = app(stats, 10227)
         assertEquals("com.leekleak.batteryarcheologist", target.name)
-        assertEquals(0.0209f, target.powerUseItem.computedPowerMah, 1e-9f)
-        assertEquals(500_973L, target.stateTime.topTimeMsec)
-        assertEquals(500_973f, target.foreground.totalTimeMsec, 0f)
-        assertEquals(24f, target.cpu.userTimeMs, 0f)
+        assertEquals(0.0209f, target.power_use_item!!.computed_power_mah.v(), 1e-9f)
+        assertEquals(500_973L, target.state_time!!.top_time_msec.v())
+        assertEquals(500_973f, target.foreground!!.total_time_msec.v(), 0f)
+        assertEquals(24f, target.cpu!!.user_time_ms.v(), 0f)
 
         // Warning parity with the oracle manifest: 164 warnings, zero errors, same text.
         assertEquals("warnings: ${result.warnings}", 164, result.warnings.size)
@@ -479,4 +498,9 @@ class CheckinParserTest {
         }
         return out.toString()
     }
+
+    private fun Float?.v(): Float = this ?: 0f
+    private fun Long?.v(): Long = this ?: 0L
+    private fun Int?.v(): Int = this ?: 0
+    private fun String?.v(): String = this ?: ""
 }

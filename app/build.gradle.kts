@@ -72,7 +72,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.protobuf.java)
     implementation(libs.timber)
 
     debugImplementation(libs.androidx.compose.ui.tooling)

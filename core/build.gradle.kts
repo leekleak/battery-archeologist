@@ -1,21 +1,23 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.protobuf)
+    alias(libs.plugins.wire)
 }
 
 kotlin {
     jvmToolchain(21)
 }
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:4.29.3"
+wire {
+    kotlin {
+        // The parser is a port of builder-based Go code; keep Wire's builder API so the
+        // incremental construction reads the same way.
+        javaInterop = true
     }
 }
 
 dependencies {
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.protobuf.java)
+    implementation(libs.wire.runtime)
 
     testImplementation(libs.junit)
 }

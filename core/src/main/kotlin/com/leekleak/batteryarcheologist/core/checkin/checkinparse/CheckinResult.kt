@@ -16,7 +16,7 @@
 
 package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats
 
 /**
  * Result of parsing a checkin capture.
@@ -26,7 +26,7 @@ import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats
  * @property errors fatal parse errors. Unknown sections never end up here.
  */
 data class CheckinResult(
-    val stats: Batterystats.BatteryStats?,
+    val stats: BatteryStats?,
     val warnings: List<String> = emptyList(),
     val errors: List<String> = emptyList(),
 )

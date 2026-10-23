@@ -5,4 +5,3 @@
 -keep class com.leekleak.shizuku.IBatteryArcheologistService$Stub { *; }
 -keep class com.leekleak.shizuku.IOutputCallback { *; }
 -keep class com.leekleak.shizuku.IOutputCallback$Stub { *; }
--keep class com.leekleak.batteryarcheologist.proto.** { *; }

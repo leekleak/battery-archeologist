@@ -1,8 +1,7 @@
 [versions]
 agp = "9.4.1"
 kotlin = "2.4.21"
-protobuf = "0.9.6"
-protobufJava = "4.29.3"
+wire = "7.1.0"
 coreKtx = "1.19.1"
 activityCompose = "1.13.0"
 composeUi = "1.12.1"
@@ -25,7 +24,7 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
-protobuf-java = { module = "com.google.protobuf:protobuf-java", version.ref = "protobufJava" }
+wire-runtime = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }
 shizuku-provider = { module = "dev.rikka.shizuku:provider", version.ref = "shizuku" }
@@ -36,4 +35,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-protobuf = { id = "com.google.protobuf", version.ref = "protobuf" }
+wire = { id = "com.squareup.wire", version.ref = "wire" }

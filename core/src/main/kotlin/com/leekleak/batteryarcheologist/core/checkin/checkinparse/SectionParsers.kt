@@ -29,34 +29,41 @@
 // left unsupported and reported through warnings rather than dropped silently:
 //   * pwi names cpu/camera/audio/video/sensors/gnss/memory/ambi;
 //   * the wl `bp` group, the seventh st value, and extra bt/dc fields;
-//   * data connection enum values 17+. The entries and values are retained, but generated
-//     Java proto2 getters collapse the unknown enum name to NONE;
+//   * data connection enum values 17+. The entries and values are retained, but the
+//     generated enum has no constant for them, so the name is left unset;
 //   * sections awl, ctf, fgs, gcf, jbc, rpm and wmct.
 
 package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
-import com.google.protobuf.Message
 import com.leekleak.batteryarcheologist.core.checkin.sliceparse.SliceParseException
 import com.leekleak.batteryarcheologist.core.checkin.sliceparse.SliceReader
 import com.leekleak.batteryarcheologist.core.historianutils.HistorianUtils
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App as BatteryApp
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Apk as BatteryAppApk
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Apk.Service as BatteryAppService
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Child as BatteryAppChild
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Network as BatteryAppNetwork
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.PowerUseItem as BatteryAppPowerUseItem
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Process as BatteryAppProcess
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.ScheduledJob as BatteryAppScheduledJob
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Sensor as BatteryAppSensor
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.StateTime as BatteryAppStateTime
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Sync as BatteryAppSync
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.UserActivity as BatteryAppUserActivity
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.WakeupAlarm as BatteryAppWakeupAlarm
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Wakelock as BatteryAppWakelock
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.App.Wifi as BatteryAppWifi
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.ControllerActivity as BatteryController
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.ControllerActivity.TxLevel as BatteryTxLevel
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats.System as BatterySystem
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App as BatteryApp
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Apk as BatteryAppApk
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Apk.Service as BatteryAppService
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Audio as BatteryAppAudio
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.BluetoothMisc as BatteryAppBluetoothMisc
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Camera as BatteryAppCamera
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Child as BatteryAppChild
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Cpu as BatteryAppCpu
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Flashlight as BatteryAppFlashlight
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Foreground as BatteryAppForeground
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Network as BatteryAppNetwork
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.PowerUseItem as BatteryAppPowerUseItem
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Process as BatteryAppProcess
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.ScheduledJob as BatteryAppScheduledJob
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Sensor as BatteryAppSensor
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.StateTime as BatteryAppStateTime
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Sync as BatteryAppSync
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.UserActivity as BatteryAppUserActivity
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Vibrator as BatteryAppVibrator
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Video as BatteryAppVideo
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.WakeupAlarm as BatteryAppWakeupAlarm
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Wakelock as BatteryAppWakelock
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Wifi as BatteryAppWifi
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.ControllerActivity as BatteryController
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.ControllerActivity.TxLevel as BatteryTxLevel
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System as BatterySystem
 
 /**
  * Highest report version with an explicit field gate in this port (Android 16 / API 36).
@@ -182,47 +189,55 @@ internal fun parseSection(
         SectionNames.CAMERA -> result(parseAppSingleton(section, record, app, AppSingleton.CAMERA))
         SectionNames.CHARGE_STEP -> {
             val (data, warning) = parseStepData(record)
-            state.system.addChargeStep(
-                BatterySystem.ChargeStep.newBuilder()
-                    .setTimeMsec(data.timeMsec)
-                    .setLevel(data.level)
-                    .setDisplayState(data.displayState)
-                    .setPowerSaveMode(data.powerSaveMode)
-                    .setIdleMode(data.idleMode),
-            )
+            val step = BatterySystem.ChargeStep.Builder()
+            step.time_msec = data.timeMsec
+            step.level = data.level
+            step.display_state = data.displayState
+            step.power_save_mode = data.powerSaveMode
+            step.idle_mode = data.idleMode
+            state.system.charge_step = state.system.charge_step + step.build()
             result(warning)
         }
         SectionNames.CHARGE_TIME_REMAINING -> {
-            if (state.system.hasChargeTimeRemaining()) {
+            if (state.system.charge_time_remaining != null) {
                 state.counter.count("error-charge-time-remaining-exist", 1)
                 throw CheckinParseException("charge time remaining field already exists")
             }
-            val b = BatterySystem.ChargeTimeRemaining.newBuilder()
-            val warning = parseLine(section, record, b)
-            state.system.setChargeTimeRemaining(b)
+            val b = BatterySystem.ChargeTimeRemaining.Builder()
+            val warning = parseLine(
+                section,
+                record,
+                b,
+                BATTERY_SYSTEM_CHARGE_TIME_REMAINING_SPEC,
+            )
+            state.system.charge_time_remaining = b.build()
             result(warning)
         }
         SectionNames.CPU -> result(parseAppSingleton(section, record, app, AppSingleton.CPU))
         SectionNames.DISCHARGE_STEP -> {
             val (data, warning) = parseStepData(record)
-            state.system.addDischargeStep(
-                BatterySystem.DischargeStep.newBuilder()
-                    .setTimeMsec(data.timeMsec)
-                    .setLevel(data.level)
-                    .setDisplayState(data.displayState)
-                    .setPowerSaveMode(data.powerSaveMode)
-                    .setIdleMode(data.idleMode),
-            )
+            val step = BatterySystem.DischargeStep.Builder()
+            step.time_msec = data.timeMsec
+            step.level = data.level
+            step.display_state = data.displayState
+            step.power_save_mode = data.powerSaveMode
+            step.idle_mode = data.idleMode
+            state.system.discharge_step = state.system.discharge_step + step.build()
             result(warning)
         }
         SectionNames.DISCHARGE_TIME_REMAINING -> {
-            if (state.system.hasDischargeTimeRemaining()) {
+            if (state.system.discharge_time_remaining != null) {
                 state.counter.count("error-discharge-time-remaining-exist", 1)
                 throw CheckinParseException("discharge time remaining field already exists")
             }
-            val b = BatterySystem.DischargeTimeRemaining.newBuilder()
-            val warning = parseLine(section, record, b)
-            state.system.setDischargeTimeRemaining(b)
+            val b = BatterySystem.DischargeTimeRemaining.Builder()
+            val warning = parseLine(
+                section,
+                record,
+                b,
+                BATTERY_SYSTEM_DISCHARGE_TIME_REMAINING_SPEC,
+            )
+            state.system.discharge_time_remaining = b.build()
             result(warning)
         }
         SectionNames.FLASHLIGHT -> result(
@@ -233,22 +248,28 @@ internal fun parseSection(
         )
         SectionNames.GLOBAL_BLUETOOTH_CONTROLLER -> {
             if (reportVersion < 17) {
-                val b = BatterySystem.GlobalBluetooth.newBuilder()
-                val warning = parseLine(section, record, b)
-                state.system.setGlobalBluetooth(b)
+                val b = BatterySystem.GlobalBluetooth.Builder()
+                val warning = parseLine(
+                    section,
+                    record,
+                    b,
+                    BATTERY_SYSTEM_GLOBAL_BLUETOOTH_SPEC,
+                )
+                state.system.global_bluetooth = b.build()
                 result(warning)
             } else {
-                state.system.setGlobalBluetoothController(parseControllerData(section, record))
+                state.system.global_bluetooth_controller =
+                    parseControllerData(section, record).build()
                 result(null)
             }
         }
         SectionNames.GLOBAL_MODEM_CONTROLLER -> {
-            state.system.setGlobalModemController(parseControllerData(section, record))
+            state.system.global_modem_controller = parseControllerData(section, record).build()
             result(null)
         }
         SectionNames.GLOBAL_NETWORK -> result(globalNetwork(record, state.system, state.counter))
         SectionNames.GLOBAL_WIFI_CONTROLLER -> {
-            state.system.setGlobalWifiController(parseControllerData(section, record))
+            state.system.global_wifi_controller = parseControllerData(section, record).build()
             result(null)
         }
         SectionNames.GLOBAL_WIFI -> result(globalWifi(record, state.system))
@@ -324,41 +345,55 @@ private fun parseAppSingleton(
     record: List<String>,
     app: BatteryApp.Builder,
     kind: AppSingleton,
-): String? {
-    val target: Message.Builder = when (kind) {
-        AppSingleton.AUDIO ->
-            if (app.hasAudio()) app.audio.toBuilder() else BatteryApp.Audio.newBuilder()
-        AppSingleton.BLUETOOTH_MISC ->
-            if (app.hasBluetoothMisc()) app.bluetoothMisc.toBuilder()
-            else BatteryApp.BluetoothMisc.newBuilder()
-        AppSingleton.CAMERA ->
-            if (app.hasCamera()) app.camera.toBuilder() else BatteryApp.Camera.newBuilder()
-        AppSingleton.CPU ->
-            if (app.hasCpu()) app.cpu.toBuilder() else BatteryApp.Cpu.newBuilder()
-        AppSingleton.FLASHLIGHT ->
-            if (app.hasFlashlight()) app.flashlight.toBuilder()
-            else BatteryApp.Flashlight.newBuilder()
-        AppSingleton.FOREGROUND ->
-            if (app.hasForeground()) app.foreground.toBuilder()
-            else BatteryApp.Foreground.newBuilder()
-        AppSingleton.VIBRATOR ->
-            if (app.hasVibrator()) app.vibrator.toBuilder() else BatteryApp.Vibrator.newBuilder()
-        AppSingleton.VIDEO ->
-            if (app.hasVideo()) app.video.toBuilder() else BatteryApp.Video.newBuilder()
+): String? = when (kind) {
+    AppSingleton.AUDIO -> {
+        val target = app.audio?.newBuilder() ?: BatteryAppAudio.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_AUDIO_SPEC)
+        app.audio = target.build()
+        warning
     }
-    val warning = parseAndAccumulate(section, record, target)
-    when (kind) {
-        AppSingleton.AUDIO -> app.setAudio(target as BatteryApp.Audio.Builder)
-        AppSingleton.BLUETOOTH_MISC ->
-            app.setBluetoothMisc(target as BatteryApp.BluetoothMisc.Builder)
-        AppSingleton.CAMERA -> app.setCamera(target as BatteryApp.Camera.Builder)
-        AppSingleton.CPU -> app.setCpu(target as BatteryApp.Cpu.Builder)
-        AppSingleton.FLASHLIGHT -> app.setFlashlight(target as BatteryApp.Flashlight.Builder)
-        AppSingleton.FOREGROUND -> app.setForeground(target as BatteryApp.Foreground.Builder)
-        AppSingleton.VIBRATOR -> app.setVibrator(target as BatteryApp.Vibrator.Builder)
-        AppSingleton.VIDEO -> app.setVideo(target as BatteryApp.Video.Builder)
+    AppSingleton.BLUETOOTH_MISC -> {
+        val target = app.bluetooth_misc?.newBuilder() ?: BatteryAppBluetoothMisc.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_BLUETOOTH_MISC_SPEC)
+        app.bluetooth_misc = target.build()
+        warning
     }
-    return warning
+    AppSingleton.CAMERA -> {
+        val target = app.camera?.newBuilder() ?: BatteryAppCamera.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_CAMERA_SPEC)
+        app.camera = target.build()
+        warning
+    }
+    AppSingleton.CPU -> {
+        val target = app.cpu?.newBuilder() ?: BatteryAppCpu.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_CPU_SPEC)
+        app.cpu = target.build()
+        warning
+    }
+    AppSingleton.FLASHLIGHT -> {
+        val target = app.flashlight?.newBuilder() ?: BatteryAppFlashlight.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_FLASHLIGHT_SPEC)
+        app.flashlight = target.build()
+        warning
+    }
+    AppSingleton.FOREGROUND -> {
+        val target = app.foreground?.newBuilder() ?: BatteryAppForeground.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_FOREGROUND_SPEC)
+        app.foreground = target.build()
+        warning
+    }
+    AppSingleton.VIBRATOR -> {
+        val target = app.vibrator?.newBuilder() ?: BatteryAppVibrator.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_VIBRATOR_SPEC)
+        app.vibrator = target.build()
+        warning
+    }
+    AppSingleton.VIDEO -> {
+        val target = app.video?.newBuilder() ?: BatteryAppVideo.Builder()
+        val warning = parseAndAccumulate(section, record, target, BATTERY_APP_VIDEO_SPEC)
+        app.video = target.build()
+        warning
+    }
 }
 
 private enum class AppController {
@@ -374,25 +409,16 @@ private fun parseAppController(
     kind: AppController,
 ): String? {
     val existing = when (kind) {
-        AppController.BLUETOOTH -> if (app.hasBluetoothController()) app.bluetoothController else null
-        AppController.MODEM -> if (app.hasModemController()) app.modemController else null
-        AppController.WIFI -> if (app.hasWifiController()) app.wifiController else null
+        AppController.BLUETOOTH -> app.bluetooth_controller
+        AppController.MODEM -> app.modem_controller
+        AppController.WIFI -> app.wifi_controller
     }
-    if (existing == null) {
-        val parsed = parseControllerData(section, record)
-        when (kind) {
-            AppController.BLUETOOTH -> app.setBluetoothController(parsed)
-            AppController.MODEM -> app.setModemController(parsed)
-            AppController.WIFI -> app.setWifiController(parsed)
-        }
-    } else {
-        val target = existing.toBuilder()
-        parseAndAccumulateControllerData(section, record, target)
-        when (kind) {
-            AppController.BLUETOOTH -> app.setBluetoothController(target)
-            AppController.MODEM -> app.setModemController(target)
-            AppController.WIFI -> app.setWifiController(target)
-        }
+    val target = existing?.newBuilder() ?: BatteryController.Builder()
+    parseAndAccumulateControllerData(section, record, target)
+    when (kind) {
+        AppController.BLUETOOTH -> app.bluetooth_controller = target.build()
+        AppController.MODEM -> app.modem_controller = target.build()
+        AppController.WIFI -> app.wifi_controller = target.build()
     }
     return null
 }
@@ -415,45 +441,45 @@ private fun parseChildApk(
     val name = reader.readString()
 
     var childIndex = -1
-    for (i in 0 until app.childCount) {
-        if (app.getChild(i).name == name) {
+    for (i in app.child.indices) {
+        if (app.child[i].name == name) {
             childIndex = i
             break
         }
     }
     val child = if (childIndex >= 0) {
-        app.getChild(childIndex).toBuilder()
+        app.child[childIndex].newBuilder()
     } else {
-        BatteryAppChild.newBuilder().setName(name)
+        BatteryAppChild.Builder().also { it.name = name }
     }
 
-    val apk = if (child.hasApk()) child.apk.toBuilder() else BatteryAppApk.newBuilder()
+    val apk = child.apk?.newBuilder() ?: BatteryAppApk.Builder()
     if (state.apkSeen.add(ApkId(rawUid, name))) {
-        apk.setWakeups(apk.wakeups + wakeups)
+        apk.wakeups = (apk.wakeups ?: 0f) + wakeups
     }
 
-    val service = BatteryAppService.newBuilder()
-    val warning = parseLine(SectionNames.APK, reader.remaining, service)
+    val service = BatteryAppService.Builder()
+    val warning = parseLine(SectionNames.APK, reader.remaining, service, BATTERY_APP_SERVICE_SPEC)
 
     var merged = false
-    for (i in 0 until apk.serviceCount) {
-        if (apk.getService(i).name == service.name) {
-            val target = apk.getService(i).toBuilder()
-            accumulate(target, service.build(), skipFields = setOf("name"))
-            apk.setService(i, target)
+    for (i in apk.service.indices) {
+        if (apk.service[i].name == service.name) {
+            val target = apk.service[i].newBuilder()
+            accumulate(target, service, BATTERY_APP_SERVICE_SPEC, skipFields = setOf("name"))
+            apk.service = apk.service.toMutableList().also { it[i] = target.build() }
             merged = true
             break
         }
     }
     if (!merged) {
-        apk.addService(service)
+        apk.service = apk.service + service.build()
     }
 
-    child.setApk(apk)
+    child.apk = apk.build()
     if (childIndex >= 0) {
-        app.setChild(childIndex, child)
+        app.child = app.child.toMutableList().also { it[childIndex] = child.build() }
     } else {
-        app.addChild(child)
+        app.child = app.child + child.build()
     }
     return warning
 }
@@ -463,17 +489,17 @@ private fun parseChildApk(
  * Rows for the same process name are accumulated.
  */
 private fun parseAppProcess(record: List<String>, app: BatteryApp.Builder): String? {
-    val parsed = BatteryAppProcess.newBuilder()
-    val warning = parseLine(SectionNames.PROCESS, record, parsed)
-    for (i in 0 until app.processCount) {
-        if (app.getProcess(i).name == parsed.name) {
-            val target = app.getProcess(i).toBuilder()
-            accumulate(target, parsed.build(), skipFields = setOf("name"))
-            app.setProcess(i, target)
+    val parsed = BatteryAppProcess.Builder()
+    val warning = parseLine(SectionNames.PROCESS, record, parsed, BATTERY_APP_PROCESS_SPEC)
+    for (i in app.process.indices) {
+        if (app.process[i].name == parsed.name) {
+            val target = app.process[i].newBuilder()
+            accumulate(target, parsed, BATTERY_APP_PROCESS_SPEC, skipFields = setOf("name"))
+            app.process = app.process.toMutableList().also { it[i] = target.build() }
             return warning
         }
     }
-    app.addProcess(parsed)
+    app.process = app.process + parsed.build()
     return warning
 }
 
@@ -482,17 +508,17 @@ private fun parseAppProcess(record: List<String>, app: BatteryApp.Builder): Stri
  * background actual time. Rows for the same sensor are accumulated.
  */
 private fun parseAppSensor(record: List<String>, app: BatteryApp.Builder): String? {
-    val parsed = BatteryAppSensor.newBuilder()
-    val warning = parseLine(SectionNames.SENSOR, record, parsed)
-    for (i in 0 until app.sensorCount) {
-        if (app.getSensor(i).number == parsed.number) {
-            val target = app.getSensor(i).toBuilder()
-            accumulate(target, parsed.build(), skipFields = setOf("number"))
-            app.setSensor(i, target)
+    val parsed = BatteryAppSensor.Builder()
+    val warning = parseLine(SectionNames.SENSOR, record, parsed, BATTERY_APP_SENSOR_SPEC)
+    for (i in app.sensor.indices) {
+        if (app.sensor[i].number == parsed.number) {
+            val target = app.sensor[i].newBuilder()
+            accumulate(target, parsed, BATTERY_APP_SENSOR_SPEC, skipFields = setOf("number"))
+            app.sensor = app.sensor.toMutableList().also { it[i] = target.build() }
             return warning
         }
     }
-    app.addSensor(parsed)
+    app.sensor = app.sensor + parsed.build()
     return warning
 }
 
@@ -500,18 +526,18 @@ private fun parseAppSensor(record: List<String>, app: BatteryApp.Builder): Strin
  * Parses `jb`: job name, total time, count, background time, background count.
  */
 private fun parseAppScheduledJob(record: List<String>, app: BatteryApp.Builder): String? {
-    val parsed = BatteryAppScheduledJob.newBuilder()
-    val warning = parseLine(SectionNames.JOB, record, parsed)
-    parsed.setName(HistorianUtils.scrubPII(parsed.name))
-    for (i in 0 until app.scheduledJobCount) {
-        if (app.getScheduledJob(i).name == parsed.name) {
-            val target = app.getScheduledJob(i).toBuilder()
-            accumulate(target, parsed.build(), skipFields = setOf("name"))
-            app.setScheduledJob(i, target)
+    val parsed = BatteryAppScheduledJob.Builder()
+    val warning = parseLine(SectionNames.JOB, record, parsed, BATTERY_APP_SCHEDULED_JOB_SPEC)
+    parsed.name = HistorianUtils.scrubPII(parsed.name.orEmpty())
+    for (i in app.scheduled_job.indices) {
+        if (app.scheduled_job[i].name == parsed.name) {
+            val target = app.scheduled_job[i].newBuilder()
+            accumulate(target, parsed, BATTERY_APP_SCHEDULED_JOB_SPEC, skipFields = setOf("name"))
+            app.scheduled_job = app.scheduled_job.toMutableList().also { it[i] = target.build() }
             return warning
         }
     }
-    app.addScheduledJob(parsed)
+    app.scheduled_job = app.scheduled_job + parsed.build()
     return warning
 }
 
@@ -519,18 +545,18 @@ private fun parseAppScheduledJob(record: List<String>, app: BatteryApp.Builder):
  * Parses `sy`: sync name, total time, count, background time, background count.
  */
 private fun parseAppSync(record: List<String>, app: BatteryApp.Builder): String? {
-    val parsed = BatteryAppSync.newBuilder()
-    val warning = parseLine(SectionNames.SYNC, record, parsed)
-    parsed.setName(HistorianUtils.scrubPII(parsed.name))
-    for (i in 0 until app.syncCount) {
-        if (app.getSync(i).name == parsed.name) {
-            val target = app.getSync(i).toBuilder()
-            accumulate(target, parsed.build(), skipFields = setOf("name"))
-            app.setSync(i, target)
+    val parsed = BatteryAppSync.Builder()
+    val warning = parseLine(SectionNames.SYNC, record, parsed, BATTERY_APP_SYNC_SPEC)
+    parsed.name = HistorianUtils.scrubPII(parsed.name.orEmpty())
+    for (i in app.sync.indices) {
+        if (app.sync[i].name == parsed.name) {
+            val target = app.sync[i].newBuilder()
+            accumulate(target, parsed, BATTERY_APP_SYNC_SPEC, skipFields = setOf("name"))
+            app.sync = app.sync.toMutableList().also { it[i] = target.build() }
             return warning
         }
     }
-    app.addSync(parsed)
+    app.sync = app.sync + parsed.build()
     return warning
 }
 
@@ -538,26 +564,26 @@ private fun parseAppSync(record: List<String>, app: BatteryApp.Builder): String?
  * Parses `wua`: wakeup alarm name and count. Rows with the same name are accumulated.
  */
 private fun parseAppWakeupAlarm(record: List<String>, app: BatteryApp.Builder): String? {
-    val parsed = BatteryAppWakeupAlarm.newBuilder()
-    val warning = parseLine(SectionNames.WAKEUP_ALARM, record, parsed)
-    parsed.setName(HistorianUtils.scrubPII(parsed.name))
-    for (i in 0 until app.wakeupAlarmCount) {
-        if (app.getWakeupAlarm(i).name == parsed.name) {
-            val target = app.getWakeupAlarm(i).toBuilder()
-            accumulate(target, parsed.build(), skipFields = setOf("name"))
-            app.setWakeupAlarm(i, target)
+    val parsed = BatteryAppWakeupAlarm.Builder()
+    val warning = parseLine(SectionNames.WAKEUP_ALARM, record, parsed, BATTERY_APP_WAKEUP_ALARM_SPEC)
+    parsed.name = HistorianUtils.scrubPII(parsed.name.orEmpty())
+    for (i in app.wakeup_alarm.indices) {
+        if (app.wakeup_alarm[i].name == parsed.name) {
+            val target = app.wakeup_alarm[i].newBuilder()
+            accumulate(target, parsed, BATTERY_APP_WAKEUP_ALARM_SPEC, skipFields = setOf("name"))
+            app.wakeup_alarm = app.wakeup_alarm.toMutableList().also { it[i] = target.build() }
             return warning
         }
     }
-    app.addWakeupAlarm(parsed)
+    app.wakeup_alarm = app.wakeup_alarm + parsed.build()
     return warning
 }
 
 /**
  * Parses `ua`: activity counts in order OTHER, BUTTON, TOUCH, ACCESSIBILITY.
  *
- * Newer builds print additional activity types. They are preserved as unknown enum
- * numbers so no data is lost on round-trip.
+ * Newer builds print additional activity types. The count is retained; the name is left
+ * unset when the generated enum has no constant for that index.
  */
 private fun parseAppUserActivity(record: List<String>, app: BatteryApp.Builder): String? {
     val warning = if (record.size > 4) {
@@ -567,18 +593,18 @@ private fun parseAppUserActivity(record: List<String>, app: BatteryApp.Builder):
     }
     for ((i, rawCount) in record.withIndex()) {
         val count = parseFloat32Value(rawCount, SectionNames.USER_ACTIVITY)
-        if (i < app.userActivityCount) {
-            val b = app.getUserActivity(i).toBuilder()
-            b.setCount(b.count + count)
-            app.setUserActivity(i, b)
+        if (i < app.user_activity.size) {
+            val b = app.user_activity[i].newBuilder()
+            b.count = (b.count ?: 0f) + count
+            app.user_activity = app.user_activity.toMutableList().also { it[i] = b.build() }
             continue
         }
-        val b = BatteryAppUserActivity.newBuilder()
+        val b = BatteryAppUserActivity.Builder()
         // Unknown activity types from newer builds cannot be represented by the generated
-        // enum getter; keep the count and leave the name at its default.
-        BatteryAppUserActivity.Name.forNumber(i)?.let { b.setName(it) }
-        b.setCount(count)
-        app.addUserActivity(b)
+        // enum; keep the count and leave the name unset.
+        BatteryAppUserActivity.Name.fromValue(i)?.let { b.name = it }
+        b.count = count
+        app.user_activity = app.user_activity + b.build()
     }
     return warning
 }
@@ -597,13 +623,14 @@ private fun parseAppStateTime(
     app: BatteryApp.Builder,
 ): String? {
     if (reportVersion < 17) {
-        val target = if (app.hasStateTime()) {
-            app.stateTime.toBuilder()
-        } else {
-            BatteryAppStateTime.newBuilder()
-        }
-        val warning = parseAndAccumulate(SectionNames.STATE_TIME, record, target)
-        app.setStateTime(target)
+        val target = app.state_time?.newBuilder() ?: BatteryAppStateTime.Builder()
+        val warning = parseAndAccumulate(
+            SectionNames.STATE_TIME,
+            record,
+            target,
+            BATTERY_APP_STATE_TIME_SPEC,
+        )
+        app.state_time = target.build()
         return warning
     }
 
@@ -620,14 +647,15 @@ private fun parseAppStateTime(
         null
     }
 
-    val stateTime = if (app.hasStateTime()) app.stateTime.toBuilder() else BatteryAppStateTime.newBuilder()
-    stateTime.setTopTimeMsec(stateTime.topTimeMsec + top)
-    stateTime.setForegroundServiceTimeMsec(stateTime.foregroundServiceTimeMsec + foregroundService)
-    stateTime.setTopSleepingTimeMsec(stateTime.topSleepingTimeMsec + topSleeping)
-    stateTime.setForegroundTimeMsec(stateTime.foregroundTimeMsec + foreground)
-    stateTime.setBackgroundTimeMsec(stateTime.backgroundTimeMsec + background)
-    stateTime.setCachedTimeMsec(stateTime.cachedTimeMsec + cached)
-    app.setStateTime(stateTime)
+    val stateTime = app.state_time?.newBuilder() ?: BatteryAppStateTime.Builder()
+    stateTime.top_time_msec = (stateTime.top_time_msec ?: 0L) + top
+    stateTime.foreground_service_time_msec =
+        (stateTime.foreground_service_time_msec ?: 0L) + foregroundService
+    stateTime.top_sleeping_time_msec = (stateTime.top_sleeping_time_msec ?: 0L) + topSleeping
+    stateTime.foreground_time_msec = (stateTime.foreground_time_msec ?: 0f) + foreground
+    stateTime.background_time_msec = (stateTime.background_time_msec ?: 0L) + background
+    stateTime.cached_time_msec = (stateTime.cached_time_msec ?: 0f) + cached
+    app.state_time = stateTime.build()
     return warning
 }
 
@@ -770,55 +798,58 @@ private fun parseAppWakelock(
         }
     }
 
-    for (i in 0 until app.wakelockCount) {
-        val existing = app.getWakelock(i)
+    for (i in app.wakelock.indices) {
+        val existing = app.wakelock[i]
         if (existing.name == name) {
-            val b = existing.toBuilder()
-            b.setFullTimeMsec(b.fullTimeMsec + fullTime)
-            b.setFullCount(b.fullCount + fullCount)
-            b.setFullCurrentDurationMsec(maxOf(b.fullCurrentDurationMsec, fullCurrent))
-            b.setFullMaxDurationMsec(maxOf(b.fullMaxDurationMsec, fullMax))
+            val b = existing.newBuilder()
+            b.full_time_msec = (b.full_time_msec ?: 0f) + fullTime
+            b.full_count = (b.full_count ?: 0f) + fullCount
+            b.full_current_duration_msec =
+                maxOf(b.full_current_duration_msec ?: 0L, fullCurrent)
+            b.full_max_duration_msec = maxOf(b.full_max_duration_msec ?: 0L, fullMax)
             if (fullTotal != -1L) {
-                b.setFullTotalDurationMsec(b.fullTotalDurationMsec + fullTotal)
+                b.full_total_duration_msec = (b.full_total_duration_msec ?: 0L) + fullTotal
             }
-            b.setPartialTimeMsec(b.partialTimeMsec + partialTime)
-            b.setPartialCount(b.partialCount + partialCount)
-            b.setPartialCurrentDurationMsec(maxOf(b.partialCurrentDurationMsec, partialCurrent))
-            b.setPartialMaxDurationMsec(maxOf(b.partialMaxDurationMsec, partialMax))
+            b.partial_time_msec = (b.partial_time_msec ?: 0f) + partialTime
+            b.partial_count = (b.partial_count ?: 0f) + partialCount
+            b.partial_current_duration_msec =
+                maxOf(b.partial_current_duration_msec ?: 0L, partialCurrent)
+            b.partial_max_duration_msec =
+                maxOf(b.partial_max_duration_msec ?: 0L, partialMax)
             if (partialTotal != -1L) {
-                b.setPartialTotalDurationMsec(b.partialTotalDurationMsec + partialTotal)
+                b.partial_total_duration_msec = (b.partial_total_duration_msec ?: 0L) + partialTotal
             }
-            b.setWindowTimeMsec(b.windowTimeMsec + windowTime)
-            b.setWindowCount(b.windowCount + windowCount)
-            b.setWindowCurrentDurationMsec(maxOf(b.windowCurrentDurationMsec, windowCurrent))
-            b.setWindowMaxDurationMsec(maxOf(b.windowMaxDurationMsec, windowMax))
+            b.window_time_msec = (b.window_time_msec ?: 0f) + windowTime
+            b.window_count = (b.window_count ?: 0f) + windowCount
+            b.window_current_duration_msec =
+                maxOf(b.window_current_duration_msec ?: 0L, windowCurrent)
+            b.window_max_duration_msec = maxOf(b.window_max_duration_msec ?: 0L, windowMax)
             if (windowTotal != -1L) {
-                b.setWindowTotalDurationMsec(b.windowTotalDurationMsec + windowTotal)
+                b.window_total_duration_msec = (b.window_total_duration_msec ?: 0L) + windowTotal
             }
-            app.setWakelock(i, b)
+            app.wakelock = app.wakelock.toMutableList().also { it[i] = b.build() }
             return warning
         }
     }
 
-    app.addWakelock(
-        BatteryAppWakelock.newBuilder()
-            .setName(name)
-            .setFullTimeMsec(fullTime)
-            .setFullCount(fullCount)
-            .setFullCurrentDurationMsec(fullCurrent)
-            .setFullMaxDurationMsec(fullMax)
-            .setFullTotalDurationMsec(fullTotal)
-            .setPartialTimeMsec(partialTime)
-            .setPartialCount(partialCount)
-            .setPartialCurrentDurationMsec(partialCurrent)
-            .setPartialMaxDurationMsec(partialMax)
-            .setPartialTotalDurationMsec(partialTotal)
-            .setWindowTimeMsec(windowTime)
-            .setWindowCount(windowCount)
-            .setWindowCurrentDurationMsec(windowCurrent)
-            .setWindowMaxDurationMsec(windowMax)
-            .setWindowTotalDurationMsec(windowTotal),
-    )
+    val b = BatteryAppWakelock.Builder()
+    b.name = name
+    b.full_time_msec = fullTime
+    b.full_count = fullCount
+    b.full_current_duration_msec = fullCurrent
+    b.full_max_duration_msec = fullMax
+    b.full_total_duration_msec = fullTotal
+    b.partial_time_msec = partialTime
+    b.partial_count = partialCount
+    b.partial_current_duration_msec = partialCurrent
+    b.partial_max_duration_msec = partialMax
+    b.partial_total_duration_msec = partialTotal
+    b.window_time_msec = windowTime
+    b.window_count = windowCount
+    b.window_current_duration_msec = windowCurrent
+    b.window_max_duration_msec = windowMax
+    b.window_total_duration_msec = windowTotal
+    app.wakelock = app.wakelock + b.build()
     return warning
 }
 
@@ -831,15 +862,16 @@ private fun remainingWarning(reader: SliceReader): String? {
  * Parses `nt`. `mobile_active_time` is printed in microseconds and stored in milliseconds.
  */
 private fun parseAppNetwork(record: List<String>, app: BatteryApp.Builder): String? {
-    val parsed = BatteryAppNetwork.newBuilder()
-    val warning = parseLine(SectionNames.NETWORK, record, parsed)
-    parsed.setMobileActiveTimeMsec(parsed.mobileActiveTimeMsec / 1e3f)
-    if (!app.hasNetwork()) {
-        app.setNetwork(parsed)
+    val parsed = BatteryAppNetwork.Builder()
+    val warning = parseLine(SectionNames.NETWORK, record, parsed, BATTERY_APP_NETWORK_SPEC)
+    parsed.mobile_active_time_msec = (parsed.mobile_active_time_msec ?: 0f) / 1e3f
+    val existing = app.network
+    if (existing == null) {
+        app.network = parsed.build()
     } else {
-        val target = app.network.toBuilder()
-        accumulate(target, parsed.build())
-        app.setNetwork(target)
+        val target = existing.newBuilder()
+        accumulate(target, parsed, BATTERY_APP_NETWORK_SPEC)
+        app.network = target.build()
     }
     return warning
 }
@@ -851,17 +883,18 @@ private fun parseAppWifi(record: List<String>, app: BatteryApp.Builder): String?
     if (record.size < 3) {
         throw CheckinParseException("${SectionNames.WIFI} line didn't contain enough fields")
     }
-    val parsed = BatteryAppWifi.newBuilder()
-    val warning = parseLine(SectionNames.WIFI, record, parsed)
-    parsed.setFullWifiLockTimeMsec(parsed.fullWifiLockTimeMsec / 1e3f)
-    parsed.setScanTimeMsec(parsed.scanTimeMsec / 1e3f)
-    parsed.setRunningTimeMsec(parsed.runningTimeMsec / 1e3f)
-    if (!app.hasWifi()) {
-        app.setWifi(parsed)
+    val parsed = BatteryAppWifi.Builder()
+    val warning = parseLine(SectionNames.WIFI, record, parsed, BATTERY_APP_WIFI_SPEC)
+    parsed.full_wifi_lock_time_msec = (parsed.full_wifi_lock_time_msec ?: 0f) / 1e3f
+    parsed.scan_time_msec = (parsed.scan_time_msec ?: 0f) / 1e3f
+    parsed.running_time_msec = (parsed.running_time_msec ?: 0f) / 1e3f
+    val existing = app.wifi
+    if (existing == null) {
+        app.wifi = parsed.build()
     } else {
-        val target = app.wifi.toBuilder()
-        accumulate(target, parsed.build())
-        app.setWifi(target)
+        val target = existing.newBuilder()
+        accumulate(target, parsed, BATTERY_APP_WIFI_SPEC)
+        app.wifi = target.build()
     }
     return warning
 }
@@ -882,20 +915,19 @@ private fun parseAppSystemPowerUseItem(
     val computedPowerMah = reader.readFloat32()
     if (rawName == "uid") {
         state.allAppComputedPowerMah += computedPowerMah
-        val target = if (app.hasPowerUseItem()) app.powerUseItem.toBuilder() else BatteryAppPowerUseItem.newBuilder()
-        target.setComputedPowerMah(target.computedPowerMah + computedPowerMah)
-        app.setPowerUseItem(target)
+        val target = app.power_use_item?.newBuilder() ?: BatteryAppPowerUseItem.Builder()
+        target.computed_power_mah = (target.computed_power_mah ?: 0f) + computedPowerMah
+        app.power_use_item = target.build()
     } else {
         val name = powerUseItemNameMap[rawName]
         if (name == null) {
             state.counter.count("unknown-app-system-power-use-item-$rawName", 1)
             return "Unknown powerUseItem name $rawName"
         }
-        state.system.addPowerUseItem(
-            BatterySystem.PowerUseItem.newBuilder()
-                .setName(name)
-                .setComputedPowerMah(computedPowerMah),
-        )
+        val item = BatterySystem.PowerUseItem.Builder()
+        item.name = name
+        item.computed_power_mah = computedPowerMah
+        state.system.power_use_item = state.system.power_use_item + item.build()
     }
     return null
 }
@@ -908,35 +940,45 @@ private fun parseAppSystemPowerUseItem(
  * Parses `bt`. `N/A` start counts are normalized to 0, matching the upstream pipeline.
  */
 private fun systemBattery(record: List<String>, system: BatterySystem.Builder): String? {
-    if (system.hasBattery()) {
+    if (system.battery != null) {
         throw CheckinParseException("system battery field already exists")
     }
     val normalized = if (record.firstOrNull() == "N/A") listOf("0") + record.drop(1) else record
-    val parsed = BatterySystem.Battery.newBuilder()
-    val warning = parseLine(SectionNames.BATTERY, normalized, parsed)
-    system.setBattery(parsed)
+    val parsed = BatterySystem.Battery.Builder()
+    val warning = parseLine(SectionNames.BATTERY, normalized, parsed, BATTERY_SYSTEM_BATTERY_SPEC)
+    system.battery = parsed.build()
     return warning
 }
 
 /** Parses `dc`: lower/upper bound discharged points, screen-on/off, and optional mAh. */
 private fun systemBatteryDischarge(record: List<String>, system: BatterySystem.Builder): String? {
-    if (system.hasBatteryDischarge()) {
+    if (system.battery_discharge != null) {
         throw CheckinParseException("battery discharge field already exists")
     }
-    val parsed = BatterySystem.BatteryDischarge.newBuilder()
-    val warning = parseLine(SectionNames.BATTERY_DISCHARGE, record, parsed)
-    system.setBatteryDischarge(parsed)
+    val parsed = BatterySystem.BatteryDischarge.Builder()
+    val warning = parseLine(
+        SectionNames.BATTERY_DISCHARGE,
+        record,
+        parsed,
+        BATTERY_SYSTEM_BATTERY_DISCHARGE_SPEC,
+    )
+    system.battery_discharge = parsed.build()
     return warning
 }
 
 /** Parses `lv`: start and current battery level. */
 private fun systemBatteryLevel(record: List<String>, system: BatterySystem.Builder): String? {
-    if (system.hasBatteryLevel()) {
+    if (system.battery_level != null) {
         throw CheckinParseException("battery level field already exists")
     }
-    val parsed = BatterySystem.BatteryLevel.newBuilder()
-    val warning = parseLine(SectionNames.BATTERY_LEVEL, record, parsed)
-    system.setBatteryLevel(parsed)
+    val parsed = BatterySystem.BatteryLevel.Builder()
+    val warning = parseLine(
+        SectionNames.BATTERY_LEVEL,
+        record,
+        parsed,
+        BATTERY_SYSTEM_BATTERY_LEVEL_SPEC,
+    )
+    system.battery_level = parsed.build()
     return warning
 }
 
@@ -951,7 +993,7 @@ private fun systemMisc(
     system: BatterySystem.Builder,
     counter: com.leekleak.batteryarcheologist.core.checkin.checkinutil.Counter,
 ): String? {
-    if (system.hasMisc()) {
+    if (system.misc != null) {
         counter.count("error-parse-system-misc-exist", 1)
         throw CheckinParseException("misc field already exists")
     }
@@ -959,24 +1001,25 @@ private fun systemMisc(
     if (adjusted.isEmpty()) throw CheckinParseException("m field didn't contain enough fields")
     // screen_off_time_msec is calculated later; insert a placeholder in its proto position.
     adjusted.add(1, "0")
-    val parsed = BatterySystem.Misc.newBuilder()
+    val parsed = BatterySystem.Misc.Builder()
     val warning = if (reportVersion >= 14) {
         // Legacy wifi/bluetooth/network fields were removed from the line in v14.
         repeat(7) { adjusted.add(3, "0") }
-        parseLine(SectionNames.MISC, adjusted, parsed)
+        parseLine(SectionNames.MISC, adjusted, parsed, BATTERY_SYSTEM_MISC_SPEC)
     } else {
         // Legacy input event count is printed in the middle of the older layout.
         val withoutLegacyInput = adjusted.filterIndexed { index, _ -> index != 12 }
-        parseLine(SectionNames.MISC, withoutLegacyInput, parsed)
+        parseLine(SectionNames.MISC, withoutLegacyInput, parsed, BATTERY_SYSTEM_MISC_SPEC)
     }
     if (reportVersion < 9) {
         // Older devices printed these durations in microseconds.
-        parsed.setFullWakelockTimeMsec(parsed.fullWakelockTimeMsec / 1e3f)
-        parsed.setPartialWakelockTimeMsec(parsed.partialWakelockTimeMsec / 1e3f)
-        parsed.setMobileActiveTimeMsec(parsed.mobileActiveTimeMsec / 1e3f)
-        parsed.setMobileActiveAdjustedTimeMsec(parsed.mobileActiveAdjustedTimeMsec / 1e3f)
+        parsed.full_wakelock_time_msec = (parsed.full_wakelock_time_msec ?: 0f) / 1e3f
+        parsed.partial_wakelock_time_msec = (parsed.partial_wakelock_time_msec ?: 0f) / 1e3f
+        parsed.mobile_active_time_msec = (parsed.mobile_active_time_msec ?: 0f) / 1e3f
+        parsed.mobile_active_adjusted_time_msec =
+            (parsed.mobile_active_adjusted_time_msec ?: 0f) / 1e3f
     }
-    system.setMisc(parsed)
+    system.misc = parsed.build()
     return warning
 }
 
@@ -986,13 +1029,18 @@ private fun systemPowerUseSummary(
     system: BatterySystem.Builder,
     counter: com.leekleak.batteryarcheologist.core.checkin.checkinutil.Counter,
 ): String? {
-    if (system.hasPowerUseSummary()) {
+    if (system.power_use_summary != null) {
         counter.count("error-parse-system-power-use-summary-exist", 1)
         throw CheckinParseException("power use summary field already exists")
     }
-    val parsed = BatterySystem.PowerUseSummary.newBuilder()
-    val warning = parseLine(SectionNames.POWER_USE_SUMMARY, record, parsed)
-    system.setPowerUseSummary(parsed)
+    val parsed = BatterySystem.PowerUseSummary.Builder()
+    val warning = parseLine(
+        SectionNames.POWER_USE_SUMMARY,
+        record,
+        parsed,
+        BATTERY_SYSTEM_POWER_USE_SUMMARY_SPEC,
+    )
+    system.power_use_summary = parsed.build()
     return warning
 }
 
@@ -1002,49 +1050,72 @@ private fun globalNetwork(
     system: BatterySystem.Builder,
     counter: com.leekleak.batteryarcheologist.core.checkin.checkinutil.Counter,
 ): String? {
-    if (system.hasGlobalNetwork()) {
+    if (system.global_network != null) {
         counter.count("error-parse-system-global-network-exist", 1)
         throw CheckinParseException("global network field already exists")
     }
-    val parsed = BatterySystem.GlobalNetwork.newBuilder()
-    val warning = parseLine(SectionNames.GLOBAL_NETWORK, record, parsed)
-    system.setGlobalNetwork(parsed)
+    val parsed = BatterySystem.GlobalNetwork.Builder()
+    val warning = parseLine(
+        SectionNames.GLOBAL_NETWORK,
+        record,
+        parsed,
+        BATTERY_SYSTEM_GLOBAL_NETWORK_SPEC,
+    )
+    system.global_network = parsed.build()
     return warning
 }
 
 /** Parses `gwfl`: global wifi on/running times and legacy controller fields. */
 private fun globalWifi(record: List<String>, system: BatterySystem.Builder): String? {
-    val parsed = BatterySystem.GlobalWifi.newBuilder()
-    val warning = parseLine(SectionNames.GLOBAL_WIFI, record, parsed)
-    system.setGlobalWifi(parsed)
+    val parsed = BatterySystem.GlobalWifi.Builder()
+    val warning = parseLine(
+        SectionNames.GLOBAL_WIFI,
+        record,
+        parsed,
+        BATTERY_SYSTEM_GLOBAL_WIFI_SPEC,
+    )
+    system.global_wifi = parsed.build()
     return warning
 }
 
 /** Parses `kwl`: kernel wakelock name, time, count, current and max duration. */
 private fun systemKernelWakelock(record: List<String>, system: BatterySystem.Builder): String? {
-    val parsed = BatterySystem.KernelWakelock.newBuilder()
-    val warning = parseLine(SectionNames.KERNEL_WAKELOCK, record, parsed)
-    for (i in 0 until system.kernelWakelockCount) {
-        val existing = system.getKernelWakelock(i)
+    val parsed = BatterySystem.KernelWakelock.Builder()
+    val warning = parseLine(
+        SectionNames.KERNEL_WAKELOCK,
+        record,
+        parsed,
+        BATTERY_SYSTEM_KERNEL_WAKELOCK_SPEC,
+    )
+    for (i in system.kernel_wakelock.indices) {
+        val existing = system.kernel_wakelock[i]
         if (existing.name == parsed.name) {
-            val b = existing.toBuilder()
-            b.setTimeMsec(b.timeMsec + parsed.timeMsec)
-            b.setCount(b.count + parsed.count)
-            b.setCurrentDurationMsec(maxOf(b.currentDurationMsec, parsed.currentDurationMsec))
-            b.setMaxDurationMsec(maxOf(b.maxDurationMsec, parsed.maxDurationMsec))
-            system.setKernelWakelock(i, b)
+            val b = existing.newBuilder()
+            b.time_msec = (b.time_msec ?: 0f) + (parsed.time_msec ?: 0f)
+            b.count = (b.count ?: 0f) + (parsed.count ?: 0f)
+            b.current_duration_msec =
+                maxOf(b.current_duration_msec ?: 0L, parsed.current_duration_msec ?: 0L)
+            b.max_duration_msec =
+                maxOf(b.max_duration_msec ?: 0L, parsed.max_duration_msec ?: 0L)
+            system.kernel_wakelock =
+                system.kernel_wakelock.toMutableList().also { it[i] = b.build() }
             return warning
         }
     }
-    system.addKernelWakelock(parsed)
+    system.kernel_wakelock = system.kernel_wakelock + parsed.build()
     return warning
 }
 
 /** Parses `wr`: wakeup reason name, time and (v11+) count. */
 private fun systemWakeupReason(record: List<String>, system: BatterySystem.Builder): String? {
-    val parsed = BatterySystem.WakeupReason.newBuilder()
-    val warning = parseLine(SectionNames.WAKEUP_REASON, record, parsed)
-    system.addWakeupReason(parsed)
+    val parsed = BatterySystem.WakeupReason.Builder()
+    val warning = parseLine(
+        SectionNames.WAKEUP_REASON,
+        record,
+        parsed,
+        BATTERY_SYSTEM_WAKEUP_REASON_SPEC,
+    )
+    system.wakeup_reason = system.wakeup_reason + parsed.build()
     return warning
 }
 
@@ -1054,13 +1125,18 @@ private fun systemSignalScanningTime(
     system: BatterySystem.Builder,
     counter: com.leekleak.batteryarcheologist.core.checkin.checkinutil.Counter,
 ): String? {
-    if (system.hasSignalScanningTime()) {
+    if (system.signal_scanning_time != null) {
         counter.count("error-parse-system-signal-scanning-time-exist", 1)
         throw CheckinParseException("signal scanning time field already exists")
     }
-    val parsed = BatterySystem.SignalScanningTime.newBuilder()
-    val warning = parseLine(SectionNames.SIGNAL_SCANNING_TIME, record, parsed)
-    system.setSignalScanningTime(parsed)
+    val parsed = BatterySystem.SignalScanningTime.Builder()
+    val warning = parseLine(
+        SectionNames.SIGNAL_SCANNING_TIME,
+        record,
+        parsed,
+        BATTERY_SYSTEM_SIGNAL_SCANNING_TIME_SPEC,
+    )
+    system.signal_scanning_time = parsed.build()
     return warning
 }
 
@@ -1069,21 +1145,20 @@ private fun parseSystemScreenBrightness(
     record: List<String>,
     system: BatterySystem.Builder,
 ): String? {
-    if (system.screenBrightnessCount > 0) {
+    if (system.screen_brightness.isNotEmpty()) {
         throw CheckinParseException("screen brightness field already exists")
     }
-    val expected = BatterySystem.ScreenBrightness.Name.values().size
+    val expected = BatterySystem.ScreenBrightness.Name.entries.size
     if (record.size != expected) {
         throw CheckinParseException(
             "wrong number of screen brightness fields: got ${record.size}, want $expected",
         )
     }
     for ((index, rawValue) in record.withIndex()) {
-        system.addScreenBrightness(
-            BatterySystem.ScreenBrightness.newBuilder()
-                .setName(BatterySystem.ScreenBrightness.Name.forNumber(index))
-                .setTimeMsec(parseFloat32Value(rawValue, SectionNames.SCREEN_BRIGHTNESS)),
-        )
+        val b = BatterySystem.ScreenBrightness.Builder()
+        BatterySystem.ScreenBrightness.Name.fromValue(index)?.let { b.name = it }
+        b.time_msec = parseFloat32Value(rawValue, SectionNames.SCREEN_BRIGHTNESS)
+        system.screen_brightness = system.screen_brightness + b.build()
     }
     return null
 }
@@ -1130,8 +1205,8 @@ private fun timeCountKind(section: String): TimeCountKind? = when (section) {
  * Parses the sections that are printed as a time array and a separate count array
  * (signal strength, data connection, wifi/bluetooth state, ...).
  *
- * Values beyond the enum's defined range are kept as unknown enum numbers, matching the
- * upstream parser, which appends every record value.
+ * Values beyond the enum's defined range are still appended; their enum name is left unset,
+ * matching the upstream parser, which keeps every record value.
  */
 private fun parseSystemTimeCountPair(
     section: String,
@@ -1155,20 +1230,12 @@ private fun parseSystemTimeCountPair(
     if (currentLen == 0) {
         for ((index, rawValue) in record.withIndex()) {
             val value = parseFloat32Value(rawValue, section)
-            kind.addEntry(system, kind.newEntry(index, fieldName, value))
+            kind.addEntry(system, index, fieldName, value)
         }
     } else if (currentLen == record.size) {
         for ((index, rawValue) in record.withIndex()) {
             val value = parseFloat32Value(rawValue, section)
-            val entry = kind.getEntry(system, index).toBuilder()
-            val field = entry.descriptorForType.findFieldByName(fieldName)
-                ?: throw CheckinParseException("$section message has no $fieldName field")
-            if (entry.hasField(field)) {
-                counter.count("error-system-$section-exist", 1)
-                throw CheckinParseException("$section section already exists")
-            }
-            entry.setField(field, value)
-            kind.setEntry(system, index, entry.build())
+            kind.setEntry(system, index, fieldName, value, section, counter)
         }
     } else {
         throw CheckinParseException("inconsistent number of fields in $section")
@@ -1177,102 +1244,150 @@ private fun parseSystemTimeCountPair(
 }
 
 private fun TimeCountKind.entryCount(system: BatterySystem.Builder): Int = when (this) {
-    TimeCountKind.SIGNAL_STRENGTH -> system.signalStrengthCount
-    TimeCountKind.DATA_CONNECTION -> system.dataConnectionCount
-    TimeCountKind.WIFI_STATE -> system.wifiStateCount
-    TimeCountKind.BLUETOOTH_STATE -> system.bluetoothStateCount
-    TimeCountKind.WIFI_SUPPLICANT_STATE -> system.wifiSupplicantStateCount
-    TimeCountKind.WIFI_SIGNAL_STRENGTH -> system.wifiSignalStrengthCount
+    TimeCountKind.SIGNAL_STRENGTH -> system.signal_strength.size
+    TimeCountKind.DATA_CONNECTION -> system.data_connection.size
+    TimeCountKind.WIFI_STATE -> system.wifi_state.size
+    TimeCountKind.BLUETOOTH_STATE -> system.bluetooth_state.size
+    TimeCountKind.WIFI_SUPPLICANT_STATE -> system.wifi_supplicant_state.size
+    TimeCountKind.WIFI_SIGNAL_STRENGTH -> system.wifi_signal_strength.size
 }
 
-private fun TimeCountKind.newEntry(index: Int, fieldName: String, value: Float): Message {
-    // Generated Java proto2 enums only accept constants declared in the proto; devices can
-    // print enum numbers from newer Android releases. Those unknown numbers cannot be
-    // represented by the generated getter (it falls back to the first constant), so the
-    // name is left unset for them while the time/count value is still retained.
-    return when (this) {
+private fun TimeCountKind.addEntry(
+    system: BatterySystem.Builder,
+    index: Int,
+    fieldName: String,
+    value: Float,
+) {
+    when (this) {
         TimeCountKind.SIGNAL_STRENGTH -> {
-            val b = BatterySystem.SignalStrength.newBuilder()
-            BatterySystem.SignalStrength.Name.forNumber(index)?.let { b.setName(it) }
-            if (fieldName == "time_msec") b.setTimeMsec(value) else b.setCount(value)
-            b.build()
+            val b = BatterySystem.SignalStrength.Builder()
+            BatterySystem.SignalStrength.Name.fromValue(index)?.let { b.name = it }
+            if (fieldName == "time_msec") b.time_msec = value else b.count = value
+            system.signal_strength = system.signal_strength + b.build()
         }
         TimeCountKind.DATA_CONNECTION -> {
-            val b = BatterySystem.DataConnection.newBuilder()
-            BatterySystem.DataConnection.Name.forNumber(index)?.let { b.setName(it) }
-            if (fieldName == "time_msec") b.setTimeMsec(value) else b.setCount(value)
-            b.build()
+            val b = BatterySystem.DataConnection.Builder()
+            BatterySystem.DataConnection.Name.fromValue(index)?.let { b.name = it }
+            if (fieldName == "time_msec") b.time_msec = value else b.count = value
+            system.data_connection = system.data_connection + b.build()
         }
         TimeCountKind.WIFI_STATE -> {
-            val b = BatterySystem.WifiState.newBuilder()
-            BatterySystem.WifiState.Name.forNumber(index)?.let { b.setName(it) }
-            if (fieldName == "time_msec") b.setTimeMsec(value) else b.setCount(value)
-            b.build()
+            val b = BatterySystem.WifiState.Builder()
+            BatterySystem.WifiState.Name.fromValue(index)?.let { b.name = it }
+            if (fieldName == "time_msec") b.time_msec = value else b.count = value
+            system.wifi_state = system.wifi_state + b.build()
         }
         TimeCountKind.BLUETOOTH_STATE -> {
-            val b = BatterySystem.BluetoothState.newBuilder()
-            BatterySystem.BluetoothState.Name.forNumber(index)?.let { b.setName(it) }
-            if (fieldName == "time_msec") b.setTimeMsec(value) else b.setCount(value)
-            b.build()
+            val b = BatterySystem.BluetoothState.Builder()
+            BatterySystem.BluetoothState.Name.fromValue(index)?.let { b.name = it }
+            if (fieldName == "time_msec") b.time_msec = value else b.count = value
+            system.bluetooth_state = system.bluetooth_state + b.build()
         }
         TimeCountKind.WIFI_SUPPLICANT_STATE -> {
-            val b = BatterySystem.WifiSupplicantState.newBuilder()
-            BatterySystem.WifiSupplicantState.Name.forNumber(index)?.let { b.setName(it) }
-            if (fieldName == "time_msec") b.setTimeMsec(value) else b.setCount(value)
-            b.build()
+            val b = BatterySystem.WifiSupplicantState.Builder()
+            BatterySystem.WifiSupplicantState.Name.fromValue(index)?.let { b.name = it }
+            if (fieldName == "time_msec") b.time_msec = value else b.count = value
+            system.wifi_supplicant_state = system.wifi_supplicant_state + b.build()
         }
         TimeCountKind.WIFI_SIGNAL_STRENGTH -> {
-            val b = BatterySystem.WifiSignalStrength.newBuilder()
-            BatterySystem.WifiSignalStrength.Name.forNumber(index)?.let { b.setName(it) }
-            if (fieldName == "time_msec") b.setTimeMsec(value) else b.setCount(value)
-            b.build()
+            val b = BatterySystem.WifiSignalStrength.Builder()
+            BatterySystem.WifiSignalStrength.Name.fromValue(index)?.let { b.name = it }
+            if (fieldName == "time_msec") b.time_msec = value else b.count = value
+            system.wifi_signal_strength = system.wifi_signal_strength + b.build()
         }
     }
-}
-
-private fun TimeCountKind.addEntry(system: BatterySystem.Builder, message: Message) {
-    when (this) {
-        TimeCountKind.SIGNAL_STRENGTH ->
-            system.addSignalStrength(message as BatterySystem.SignalStrength)
-        TimeCountKind.DATA_CONNECTION ->
-            system.addDataConnection(message as BatterySystem.DataConnection)
-        TimeCountKind.WIFI_STATE -> system.addWifiState(message as BatterySystem.WifiState)
-        TimeCountKind.BLUETOOTH_STATE ->
-            system.addBluetoothState(message as BatterySystem.BluetoothState)
-        TimeCountKind.WIFI_SUPPLICANT_STATE ->
-            system.addWifiSupplicantState(message as BatterySystem.WifiSupplicantState)
-        TimeCountKind.WIFI_SIGNAL_STRENGTH ->
-            system.addWifiSignalStrength(message as BatterySystem.WifiSignalStrength)
-    }
-}
-
-private fun TimeCountKind.getEntry(system: BatterySystem.Builder, index: Int): Message = when (this) {
-    TimeCountKind.SIGNAL_STRENGTH -> system.getSignalStrength(index)
-    TimeCountKind.DATA_CONNECTION -> system.getDataConnection(index)
-    TimeCountKind.WIFI_STATE -> system.getWifiState(index)
-    TimeCountKind.BLUETOOTH_STATE -> system.getBluetoothState(index)
-    TimeCountKind.WIFI_SUPPLICANT_STATE -> system.getWifiSupplicantState(index)
-    TimeCountKind.WIFI_SIGNAL_STRENGTH -> system.getWifiSignalStrength(index)
 }
 
 private fun TimeCountKind.setEntry(
     system: BatterySystem.Builder,
     index: Int,
-    message: Message,
+    fieldName: String,
+    value: Float,
+    section: String,
+    counter: com.leekleak.batteryarcheologist.core.checkin.checkinutil.Counter,
 ) {
     when (this) {
-        TimeCountKind.SIGNAL_STRENGTH ->
-            system.setSignalStrength(index, message as BatterySystem.SignalStrength)
-        TimeCountKind.DATA_CONNECTION ->
-            system.setDataConnection(index, message as BatterySystem.DataConnection)
-        TimeCountKind.WIFI_STATE -> system.setWifiState(index, message as BatterySystem.WifiState)
-        TimeCountKind.BLUETOOTH_STATE ->
-            system.setBluetoothState(index, message as BatterySystem.BluetoothState)
-        TimeCountKind.WIFI_SUPPLICANT_STATE ->
-            system.setWifiSupplicantState(index, message as BatterySystem.WifiSupplicantState)
-        TimeCountKind.WIFI_SIGNAL_STRENGTH ->
-            system.setWifiSignalStrength(index, message as BatterySystem.WifiSignalStrength)
+        TimeCountKind.SIGNAL_STRENGTH -> {
+            val b = system.signal_strength[index].newBuilder()
+            if (fieldName == "time_msec") {
+                if (b.time_msec != null) throwExisting(section, counter)
+                b.time_msec = value
+            } else {
+                if (b.count != null) throwExisting(section, counter)
+                b.count = value
+            }
+            system.signal_strength =
+                system.signal_strength.toMutableList().also { it[index] = b.build() }
+        }
+        TimeCountKind.DATA_CONNECTION -> {
+            val b = system.data_connection[index].newBuilder()
+            if (fieldName == "time_msec") {
+                if (b.time_msec != null) throwExisting(section, counter)
+                b.time_msec = value
+            } else {
+                if (b.count != null) throwExisting(section, counter)
+                b.count = value
+            }
+            system.data_connection =
+                system.data_connection.toMutableList().also { it[index] = b.build() }
+        }
+        TimeCountKind.WIFI_STATE -> {
+            val b = system.wifi_state[index].newBuilder()
+            if (fieldName == "time_msec") {
+                if (b.time_msec != null) throwExisting(section, counter)
+                b.time_msec = value
+            } else {
+                if (b.count != null) throwExisting(section, counter)
+                b.count = value
+            }
+            system.wifi_state =
+                system.wifi_state.toMutableList().also { it[index] = b.build() }
+        }
+        TimeCountKind.BLUETOOTH_STATE -> {
+            val b = system.bluetooth_state[index].newBuilder()
+            if (fieldName == "time_msec") {
+                if (b.time_msec != null) throwExisting(section, counter)
+                b.time_msec = value
+            } else {
+                if (b.count != null) throwExisting(section, counter)
+                b.count = value
+            }
+            system.bluetooth_state =
+                system.bluetooth_state.toMutableList().also { it[index] = b.build() }
+        }
+        TimeCountKind.WIFI_SUPPLICANT_STATE -> {
+            val b = system.wifi_supplicant_state[index].newBuilder()
+            if (fieldName == "time_msec") {
+                if (b.time_msec != null) throwExisting(section, counter)
+                b.time_msec = value
+            } else {
+                if (b.count != null) throwExisting(section, counter)
+                b.count = value
+            }
+            system.wifi_supplicant_state =
+                system.wifi_supplicant_state.toMutableList().also { it[index] = b.build() }
+        }
+        TimeCountKind.WIFI_SIGNAL_STRENGTH -> {
+            val b = system.wifi_signal_strength[index].newBuilder()
+            if (fieldName == "time_msec") {
+                if (b.time_msec != null) throwExisting(section, counter)
+                b.time_msec = value
+            } else {
+                if (b.count != null) throwExisting(section, counter)
+                b.count = value
+            }
+            system.wifi_signal_strength =
+                system.wifi_signal_strength.toMutableList().also { it[index] = b.build() }
+        }
     }
+}
+
+private fun throwExisting(
+    section: String,
+    counter: com.leekleak.batteryarcheologist.core.checkin.checkinutil.Counter,
+): Nothing {
+    counter.count("error-system-$section-exist", 1)
+    throw CheckinParseException("$section section already exists")
 }
 
 // ---------------------------------------------------------------------------------------
@@ -1296,15 +1411,18 @@ private fun parseControllerData(
             "$section didn't contain any transmit level data: \"${record.joinToString(",")}\"",
         )
     }
-    val builder = BatteryController.newBuilder()
-        .setIdleTimeMsec(idle)
-        .setRxTimeMsec(rx)
-        .setPowerMah(power)
+    val builder = BatteryController.Builder()
+    builder.idle_time_msec = idle
+    builder.rx_time_msec = rx
+    builder.power_mah = power
     var level = 0
     while (reader.hasRemaining) {
         val value = reader.readString()
         val time = SliceReader.parseInt64(value)
-        builder.addTx(BatteryTxLevel.newBuilder().setLevel(level++).setTimeMsec(time))
+        val tx = BatteryTxLevel.Builder()
+        tx.level = level++
+        tx.time_msec = time
+        builder.tx = builder.tx + tx.build()
     }
     return builder
 }
@@ -1315,20 +1433,26 @@ private fun parseAndAccumulateControllerData(
     record: List<String>,
     target: BatteryController.Builder,
 ) {
-    val parsed = parseControllerData(section, record)
-    if (target.txCount != parsed.txCount) {
+    val parsed = parseControllerData(section, record).build()
+    val targetTx = target.tx
+    if (targetTx.isNotEmpty() && targetTx.size != parsed.tx.size) {
         throw CheckinParseException(
-            "$section had different number of transmit levels: ${target.txCount} vs ${parsed.txCount}",
+            "$section had different number of transmit levels: ${targetTx.size} vs ${parsed.tx.size}",
         )
     }
-    target.setIdleTimeMsec(target.idleTimeMsec + parsed.idleTimeMsec)
-    target.setRxTimeMsec(target.rxTimeMsec + parsed.rxTimeMsec)
-    target.setPowerMah(target.powerMah + parsed.powerMah)
-    val byLevel = parsed.txList.associate { it.level to it.timeMsec }
-    for (i in 0 until target.txCount) {
-        val b = target.getTx(i).toBuilder()
-        b.setTimeMsec(b.timeMsec + (byLevel[b.level] ?: 0L))
-        target.setTx(i, b)
+    target.idle_time_msec = (target.idle_time_msec ?: 0L) + (parsed.idle_time_msec ?: 0L)
+    target.rx_time_msec = (target.rx_time_msec ?: 0L) + (parsed.rx_time_msec ?: 0L)
+    target.power_mah = (target.power_mah ?: 0L) + (parsed.power_mah ?: 0L)
+    if (targetTx.isEmpty()) {
+        target.tx = parsed.tx
+    } else {
+        val byLevel = parsed.tx.associate { (it.level ?: 0) to (it.time_msec ?: 0L) }
+        target.tx = targetTx.map { tx ->
+            val level = tx.level ?: 0
+            val b = tx.newBuilder()
+            b.time_msec = (b.time_msec ?: 0L) + (byLevel[level] ?: 0L)
+            b.build()
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 package com.leekleak.batteryarcheologist.core.analytics
 
-import com.leekleak.batteryarcheologist.proto.batterystats.Batterystats.BatteryStats
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats
 import java.util.Locale
 
 /**
@@ -35,8 +35,9 @@ data class AppPowerReport(
 
 object AppPowerStats {
     fun calculate(stats: BatteryStats): AppPowerReport {
-        val summaryCapacity = stats.system.powerUseSummary.batteryCapacityMah
-        val estimatedCapacity = stats.system.battery.estimatedBatteryCapacityMah.toFloat()
+        val system = stats.system
+        val summaryCapacity = system?.power_use_summary?.battery_capacity_mah ?: 0f
+        val estimatedCapacity = system?.battery?.estimated_battery_capacity_mah?.toFloat() ?: 0f
         val capacity = when {
             summaryCapacity > 0f -> summaryCapacity
             estimatedCapacity > 0f -> estimatedCapacity
@@ -44,18 +45,20 @@ object AppPowerStats {
         }
         val estimated = summaryCapacity <= 0f && estimatedCapacity > 0f
 
-        val apps = stats.appList
-            .filter { it.name.isNotBlank() }
+        val apps = stats.app
+            .filter { !it.name.isNullOrBlank() }
             .map { app ->
-                val deviceMah = app.powerUseItem.computedPowerMah
-                val hasDevice = app.hasPowerUseItem()
-                val cpuMah = app.cpu.powerMaMs / MA_MS_PER_MAH
-                val hasCpu = app.hasCpu() && app.cpu.hasPowerMaMs()
+                val powerUseItem = app.power_use_item
+                val cpu = app.cpu
+                val deviceMah = powerUseItem?.computed_power_mah ?: 0f
+                val hasDevice = powerUseItem != null
+                val cpuMah = (cpu?.power_ma_ms ?: 0f) / MA_MS_PER_MAH
+                val hasCpu = cpu?.power_ma_ms != null
                 val devicePct = if (capacity > 0f) 100f * deviceMah / capacity else 0f
                 val cpuPct = if (capacity > 0f) 100f * cpuMah / capacity else 0f
                 AppPowerStat(
-                    name = app.name,
-                    uid = app.uid,
+                    name = app.name.orEmpty(),
+                    uid = app.uid ?: 0,
                     devicePowerMah = deviceMah,
                     devicePowerPct = devicePct,
                     cpuPowerMah = cpuMah,
