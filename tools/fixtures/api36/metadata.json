@@ -1,0 +1,17 @@
+{
+  "fixture": "api36",
+  "captured_at_utc": "2026-10-23T11:17:03Z",
+  "serial": "emulator-5554",
+  "sdk": 36,
+  "release": "16",
+  "build_fingerprint": "google/sdk_gphone64_x86_64/emu64xa:16/BE4B.251210.005/14574095:userdebug/dev-keys",
+  "build_id": "BE4B.251210.005",
+  "build_type": "userdebug",
+  "model": "sdk_gphone64_x86_64",
+  "device": "emu64xa",
+  "source_command": "adb -s emulator-5554 exec-out dumpsys batterystats -c",
+  "bytes": 46125,
+  "lines": 1536,
+  "sha256": "8942c644f3df9492cfb0bbbcea654d7452d00bb406b61a4628aa0f29f2486e39",
+  "notes": "Raw dumpsys batterystats -c output including checkin aggregates and history. Captured via adb exec-out so line endings are preserved. The development emulator was exercised with dumpsys batterystats --history-create-events 100 and its battery level was driven from 100 down to 50, so the history includes generated events and level-drop summaries. This is a development-emulator state, not a pristine boot capture."
+}

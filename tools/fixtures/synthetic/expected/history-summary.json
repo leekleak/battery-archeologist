@@ -1,0 +1,1342 @@
+{
+  "kind": "checkin",
+  "report_version": 12,
+  "timestamps_altered": true,
+  "summary_count": 6,
+  "summaries": [
+    {
+      "Reason": "START",
+      "Active": true,
+      "StartTimeMs": 141688070,
+      "EndTimeMs": 141725407,
+      "InitialBatteryLevel": 46,
+      "FinalBatteryLevel": 46,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 1,
+        "TotalDuration": 37337000000,
+        "MaxDuration": 37337000000
+      },
+      "ScreenOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "MobileRadioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 37337000000,
+        "MaxDuration": 37337000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {},
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 0,
+          "MaxDuration": 0
+        },
+        "u": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "PhoneStateSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "WakeLockSummary": {},
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 37337000000,
+          "MaxDuration": 37337000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": null,
+      "DcpuStatsSummary": null,
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 0,
+        "io": 0,
+        "irq": 0,
+        "sirq": 0,
+        "sys": 0,
+        "usr": 0
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "1970-01-02"
+    },
+    {
+      "Reason": "LEVEL",
+      "Active": true,
+      "StartTimeMs": 1422918406152,
+      "EndTimeMs": 1422918460028,
+      "InitialBatteryLevel": 44,
+      "FinalBatteryLevel": 43,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 1,
+        "TotalDuration": 45109000000,
+        "MaxDuration": 45109000000
+      },
+      "MobileRadioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 46880000000,
+        "MaxDuration": 46880000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 1,
+        "TotalDuration": 45109000000,
+        "MaxDuration": 45109000000
+      },
+      "WifiScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 1,
+        "TotalDuration": 44126000000,
+        "MaxDuration": 44126000000
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 1,
+        "TotalDuration": 42519000000,
+        "MaxDuration": 42519000000
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 53876000000,
+          "MaxDuration": 53876000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {},
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 53876000000,
+          "MaxDuration": 53876000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 46880000000,
+          "MaxDuration": 46880000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 46880000000,
+          "MaxDuration": 46880000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 46880000000,
+          "MaxDuration": 46880000000
+        }
+      },
+      "PhoneStateSummary": {
+        "off": {
+          "Num": 1,
+          "TotalDuration": 1371000000,
+          "MaxDuration": 1371000000
+        },
+        "out": {
+          "Num": 1,
+          "TotalDuration": 42519000000,
+          "MaxDuration": 42519000000
+        }
+      },
+      "WakeLockSummary": {},
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 53876000000,
+          "MaxDuration": 53876000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "none": {
+          "Num": 1,
+          "TotalDuration": 43890000000,
+          "MaxDuration": 43890000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 53876000000,
+          "MaxDuration": 53876000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": null,
+      "DcpuStatsSummary": null,
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 0,
+        "io": 0,
+        "irq": 0,
+        "sirq": 0,
+        "sys": 0,
+        "usr": 0
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2015-02-02"
+    },
+    {
+      "Reason": "LEVEL",
+      "Active": true,
+      "StartTimeMs": 1422918460028,
+      "EndTimeMs": 1422918465599,
+      "InitialBatteryLevel": 43,
+      "FinalBatteryLevel": 58,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 1,
+        "TotalDuration": 5571000000,
+        "MaxDuration": 5571000000
+      },
+      "MobileRadioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 5571000000,
+        "MaxDuration": 5571000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 1,
+        "TotalDuration": 5571000000,
+        "MaxDuration": 5571000000
+      },
+      "WifiScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 1,
+        "TotalDuration": 5571000000,
+        "MaxDuration": 5571000000
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 1,
+        "TotalDuration": 5571000000,
+        "MaxDuration": 5571000000
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {},
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "PhoneStateSummary": {
+        "out": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "WakeLockSummary": {},
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "none": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 5571000000,
+          "MaxDuration": 5571000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": null,
+      "DcpuStatsSummary": null,
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 0,
+        "io": 0,
+        "irq": 0,
+        "sirq": 0,
+        "sys": 0,
+        "usr": 0
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2015-02-02"
+    },
+    {
+      "Reason": "LEVEL",
+      "Active": true,
+      "StartTimeMs": 1422918465599,
+      "EndTimeMs": 1422918503558,
+      "InitialBatteryLevel": 58,
+      "FinalBatteryLevel": 57,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "MobileRadioOnSummary": {
+        "Num": 1,
+        "TotalDuration": 32467000000,
+        "MaxDuration": 32467000000
+      },
+      "WifiOnSummary": {
+        "Num": 3,
+        "TotalDuration": 35198000000,
+        "MaxDuration": 30173000000
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 37959000000,
+        "MaxDuration": 37959000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 1,
+        "TotalDuration": 36713000000,
+        "MaxDuration": 36713000000
+      },
+      "WifiScanSummary": {
+        "Num": 4,
+        "TotalDuration": 3340000000,
+        "MaxDuration": 1185000000
+      },
+      "WifiFullLockSummary": {
+        "Num": 3,
+        "TotalDuration": 27049000000,
+        "MaxDuration": 23788000000
+      },
+      "WifiRadioSummary": {
+        "Num": 1,
+        "TotalDuration": 36180000000,
+        "MaxDuration": 36180000000
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 4,
+        "TotalDuration": 12163000000,
+        "MaxDuration": 11744000000
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 1,
+        "TotalDuration": 3804000000,
+        "MaxDuration": 3804000000
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 5492000000,
+          "MaxDuration": 5492000000
+        },
+        "lte": {
+          "Num": 1,
+          "TotalDuration": 32467000000,
+          "MaxDuration": 32467000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {},
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 37959000000,
+          "MaxDuration": 37959000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 37959000000,
+          "MaxDuration": 37959000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 37959000000,
+          "MaxDuration": 37959000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 37959000000,
+          "MaxDuration": 37959000000
+        }
+      },
+      "PhoneStateSummary": {
+        "in": {
+          "Num": 1,
+          "TotalDuration": 34155000000,
+          "MaxDuration": 34155000000
+        },
+        "out": {
+          "Num": 1,
+          "TotalDuration": 3804000000,
+          "MaxDuration": 3804000000
+        }
+      },
+      "WakeLockSummary": {},
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 2386000000,
+          "MaxDuration": 2386000000
+        },
+        "scan": {
+          "Num": 1,
+          "TotalDuration": 35573000000,
+          "MaxDuration": 35573000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "good": {
+          "Num": 1,
+          "TotalDuration": 14581000000,
+          "MaxDuration": 14581000000
+        },
+        "moderate": {
+          "Num": 1,
+          "TotalDuration": 17886000000,
+          "MaxDuration": 17886000000
+        },
+        "none": {
+          "Num": 1,
+          "TotalDuration": 5492000000,
+          "MaxDuration": 5492000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 2384000000,
+          "MaxDuration": 2384000000
+        },
+        "none": {
+          "Num": 1,
+          "TotalDuration": 35575000000,
+          "MaxDuration": 35575000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": null,
+      "DcpuStatsSummary": null,
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 0,
+        "io": 0,
+        "irq": 0,
+        "sirq": 0,
+        "sys": 0,
+        "usr": 0
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2015-02-02"
+    },
+    {
+      "Reason": "START",
+      "Active": true,
+      "StartTimeMs": 1422918503558,
+      "EndTimeMs": 1422918528227,
+      "InitialBatteryLevel": 57,
+      "FinalBatteryLevel": 57,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 1,
+        "TotalDuration": 1886000000,
+        "MaxDuration": 1886000000
+      },
+      "MobileRadioOnSummary": {
+        "Num": 1,
+        "TotalDuration": 20449000000,
+        "MaxDuration": 20449000000
+      },
+      "WifiOnSummary": {
+        "Num": 1,
+        "TotalDuration": 24669000000,
+        "MaxDuration": 24669000000
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 24669000000,
+        "MaxDuration": 24669000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 1,
+        "TotalDuration": 3067000000,
+        "MaxDuration": 3067000000
+      },
+      "WifiScanSummary": {
+        "Num": 2,
+        "TotalDuration": 984000000,
+        "MaxDuration": 593000000
+      },
+      "WifiFullLockSummary": {
+        "Num": 2,
+        "TotalDuration": 17524000000,
+        "MaxDuration": 17311000000
+      },
+      "WifiRadioSummary": {
+        "Num": 1,
+        "TotalDuration": 24669000000,
+        "MaxDuration": 24669000000
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 1,
+        "TotalDuration": 12735000000,
+        "MaxDuration": 12735000000
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "lte": {
+          "Num": 1,
+          "TotalDuration": 20449000000,
+          "MaxDuration": 20449000000
+        },
+        "none": {
+          "Num": 1,
+          "TotalDuration": 4220000000,
+          "MaxDuration": 4220000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {},
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 24669000000,
+          "MaxDuration": 24669000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 24669000000,
+          "MaxDuration": 24669000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 24669000000,
+          "MaxDuration": 24669000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 24669000000,
+          "MaxDuration": 24669000000
+        }
+      },
+      "PhoneStateSummary": {
+        "in": {
+          "Num": 1,
+          "TotalDuration": 24669000000,
+          "MaxDuration": 24669000000
+        }
+      },
+      "WakeLockSummary": {},
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "4-way": {
+          "Num": 1,
+          "TotalDuration": 21000000,
+          "MaxDuration": 21000000
+        },
+        "asced": {
+          "Num": 1,
+          "TotalDuration": 771000000,
+          "MaxDuration": 771000000
+        },
+        "compl": {
+          "Num": 1,
+          "TotalDuration": 18217000000,
+          "MaxDuration": 18217000000
+        },
+        "group": {
+          "Num": 1,
+          "TotalDuration": 130000000,
+          "MaxDuration": 130000000
+        },
+        "scan": {
+          "Num": 1,
+          "TotalDuration": 5530000000,
+          "MaxDuration": 5530000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "good": {
+          "Num": 1,
+          "TotalDuration": 24669000000,
+          "MaxDuration": 24669000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "great": {
+          "Num": 1,
+          "TotalDuration": 18347000000,
+          "MaxDuration": 18347000000
+        },
+        "none": {
+          "Num": 1,
+          "TotalDuration": 6322000000,
+          "MaxDuration": 6322000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": null,
+      "DcpuStatsSummary": null,
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 0,
+        "io": 0,
+        "irq": 0,
+        "sirq": 0,
+        "sys": 0,
+        "usr": 0
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2015-02-02"
+    },
+    {
+      "Reason": "END",
+      "Active": true,
+      "StartTimeMs": 1422979129104,
+      "EndTimeMs": 1422979135826,
+      "InitialBatteryLevel": 56,
+      "FinalBatteryLevel": 56,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 1,
+        "TotalDuration": 820000000,
+        "MaxDuration": 820000000
+      },
+      "ScreenOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "MobileRadioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 820000000,
+        "MaxDuration": 820000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 6722000000,
+          "MaxDuration": 6722000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {},
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 6722000000,
+          "MaxDuration": 6722000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 820000000,
+          "MaxDuration": 820000000
+        }
+      },
+      "PlugTypeSummary": {
+        "a": {
+          "Num": 1,
+          "TotalDuration": 820000000,
+          "MaxDuration": 820000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 820000000,
+          "MaxDuration": 820000000
+        }
+      },
+      "PhoneStateSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 6722000000,
+          "MaxDuration": 6722000000
+        }
+      },
+      "WakeLockSummary": {},
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 6722000000,
+          "MaxDuration": 6722000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 6722000000,
+          "MaxDuration": 6722000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 6722000000,
+          "MaxDuration": 6722000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": null,
+      "DcpuStatsSummary": null,
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 0,
+        "io": 0,
+        "irq": 0,
+        "sirq": 0,
+        "sys": 0,
+        "usr": 0
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2015-02-03"
+    }
+  ],
+  "parser_errors": [
+    "** Error in 9,h,5571,Bl=58,Bs=d,Bh=g,Bp=n,Bt=227,Bv=3803,+r with +r : consecutive +r events",
+    "** Error in 9,h,906,-a with -a : two negative transitions for \"Audio\":\"-\""
+  ]
+}

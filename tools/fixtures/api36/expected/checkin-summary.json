@@ -1,0 +1,2273 @@
+{
+  "kind": "checkin",
+  "report_version": 36,
+  "aggregation_type": "SINCE_CHARGED",
+  "build_id": "BE4B.251210.005",
+  "start_time_usec": 1792753721991000,
+  "app_count": 70,
+  "system": {
+    "battery": {
+      "start_count": 0,
+      "battery_realtime_ms": 500973,
+      "battery_uptime_ms": 500973,
+      "total_realtime_ms": 500973,
+      "total_uptime_ms": 500973,
+      "start_clock_time_ms": 1792753721991,
+      "screen_off_realtime_ms": 0,
+      "screen_off_uptime_ms": 0,
+      "estimated_capacity_mah": 3000
+    },
+    "battery_discharge": {
+      "lower_bound": 49,
+      "upper_bound": 50,
+      "screen_on": 50,
+      "screen_off": 0
+    },
+    "misc": {
+      "screen_on_time_ms": 500973,
+      "mobile_active_time_ms": 20399,
+      "interactive_time_ms": 500973,
+      "mobile_active_count": 2,
+      "mobile_active_unknown_time": 8108
+    },
+    "kernel_wakelocks": [
+      {
+        "name": "",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "00:00",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "ApmAudio",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "ApmOutput",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "GFSH0001:00",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "GFSH0003:00",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "GFSH0006:00",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "LNXPWRBN:00",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "NETLINK",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "PNP0A03:00",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "PowerManager.SuspendLockout",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "PowerManagerService.Booting",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "PowerManagerService.Display",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "PowerManagerService.WakeLocks",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "[timerfd]",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "ac",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "alarmtimer.0.auto",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "battery",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "bluetooth_gd_timer",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:00",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:01",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:02",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:03",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:04",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:05",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:06",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:07",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:08",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:09",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:0a",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:0b",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:0c",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:0d",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:0e",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:0f",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:10",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:11",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:12",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:13",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:14",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:15",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:16",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:17",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:18",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:19",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:1a",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "device:1b",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "emulator_wake_lock",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event0",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event1",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event10",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event11",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event12",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event13",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event2",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event3",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event4",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event5",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event6",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event7",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event8",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "event9",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "eventpoll",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "inotify",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "rtc-test.1",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "rtc-test.2",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      },
+      {
+        "name": "userspace-abort",
+        "time_ms": 0,
+        "count": 0,
+        "max_ms": -1
+      }
+    ],
+    "power_use_summary": {
+      "battery_capacity_mah": 3000,
+      "computed_power_mah": 1200,
+      "min_drained_power_mah": 1200,
+      "max_drained_power_mah": 1200
+    },
+    "power_use_items": [
+      {
+        "name": "APP",
+        "computed_power_mah": 0.040680002
+      },
+      {
+        "name": "BLUETOOTH",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "CELL",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "DEFAULT",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "DEFAULT",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "DEFAULT",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "DEFAULT",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "FLASHLIGHT",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "IDLE",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "PHONE",
+        "computed_power_mah": 0
+      },
+      {
+        "name": "SCREEN",
+        "computed_power_mah": 0.0209
+      },
+      {
+        "name": "WIFI",
+        "computed_power_mah": 0
+      }
+    ],
+    "global_wifi": {
+      "on_time_ms": 500973
+    },
+    "global_modem_controller": {
+      "idle_ms": 154,
+      "rx_ms": 99,
+      "tx": [
+        {
+          "level": 0,
+          "time_ms": 0
+        },
+        {
+          "level": 1,
+          "time_ms": 11
+        },
+        {
+          "level": 2,
+          "time_ms": 33
+        },
+        {
+          "level": 3,
+          "time_ms": 66
+        },
+        {
+          "level": 4,
+          "time_ms": 88
+        },
+        {
+          "level": 5,
+          "time_ms": 99
+        }
+      ]
+    },
+    "global_network": {
+      "mobile_bytes_rx": 192,
+      "wifi_bytes_rx": 503560,
+      "wifi_bytes_tx": 276546,
+      "mobile_packets_rx": 2,
+      "wifi_packets_rx": 633,
+      "wifi_packets_tx": 481
+    },
+    "data_connections": [
+      {
+        "name": "17",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "18",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "19",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "20",
+        "time_ms": 500973,
+        "count": 0
+      },
+      {
+        "name": "21",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "22",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "CDMA",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "EDGE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "EHRPD",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "EVDO_0",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "EVDO_A",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "EVDO_B",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "GPRS",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "HSDPA",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "HSPA",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "HSPAP",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "HSUPA",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "IDEN",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "LTE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "NONE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "ONE_X_RTT",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "OTHER",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "UMTS",
+        "time_ms": 0,
+        "count": 0
+      }
+    ],
+    "signal_strengths": [
+      {
+        "name": "GOOD",
+        "time_ms": 120000,
+        "count": 4
+      },
+      {
+        "name": "GREAT",
+        "time_ms": 200003,
+        "count": 4
+      },
+      {
+        "name": "MODERATE",
+        "time_ms": 75407,
+        "count": 4
+      },
+      {
+        "name": "NONE_OR_UNKNOWN",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "POOR",
+        "time_ms": 105563,
+        "count": 3
+      }
+    ],
+    "wifi_signal_strengths": [
+      {
+        "name": "GOOD",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "GREAT",
+        "time_ms": 500973,
+        "count": 0
+      },
+      {
+        "name": "MODERATE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "NONE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "POOR",
+        "time_ms": 0,
+        "count": 0
+      }
+    ],
+    "wifi_states": [
+      {
+        "name": "OFF",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "OFF_SCANNING",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "ON_CONNECTED_P2P",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "ON_CONNECTED_STA",
+        "time_ms": 500973,
+        "count": 0
+      },
+      {
+        "name": "ON_CONNECTED_STA_P2P",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "ON_DISCONNECTED",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "ON_NO_NETWORKS",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "SOFT_AP",
+        "time_ms": 0,
+        "count": 0
+      }
+    ],
+    "wifi_supplicant_states": [
+      {
+        "name": "ASSOCIATED",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "ASSOCIATING",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "AUTHENTICATING",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "COMPLETED",
+        "time_ms": 500973,
+        "count": 0
+      },
+      {
+        "name": "DISCONNECTED",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "DORMANT",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "FOUR_WAY_HANDSHAKE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "GROUP_HANDSHAKE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "INACTIVE",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "INTERFACE_DISABLED",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "INVALID",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "SCANNING",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "UNINITIALIZED",
+        "time_ms": 0,
+        "count": 0
+      }
+    ],
+    "screen_brightness": [
+      {
+        "name": "BRIGHT",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "DARK",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "DIM",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "LIGHT",
+        "time_ms": 0,
+        "count": 0
+      },
+      {
+        "name": "MEDIUM",
+        "time_ms": 500973,
+        "count": 0
+      }
+    ]
+  },
+  "apps": [
+    {
+      "uid": 0,
+      "name": "ROOT",
+      "computed_power_mah": 0.00164,
+      "cpu": {
+        "user_ms": 63,
+        "system_ms": 1014,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "init",
+          "user_ms": 10,
+          "system_ms": 0,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "ksoftirqd/3",
+          "user_ms": 0,
+          "system_ms": 80,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/0:0-mm_percpu_wq",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/1:1-virtio_vsock",
+          "user_ms": 0,
+          "system_ms": 240,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/1:2-virtio_vsock",
+          "user_ms": 0,
+          "system_ms": 210,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/2:3-mm_percpu_wq",
+          "user_ms": 10,
+          "system_ms": 0,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/3:1-slub_flushwq",
+          "user_ms": 0,
+          "system_ms": 90,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/3:20H-kverityd",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/u16:1-kvfree_rcu_reclaim",
+          "user_ms": 0,
+          "system_ms": 20,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "kworker/u16:3-kvfree_rcu_reclaim",
+          "user_ms": 0,
+          "system_ms": 40,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "netd",
+          "user_ms": 10,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "rcuop/0",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "rcuop/1",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "vivid-000-tch-cap",
+          "user_ms": 0,
+          "system_ms": 20,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "network": {
+        "wifi_bytes_tx": 256,
+        "wifi_packets_tx": 4
+      }
+    },
+    {
+      "uid": 1000,
+      "name": "ANDROID_SYSTEM",
+      "children": [
+        "android",
+        "com.android.DeviceAsWebcam",
+        "com.android.dynsystem",
+        "com.android.emulator.multidisplay",
+        "com.android.inputdevices",
+        "com.android.keychain",
+        "com.android.localtransport",
+        "com.android.location.fused",
+        "com.android.providers.settings",
+        "com.android.server.telecom",
+        "com.android.settings"
+      ],
+      "computed_power_mah": 0.00842,
+      "cpu": {
+        "user_ms": 1860,
+        "system_ms": 3530,
+        "power_ma_ms": 0
+      },
+      "wakelocks": [
+        {
+          "name": "*alarm*"
+        },
+        {
+          "name": "*job*r/android/com.android.server.notification.NotificationHistoryJobService"
+        },
+        {
+          "name": "*location*:PsdsDownload"
+        },
+        {
+          "name": "*telephony-radio*"
+        }
+      ],
+      "sensors": [
+        {
+          "number": 0,
+          "total_ms": 500429,
+          "count": 0,
+          "actual_ms": 500973
+        }
+      ],
+      "scheduled_jobs": [
+        {
+          "name": "android/com.android.server.notification.NotificationHistoryJobService",
+          "total_ms": 1,
+          "count": 1
+        }
+      ],
+      "processes": [
+        {
+          "name": "android.hardware.biometrics.fingerprint-service.ranchu",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "android.hardware.graphics.composer3-service.ranchu",
+          "user_ms": 360,
+          "system_ms": 350,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "android.hardware.health-service.example",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "android.hardware.sensors-service.multihal",
+          "user_ms": 200,
+          "system_ms": 630,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "android.system.suspend-service",
+          "user_ms": 0,
+          "system_ms": 20,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "servicemanager",
+          "user_ms": 10,
+          "system_ms": 20,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "surfaceflinger",
+          "user_ms": 340,
+          "system_ms": 720,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "system",
+          "user_ms": 750,
+          "system_ms": 580,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "network": {
+        "mobile_bytes_rx": 192,
+        "wifi_bytes_rx": 336,
+        "mobile_packets_rx": 2,
+        "wifi_packets_rx": 4,
+        "mobile_active_ms": 10159,
+        "mobile_active_count": 2
+      },
+      "modem_controller": {
+        "rx_ms": 9,
+        "tx": [
+          {
+            "level": 0,
+            "time_ms": 0
+          },
+          {
+            "level": 1,
+            "time_ms": 0
+          }
+        ]
+      }
+    },
+    {
+      "uid": 1001,
+      "name": "RADIO",
+      "children": [
+        "com.android.mms.service",
+        "com.android.ons",
+        "com.android.phone",
+        "com.android.providers.telephony",
+        "com.android.stk"
+      ],
+      "computed_power_mah": 0.000262,
+      "cpu": {
+        "user_ms": 132,
+        "system_ms": 35,
+        "power_ma_ms": 0
+      },
+      "wakelocks": [
+        {
+          "name": "*telephony-radio*"
+        }
+      ],
+      "processes": [
+        {
+          "name": "com.android.phone",
+          "user_ms": 90,
+          "system_ms": 20,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {
+        "top_sleeping_ms": 500973
+      }
+    },
+    {
+      "uid": 1002,
+      "name": "BLUETOOTH",
+      "children": [
+        "com.google.android.bluetooth"
+      ],
+      "computed_power_mah": 0.000006,
+      "cpu": {
+        "user_ms": 0,
+        "system_ms": 2,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "com.google.android.bluetooth",
+          "user_ms": 10,
+          "system_ms": 0,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {
+        "top_sleeping_ms": 500973
+      }
+    },
+    {
+      "uid": 1010,
+      "name": "WIFI",
+      "computed_power_mah": 0.000073,
+      "processes": [
+        {
+          "name": "android.hardware.wifi-service",
+          "user_ms": 10,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "wpa_supplicant",
+          "user_ms": 0,
+          "system_ms": 20,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "wifi_controller": {
+        "tx": [
+          {
+            "level": 0,
+            "time_ms": 0
+          }
+        ]
+      }
+    },
+    {
+      "uid": 1013,
+      "name": "MEDIA",
+      "cpu": {
+        "user_ms": 0,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      }
+    },
+    {
+      "uid": 1017,
+      "name": "KEYSTORE",
+      "computed_power_mah": 0.000015,
+      "cpu": {
+        "user_ms": 2,
+        "system_ms": 5,
+        "power_ma_ms": 0
+      }
+    },
+    {
+      "uid": 1027,
+      "name": "NFC",
+      "children": [
+        "com.android.nfc",
+        "com.google.android.nfc"
+      ]
+    },
+    {
+      "uid": 1036,
+      "name": "LOGD",
+      "computed_power_mah": 0.000442,
+      "cpu": {
+        "user_ms": 50,
+        "system_ms": 229,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "logcat",
+          "user_ms": 10,
+          "system_ms": 140,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "logd",
+          "user_ms": 20,
+          "system_ms": 30,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ]
+    },
+    {
+      "uid": 1041,
+      "name": "AUDIOSERVER",
+      "computed_power_mah": 0.000003,
+      "cpu": {
+        "user_ms": 0,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      }
+    },
+    {
+      "uid": 1047,
+      "name": "CAMERASERVER",
+      "computed_power_mah": 0.000001
+    },
+    {
+      "uid": 1066,
+      "name": "process:statsd",
+      "computed_power_mah": 0.000037,
+      "cpu": {
+        "user_ms": 6,
+        "system_ms": 15,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "statsd",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ]
+    },
+    {
+      "uid": 1068,
+      "name": "com.android.se",
+      "children": [
+        "com.android.se"
+      ],
+      "state_time": {
+        "top_sleeping_ms": 500973
+      }
+    },
+    {
+      "uid": 1069,
+      "name": "uid:1069",
+      "computed_power_mah": 0.000009
+    },
+    {
+      "uid": 1073,
+      "name": "com.google.android.cellbroadcastservice|com.google.android.networkstack|com.google.android.networkstack.tethering",
+      "children": [
+        "com.google.android.cellbroadcastservice",
+        "com.google.android.networkstack",
+        "com.google.android.networkstack.tethering"
+      ],
+      "computed_power_mah": 0.000099,
+      "cpu": {
+        "user_ms": 43,
+        "system_ms": 21,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "com.android.networkstack.process",
+          "user_ms": 40,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {
+        "top_sleeping_ms": 500973
+      }
+    },
+    {
+      "uid": 1084,
+      "name": "process:ot-daemon",
+      "computed_power_mah": 0.000046,
+      "processes": [
+        {
+          "name": "ot-daemon",
+          "user_ms": 0,
+          "system_ms": 20,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ]
+    },
+    {
+      "uid": 1092,
+      "name": "uid:1092",
+      "cpu": {
+        "user_ms": 0,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      }
+    },
+    {
+      "uid": 2000,
+      "name": "SHELL",
+      "children": [
+        "com.android.shell"
+      ],
+      "computed_power_mah": 0.000962,
+      "cpu": {
+        "user_ms": 277,
+        "system_ms": 281,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "adbd",
+          "user_ms": 10,
+          "system_ms": 60,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 9999,
+      "name": "NOBODY",
+      "computed_power_mah": 0.000006,
+      "cpu": {
+        "user_ms": 1,
+        "system_ms": 2,
+        "power_ma_ms": 0
+      }
+    },
+    {
+      "uid": 10102,
+      "name": "MEDIA",
+      "children": [
+        "com.android.mtp",
+        "com.android.providers.downloads",
+        "com.android.providers.downloads.ui",
+        "com.android.providers.media",
+        "com.android.soundpicker"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10104,
+      "name": "com.android.devicediagnostics",
+      "children": [
+        "com.android.devicediagnostics"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10106,
+      "name": "CONTACTS_PROVIDER",
+      "children": [
+        "com.android.calllogbackup",
+        "com.android.providers.blockednumber",
+        "com.android.providers.contactkeys",
+        "com.android.providers.contacts",
+        "com.android.providers.userdictionary"
+      ],
+      "computed_power_mah": 0.000004,
+      "cpu": {
+        "user_ms": 3,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "foreground_ms": 6030
+      }
+    },
+    {
+      "uid": 10109,
+      "name": "com.google.android.packageinstaller",
+      "children": [
+        "com.google.android.packageinstaller"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10111,
+      "name": "com.google.android.documentsui",
+      "children": [
+        "com.google.android.documentsui"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10114,
+      "name": "com.android.providers.calendar",
+      "children": [
+        "com.android.providers.calendar"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10116,
+      "name": "com.android.managedprovisioning",
+      "children": [
+        "com.android.managedprovisioning"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10118,
+      "name": "com.android.externalstorage",
+      "children": [
+        "com.android.externalstorage"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10121,
+      "name": "com.android.cellbroadcastreceiver",
+      "children": [
+        "com.android.cellbroadcastreceiver"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10125,
+      "name": "com.android.printspooler",
+      "children": [
+        "com.android.printspooler"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10132,
+      "name": "com.android.carrierdefaultapp",
+      "children": [
+        "com.android.carrierdefaultapp"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10136,
+      "name": "com.android.traceur",
+      "children": [
+        "com.android.traceur"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10141,
+      "name": "com.google.android.apps.messaging",
+      "children": [
+        "com.google.android.apps.messaging"
+      ],
+      "computed_power_mah": 0.000233,
+      "cpu": {
+        "user_ms": 98,
+        "system_ms": 72,
+        "power_ma_ms": 0
+      },
+      "wakelocks": [
+        {
+          "name": "*alarm*"
+        },
+        {
+          "name": "*job*r/XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService"
+        }
+      ],
+      "scheduled_jobs": [
+        {
+          "name": "XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService",
+          "total_ms": 791,
+          "count": 1
+        }
+      ],
+      "processes": [
+        {
+          "name": "com.google.android.apps.messaging",
+          "user_ms": 90,
+          "system_ms": 80,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {
+        "foreground_service_ms": 500973
+      }
+    },
+    {
+      "uid": 10142,
+      "name": "com.google.android.partnersetup",
+      "children": [
+        "com.google.android.partnersetup"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10143,
+      "name": "com.google.android.apps.wellbeing",
+      "children": [
+        "com.google.android.apps.wellbeing"
+      ]
+    },
+    {
+      "uid": 10144,
+      "name": "com.google.android.apps.safetyhub",
+      "children": [
+        "com.google.android.apps.safetyhub"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10146,
+      "name": "com.google.android.as.oss",
+      "children": [
+        "com.google.android.as.oss"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10147,
+      "name": "com.google.android.projection.gearhead",
+      "children": [
+        "com.google.android.projection.gearhead"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10148,
+      "name": "com.google.android.as",
+      "children": [
+        "com.google.android.as"
+      ],
+      "computed_power_mah": 0.000009,
+      "cpu": {
+        "user_ms": 5,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "foreground_service_ms": 500973
+      }
+    },
+    {
+      "uid": 10149,
+      "name": "com.android.imsserviceentitlement",
+      "children": [
+        "com.android.imsserviceentitlement"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10150,
+      "name": "com.google.android.configupdater",
+      "children": [
+        "com.google.android.configupdater"
+      ],
+      "computed_power_mah": 0.000007,
+      "cpu": {
+        "user_ms": 4,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "wakelocks": [
+        {
+          "name": "*alarm*"
+        }
+      ],
+      "state_time": {
+        "foreground_ms": 6
+      }
+    },
+    {
+      "uid": 10152,
+      "name": "GOOGLE_SERVICES",
+      "children": [
+        "com.google.android.gms"
+      ],
+      "computed_power_mah": 0.00702,
+      "cpu": {
+        "user_ms": 564,
+        "system_ms": 135,
+        "power_ma_ms": 0
+      },
+      "wakelocks": [
+        {
+          "name": "*alarm*"
+        },
+        {
+          "name": "*gms_scheduler*/com.google.android.gms/.auth.account.be.legacy.AuthCronService"
+        },
+        {
+          "name": "*gms_scheduler*/com.google.android.gms/.droidguard.DroidGuardFastRefreshGmsTaskBoundService"
+        },
+        {
+          "name": "*gms_scheduler*/com.google.android.gms/.semanticlocationhistory.settings.SettingsSyncOneOffService"
+        },
+        {
+          "name": "*gms_scheduler*/com.google.android.gms/.tapandpay.gcmtask.TapAndPayGcmTaskService"
+        },
+        {
+          "name": "*gms_scheduler*:internal"
+        },
+        {
+          "name": "CallbackRunner"
+        },
+        {
+          "name": "CollectionLib-SigCollector"
+        },
+        {
+          "name": "GCM_CONN_ALARM"
+        },
+        {
+          "name": "GCM_HB_ALARM"
+        },
+        {
+          "name": "GCM_READ"
+        },
+        {
+          "name": "GCM_WORK"
+        },
+        {
+          "name": "GCoreFlp"
+        },
+        {
+          "name": "IntentOp:.chimera.container.InitConfigOperation"
+        },
+        {
+          "name": "IntentOp:.common.broadcast.BackgroundBroadcastReceiverSupport$PersistentReceiverIntentOperation"
+        },
+        {
+          "name": "PendingIntentClient"
+        },
+        {
+          "name": "Wakeful StateMachine: GeofencerStateMachine"
+        }
+      ],
+      "wakeup_alarms": [
+        {
+          "name": "*walarm*:com.google.android.gms.gcm.HEARTBEAT_ALARM",
+          "count": 0
+        },
+        {
+          "name": "*walarm*:com.google.android.location.ALARM_WAKEUP_ACTIVITY_DETECTION",
+          "count": 0
+        }
+      ],
+      "sensors": [
+        {
+          "number": 0,
+          "total_ms": 545,
+          "count": 2,
+          "actual_ms": 1089
+        },
+        {
+          "number": 1600940398,
+          "total_ms": 712,
+          "count": 2,
+          "actual_ms": 712
+        },
+        {
+          "number": 1601335158,
+          "total_ms": 708,
+          "count": 2,
+          "actual_ms": 708
+        }
+      ],
+      "processes": [
+        {
+          "name": "com.google.android.gms",
+          "user_ms": 50,
+          "system_ms": 50,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "com.google.android.gms.persistent",
+          "user_ms": 50,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        },
+        {
+          "name": "com.google.android.gms.unstable",
+          "user_ms": 280,
+          "system_ms": 40,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "network": {
+        "wifi_bytes_rx": 503224,
+        "wifi_bytes_tx": 276290,
+        "wifi_packets_rx": 629,
+        "wifi_packets_tx": 477,
+        "wifi_wakeup_count": 4
+      },
+      "state_time": {
+        "foreground_service_ms": 500973
+      }
+    },
+    {
+      "uid": 10153,
+      "name": "com.google.android.settings.intelligence",
+      "children": [
+        "com.google.android.settings.intelligence"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10155,
+      "name": "com.google.android.onetimeinitializer",
+      "children": [
+        "com.google.android.onetimeinitializer"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10156,
+      "name": "com.google.android.googlequicksearchbox",
+      "children": [
+        "com.google.android.googlequicksearchbox"
+      ],
+      "computed_power_mah": 0.000003,
+      "cpu": {
+        "user_ms": 2,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "foreground_service_ms": 500973
+      }
+    },
+    {
+      "uid": 10157,
+      "name": "com.google.android.dialer",
+      "children": [
+        "com.google.android.dialer"
+      ],
+      "computed_power_mah": 0.000018,
+      "cpu": {
+        "user_ms": 9,
+        "system_ms": 3,
+        "power_ma_ms": 0
+      },
+      "wakelocks": [
+        {
+          "name": "*alarm*"
+        },
+        {
+          "name": "*job*r/XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService"
+        }
+      ],
+      "scheduled_jobs": [
+        {
+          "name": "XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService",
+          "total_ms": 5,
+          "count": 1
+        }
+      ],
+      "state_time": {
+        "foreground_ms": 7
+      }
+    },
+    {
+      "uid": 10160,
+      "name": "com.google.android.inputmethod.latin",
+      "children": [
+        "com.google.android.inputmethod.latin"
+      ],
+      "computed_power_mah": 0.000003,
+      "cpu": {
+        "user_ms": 1,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "foreground_ms": 500973
+      }
+    },
+    {
+      "uid": 10161,
+      "name": "com.android.camera2",
+      "children": [
+        "com.android.camera2"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10162,
+      "name": "com.google.android.accessibility.switchaccess",
+      "children": [
+        "com.google.android.accessibility.switchaccess"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10163,
+      "name": "com.google.android.tts",
+      "children": [
+        "com.google.android.tts"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10169,
+      "name": "com.android.chrome",
+      "children": [
+        "com.android.chrome"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10171,
+      "name": "com.google.android.apps.photos",
+      "children": [
+        "com.google.android.apps.photos"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10182,
+      "name": "com.google.android.marvin.talkback",
+      "children": [
+        "com.google.android.marvin.talkback"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10185,
+      "name": "SYSTEM_UI",
+      "children": [
+        "com.android.systemui"
+      ],
+      "computed_power_mah": 0.000389,
+      "cpu": {
+        "user_ms": 193,
+        "system_ms": 57,
+        "power_ma_ms": 0
+      },
+      "wakelocks": [
+        {
+          "name": "SysUI:BroadcastSender"
+        }
+      ],
+      "processes": [
+        {
+          "name": "com.android.systemui",
+          "user_ms": 140,
+          "system_ms": 70,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {
+        "top_sleeping_ms": 500973
+      }
+    },
+    {
+      "uid": 10188,
+      "name": "com.google.android.apps.wallpaper",
+      "children": [
+        "com.google.android.apps.wallpaper"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10190,
+      "name": "com.android.carrierconfig",
+      "children": [
+        "com.android.carrierconfig"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10191,
+      "name": "com.google.android.apps.nexuslauncher",
+      "children": [
+        "com.google.android.apps.nexuslauncher"
+      ],
+      "computed_power_mah": 0.000004,
+      "cpu": {
+        "user_ms": 0,
+        "system_ms": 3,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "foreground_service_ms": 500973
+      }
+    },
+    {
+      "uid": 10200,
+      "name": "com.google.android.permissioncontroller",
+      "children": [
+        "com.google.android.permissioncontroller"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10204,
+      "name": "com.android.devicelockcontroller",
+      "children": [
+        "com.android.devicelockcontroller"
+      ]
+    },
+    {
+      "uid": 10208,
+      "name": "com.google.android.ext.services",
+      "children": [
+        "com.google.android.ext.services"
+      ],
+      "state_time": {
+        "foreground_service_ms": 500973
+      }
+    },
+    {
+      "uid": 10210,
+      "name": "com.google.android.adservices.api",
+      "children": [
+        "com.google.android.adservices.api"
+      ],
+      "cpu": {
+        "user_ms": 1,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "foreground_ms": 14755
+      }
+    },
+    {
+      "uid": 10212,
+      "name": "com.google.android.ondevicepersonalization.services",
+      "children": [
+        "com.google.android.ondevicepersonalization.services"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10213,
+      "name": "com.google.android.federatedcompute",
+      "children": [
+        "com.google.android.federatedcompute"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10214,
+      "name": "com.google.android.providers.media.module",
+      "children": [
+        "com.google.android.providers.media.module"
+      ],
+      "computed_power_mah": 0.000007,
+      "cpu": {
+        "user_ms": 4,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "top_sleeping_ms": 500973
+      }
+    },
+    {
+      "uid": 10215,
+      "name": "com.google.android.photopicker",
+      "children": [
+        "com.google.android.photopicker"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10217,
+      "name": "com.google.android.rkpdapp",
+      "children": [
+        "com.google.android.rkpdapp"
+      ],
+      "computed_power_mah": 0.000014,
+      "cpu": {
+        "user_ms": 9,
+        "system_ms": 0,
+        "power_ma_ms": 0
+      },
+      "state_time": {
+        "foreground_ms": 1,
+        "top_sleeping_ms": 13
+      }
+    },
+    {
+      "uid": 10218,
+      "name": "com.google.android.healthconnect.controller",
+      "children": [
+        "com.google.android.healthconnect.controller"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10225,
+      "name": "com.google.android.cellbroadcastreceiver",
+      "children": [
+        "com.google.android.cellbroadcastreceiver"
+      ],
+      "state_time": {}
+    },
+    {
+      "uid": 10226,
+      "name": "moe.shizuku.privileged.api",
+      "children": [
+        "moe.shizuku.privileged.api"
+      ],
+      "cpu": {
+        "user_ms": 0,
+        "system_ms": 1,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "moe.shizuku.privileged.api",
+          "user_ms": 0,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {
+        "foreground_ms": 1
+      }
+    },
+    {
+      "uid": 10227,
+      "name": "com.leekleak.batteryarcheologist",
+      "children": [
+        "com.leekleak.batteryarcheologist"
+      ],
+      "computed_power_mah": 0.0209,
+      "cpu": {
+        "user_ms": 24,
+        "system_ms": 1,
+        "power_ma_ms": 0
+      },
+      "foreground": {
+        "total_ms": 500973,
+        "count": 0
+      },
+      "processes": [
+        {
+          "name": "com.leekleak.batteryarcheologist",
+          "user_ms": 30,
+          "system_ms": 10,
+          "foreground_ms": 0,
+          "starts": 0
+        }
+      ],
+      "state_time": {
+        "top_ms": 500973
+      }
+    },
+    {
+      "uid": 10228,
+      "name": "com.android.cli.interact.instrumentation",
+      "children": [
+        "com.android.cli.interact.instrumentation"
+      ],
+      "computed_power_mah": 0.000048,
+      "cpu": {
+        "user_ms": 21,
+        "system_ms": 9,
+        "power_ma_ms": 0
+      },
+      "processes": [
+        {
+          "name": "com.android.cli.interact.instrumentation",
+          "user_ms": 0,
+          "system_ms": 0,
+          "foreground_ms": 0,
+          "starts": 1
+        }
+      ],
+      "state_time": {
+        "foreground_service_ms": 120122
+      }
+    }
+  ],
+  "warnings": [
+    "The underlying format for bt has 1 additional field(s) that are not captured.",
+    "The underlying format for dc has 4 additional field(s) that are not captured.",
+    "Unknown powerUseItem name ambi",
+    "Unknown powerUseItem name audio",
+    "Unknown powerUseItem name camera",
+    "Unknown powerUseItem name cpu",
+    "Unknown powerUseItem name gnss",
+    "Unknown powerUseItem name memory",
+    "Unknown powerUseItem name sensors",
+    "Unknown powerUseItem name video",
+    "dcc has 6 additional field(s) that are not captured.",
+    "dct has 6 additional field(s) that are not captured.",
+    "found unexpected uid 1066 for section \"pwi\"",
+    "found unexpected uid 1069 for section \"pwi\"",
+    "found unexpected uid 1084 for section \"pwi\"",
+    "found unexpected uid 1092 for section \"cpu\"",
+    "newer report version 36 found",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "st has 1 new fields",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category awl",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category ctf",
+    "unknown data category fgs",
+    "unknown data category gcf",
+    "unknown data category jbc",
+    "unknown data category jbc",
+    "unknown data category jbc",
+    "unknown data category rpm",
+    "unknown data category rpm",
+    "unknown data category rpm",
+    "unknown data category rpm",
+    "unknown data category wmct",
+    "user activity now has 3 additional fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields",
+    "wl has 6 new fields"
+  ]
+}

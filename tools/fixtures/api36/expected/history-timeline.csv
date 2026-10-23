@@ -1,0 +1,264 @@
+metric,type,start_time,end_time,value,opt
+JobScheduler,service,1792752870253,1792752871605,com.android.settings/.sim.receivers.SimSlotChangeService,1000
+JobScheduler,service,1792752870253,1792752876961,com.google.android.as/com.google.android.apps.miphone.aiai.common.brella.service.AiAiExampleStoreTtlService,10148
+JobScheduler,service,1792752870253,1792752877158,com.google.android.partnersetup/.PhenotypeJobService,10142
+JobScheduler,service,1792752870253,1792752880666,com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.dataservice.superpacks.SuperpacksBackgroundJobService,10160
+JobScheduler,service,1792752870253,1792752880770,"XXX@com.google.android.inputmethod.latin/androidx.work.impl.background.systemjob.SystemJobService""",10160
+JobScheduler,service,1792752870253,1792752883301,com.android.imsserviceentitlement/.fcm.FcmRegistrationService,10149
+JobScheduler,service,1792752870253,1792752883961,"XXX@com.google.android.googlequicksearchbox/androidx.work.impl.background.systemjob.SystemJobService""",10156
+Foreground process,service,1792752870253,1792752884370,com.google.android.apps.wellbeing,10143
+JobScheduler,service,1792752870253,1792752886630,com.google.android.googlequicksearchbox/com.google.android.libraries.notifications.entrypoints.scheduled.ScheduledTaskService,10156
+Foreground process,service,1792752870253,1792752887282,com.google.android.apps.wellbeing,10143
+JobScheduler,service,1792752870253,1792752887590,com.google.android.permissioncontroller/com.android.permissioncontroller.hibernation.HibernationJobService,10200
+JobScheduler,service,1792752870253,1792752887701,com.google.android.permissioncontroller/com.android.permissioncontroller.permission.service.PermissionEventCleanupJobService,10200
+JobScheduler,service,1792752870253,1792752888149,com.google.android.settings.intelligence/.modules.routines.impl.PruneDatabaseJobService,10153
+JobScheduler,service,1792752870253,1792752888346,com.google.android.settings.intelligence/.modules.routines.impl.RoutinesJobIntentService,10153
+JobScheduler,service,1792752870253,1792752889294,com.google.android.partnersetup/.ClientIdJobService,10142
+Sensor,bool,1792752870253,1792752890886,true,
+JobScheduler,service,1792752870253,1792752891723,com.google.android.apps.safetyhub/com.google.android.libraries.notifications.entrypoints.scheduled.ScheduledTaskService,10144
+JobScheduler,service,1792752870253,1792752891891,com.google.android.settings.intelligence/.modules.routines.impl.RoutinesJobIntentService,10153
+JobScheduler,service,1792752870253,1792752891947,com.google.android.partnersetup/.ClientIdJobService,10142
+JobScheduler,service,1792752870253,1792752892163,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+JobScheduler,service,1792752870253,1792752892446,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+JobScheduler,service,1792752870253,1792752893051,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+JobScheduler,service,1792752870253,1792752898140,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+JobScheduler,service,1792752870253,1792752898194,com.google.android.apps.messaging/.shared.datamodel.action.execution.ActionJobService,10141
+JobScheduler,service,1792752870253,1792752898323,com.google.android.partnersetup/.PhenotypeJobService,10142
+Temp White List,service,1792752870253,1792752901418,6dad148 android.bluetooth.adapter.action.STATE_CHANGED/u-1,10185
+Temp White List,service,1792752870253,1792752903923,1971e55 android.intent.action.BOOT_COMPLETED/u0,10160
+Temp White List,service,1792752870253,1792752903979,1971e55 android.intent.action.BOOT_COMPLETED/u0,10104
+JobScheduler,service,1792752870253,1792752935088,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+JobScheduler,service,1792752870253,1792752952275,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+JobScheduler,service,1792752870253,1792752958630,com.google.android.settings.intelligence/.modules.routines.impl.RoutinesJobIntentService,10153
+JobScheduler,service,1792752870253,1792752968016,"XXX@com.google.android.settings.intelligence/androidx.work.impl.background.systemjob.SystemJobService""",10153
+JobScheduler,service,1792752870253,1792753003792,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+JobScheduler,service,1792752870253,1792753063633,"XXX@com.google.android.apps.photos/androidx.work.impl.background.systemjob.SystemJobService""",10171
+JobScheduler,service,1792752870253,1792753072692,com.google.android.apps.photos/com.google.android.libraries.social.async.BackgroundTaskJobService,10171
+JobScheduler,service,1792752870253,1792753103898,com.google.android.apps.photos/.account.full.SyncAccountsForLoginService,10171
+JobScheduler,service,1792752870253,1792753156517,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+Temp White List,service,1792752870253,1792753200119,a028cef com.google.android.gms.personalsafety.scanners.ACTION_ACTIVITY_DETECTED/u0,10152
+Long Wakelocks,service,1792752870253,1792753700823,historyName1,1000
+Battery Level,int,1792752870253,1792753703285,100,
+Brightness,int,1792752870253,1792753703285,2,
+CPU running,string,1792752870253,1792753703285,1792753703285~Unknown wakeup reason,
+Charging on,bool,1792752870253,1792753703285,true,
+Charging status,string,1792752870253,1792753703285,c,
+Coulomb charge,int,1792752870253,1792753703285,10,
+Health,string,1792752870253,1792753703285,g,
+Partial wakelock,service,1792752870253,1792753703285,unknown-wakelock-holder,
+Plug,string,1792752870253,1792753703285,a,
+Plugged,bool,1792752870253,1792753703285,true,
+Screen,bool,1792752870253,1792753703285,true,unknown screen on reason
+Temperature,int,1792752870253,1792753703285,250,
+Voltage,int,1792752870253,1792753703285,5000,
+Wifi on,bool,1792752870253,1792753703285,true,
+Top app,service,1792752870389,1792753703285,com.google.android.apps.nexuslauncher,10191
+Temp White List,service,1792752870779,1792752905176,59c3fdf android.safetycenter.action.REFRESH_SAFETY_SOURCES/u0,1000
+Phone state,string,1792752871797,1792752872154,off,
+Mobile signal strength,string,1792752871797,1792752873483,none,
+Temp White List,service,1792752871797,1792753703285,177eb81 android.safetycenter.action.REFRESH_SAFETY_SOURCES/u0,10152
+Phone scanning,bool,1792752872154,1792752873483,true,
+Phone state,string,1792752872154,1792752873483,out,
+Temp White List,service,1792752872157,1792753703285,47a0a1c android.safetycenter.action.REFRESH_SAFETY_SOURCES/u0,10200
+Wifi scan,bool,1792752872733,1792752876558,true,
+Temp White List,service,1792752873304,1792753703285,410410a android.intent.action.LOCKED_BOOT_COMPLETED/u0,10204
+Mobile signal strength,string,1792752873483,1792752887701,great,
+Phone state,string,1792752873483,1792753703285,in,
+Temp White List,service,1792752874250,1792753703285,410410a android.intent.action.LOCKED_BOOT_COMPLETED/u0,10143
+Temp White List,service,1792752874842,1792753703285,bd5503c android.intent.action.PRE_BOOT_COMPLETED/u0,10116
+JobScheduler,service,1792752874958,1792753703285,com.google.android.as/com.google.android.apps.miphone.aiai.echo.scheduler.EchoJobService,10148
+JobScheduler,service,1792752875072,1792752870253,"XXX@com.google.android.as/androidx.work.impl.background.systemjob.SystemJobService""",10148
+JobScheduler,service,1792752875315,1792752875473,"XXX@com.google.android.apps.wellbeing/androidx.work.impl.background.systemjob.SystemJobService""",10143
+Top app,service,1792752875501,1792753703285,com.google.android.gms.ui,10152
+JobScheduler,service,1792752876170,1792752876528,"XXX@com.google.android.as/androidx.work.impl.background.systemjob.SystemJobService""",10148
+JobScheduler,service,1792752876250,1792752877051,com.google.android.as/com.google.android.apps.miphone.aiai.common.superpacks.impl.PeriodicCleanupService,10148
+Wifi supplicant,string,1792752876961,1792752877051,ascing,
+Wifi signal strength,string,1792752876988,1792753703285,great,
+Wifi supplicant,string,1792752877051,1792752877158,asced,
+Wifi supplicant,string,1792752877158,1792753703285,compl,
+JobScheduler,service,1792752877905,1792752889565,com.google.android.partnersetup/.PhenotypeJobService,10142
+Temp White List,service,1792752877933,1792753703285,f8d528f android.intent.action.PRE_BOOT_COMPLETED/u0,10114
+Wifi radio,bool,1792752878269,1792752994289,true,
+Network connectivity,service,1792752878269,1792753703285,"TYPE_WIFI:""CONNECTED""",
+JobScheduler,service,1792752878346,1792753703285,com.google.android.as/com.google.android.apps.miphone.aiai.interestsmodel.storage.privacy.TtlExpiryService,10148
+Temp White List,service,1792752878631,1792752898413,be1365f android.intent.action.PRE_BOOT_COMPLETED/u0,10106
+JobScheduler,service,1792752879001,1792752879430,"XXX@com.google.android.as/androidx.work.impl.background.systemjob.SystemJobService""",10148
+JobScheduler,service,1792752880170,1792752880506,"XXX@com.google.android.inputmethod.latin/androidx.work.impl.background.systemjob.SystemJobService""",10160
+Temp White List,service,1792752880283,1792753703285,56b0f68 android.intent.action.PRE_BOOT_COMPLETED/u0,10111
+JobScheduler,service,1792752881280,1792752881436,"XXX@android/com.android.server.healthconnect.HealthConnectDailyService""",1000
+Package install,service,1792752881769,1792752881769,moe.shizuku.privileged.api,1086
+Temp White List,service,1792752882158,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10188
+Temp White List,service,1792752882627,1792752916823,shell,10226
+Mobile network type,string,1792752882908,1792752885830,lte,
+Temp White List,service,1792752882910,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10149
+Temp White List,service,1792752882955,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10102
+Mobile radio active,bool,1792752883151,1792752909912,true,
+JobScheduler,service,1792752883203,1792752883261,"XXX@com.android.devicelockcontroller/androidx.work.impl.background.systemjob.SystemJobService""",10204
+Temp White List,service,1792752883738,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10161
+JobScheduler,service,1792752883758,1792752884447,com.google.android.as/com.google.android.apps.miphone.aiai.common.superpacks.impl.AiAiPersistentDownloadJobService,10148
+Temp White List,service,1792752883897,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10146
+Temp White List,service,1792752883901,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10225
+JobScheduler,service,1792752883931,1792752870253,"XXX@com.google.android.apps.wellbeing/androidx.work.impl.background.systemjob.SystemJobService""",10143
+JobScheduler,service,1792752884188,1792752885581,com.google.android.partnersetup/.ClientIdJobService,10142
+Temp White List,service,1792752884237,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10217
+JobScheduler,service,1792752884476,1792752870253,"XXX@com.google.android.rkpdapp/androidx.work.impl.background.systemjob.SystemJobService""",10217
+JobScheduler,service,1792752884742,1792752884996,"XXX@com.google.android.rkpdapp/androidx.work.impl.background.systemjob.SystemJobService""",10217
+JobScheduler,service,1792752885290,1792753703285,"XXX@com.google.android.apps.wellbeing/androidx.work.impl.background.systemjob.SystemJobService""",10143
+Temp White List,service,1792752885330,1792752905327,1971e55 android.intent.action.BOOT_COMPLETED/u0,2000
+Temp White List,service,1792752885500,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10150
+JobScheduler,service,1792752885830,1792752870253,"XXX@com.google.android.googlequicksearchbox/androidx.work.impl.background.systemjob.SystemJobService""",10156
+Mobile network type,string,1792752885830,1792753703285,nr,
+JobScheduler,service,1792752885994,1792752889975,com.google.android.as/com.google.android.apps.miphone.aiai.common.superpacks.impl.AiAiPersistentDownloadJobService,10148
+Temp White List,service,1792752886289,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10218
+JobScheduler,service,1792752886731,1792752870253,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+Temp White List,service,1792752886919,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10148
+JobScheduler,service,1792752887134,1792752887212,com.google.android.dialer/com.android.voicemail.impl.StatusCheckJobService,10157
+Temp White List,service,1792752887166,1792752907278,1971e55 android.intent.action.BOOT_COMPLETED/u0,10212
+JobScheduler,service,1792752887339,1792752870253,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+Temp White List,service,1792752887401,1792752907370,1971e55 android.intent.action.BOOT_COMPLETED/u0,10147
+Mobile signal strength,string,1792752887701,1792752909912,good,
+JobScheduler,service,1792752887749,1792752924129,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+JobScheduler,service,1792752887856,1792753703285,"XXX@com.google.android.googlequicksearchbox/androidx.work.impl.background.systemjob.SystemJobService""",10156
+JobScheduler,service,1792752888013,1792753703285,com.google.android.settings.intelligence/.modules.routines.impl.ComputeNewInferencesJobService,10153
+Temp White List,service,1792752888045,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10153
+JobScheduler,service,1792752888193,1792752888276,com.android.providers.calendar/.CalendarProviderJobService,10114
+Temp White List,service,1792752888502,1792753703285,1971e55 android.intent.action.BOOT_COMPLETED/u0,10109
+JobScheduler,service,1792752888825,1792752889117,com.google.android.settings.intelligence/.modules.routines.impl.RoutinesJobIntentService,10153
+Temp White List,service,1792752889691,1792752909912,1971e55 android.intent.action.BOOT_COMPLETED/u0,10163
+JobScheduler,service,1792752891032,1792752891124,"XXX@com.google.android.apps.safetyhub/androidx.work.impl.background.systemjob.SystemJobService""",10144
+Sensor,bool,1792752891124,1792752891947,true,
+JobScheduler,service,1792752891191,1792752891595,"XXX@com.google.android.apps.safetyhub/androidx.work.impl.background.systemjob.SystemJobService""",10144
+Foreground process,service,1792752891494,1792752892726,com.google.android.apps.messaging,10141
+Sensor,bool,1792752892353,1792752892562,true,
+Long Wakelocks,service,1792752892637,1792752953367,*job*r/com.google.android.settings.intelligence/.modules.appsearchindexing.impl.AppSearchIndexUpdateJobService,10153
+Sensor,bool,1792752893126,1792752894654,true,
+JobScheduler,service,1792752895847,1792753703285,com.google.android.as/com.google.android.apps.miphone.aiai.common.superpacks.impl.AiAiPersistentDownloadJobService,10148
+JobScheduler,service,1792752898427,1792753703285,com.google.android.partnersetup/.ClientIdJobService,10142
+JobScheduler,service,1792752898657,1792753703285,DownloadManager:com.android.providers.downloads,10150
+JobScheduler,service,1792752898820,1792753703285,com.google.android.inputmethod.latin/com.google.android.apps.inputmethod.libs.dataservice.superpacks.SuperpacksBackgroundJobService,10160
+JobScheduler,service,1792752898901,1792752899065,"XXX@com.google.android.settings.intelligence/androidx.work.impl.background.systemjob.SystemJobService""",10153
+JobScheduler,service,1792752899168,1792753703285,"XXX@com.google.android.inputmethod.latin/androidx.work.impl.background.systemjob.SystemJobService""",10160
+Sensor,bool,1792752900645,1792752901020,true,
+Sensor,bool,1792752901418,1792752901631,true,
+Sensor,bool,1792752907363,1792752916823,true,
+Mobile signal strength,string,1792752909912,1792752929892,moderate,
+Mobile radio active,bool,1792752916823,1792752929892,true,
+Temp White List,service,1792752918265,1792753156386,shell,10227
+Temp White List,service,1792752918267,1792752951920,shell,10226
+Package active,service,1792752918268,1792752918268,moe.shizuku.privileged.api,10226
+Sensor,bool,1792752920974,1792752921399,true,
+Sensor,bool,1792752923746,1792752924099,true,
+Mobile signal strength,string,1792752929892,1792752958002,poor,
+Mobile radio active,bool,1792752951920,1792752956608,true,
+JobScheduler,service,1792752952250,1792753703285,com.google.android.settings.intelligence/.modules.sliceindexing.impl.SliceIndexUpdateJobService,10153
+Wifi scan,bool,1792752952637,1792752953367,true,
+JobScheduler,service,1792752954149,1792753062321,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+Sensor,bool,1792752954262,1792752956608,true,
+Package install,service,1792752956608,1792752956608,com.android.cli.interact.instrumentation,0
+Package active,service,1792752956780,1792752956780,com.android.cli.interact.instrumentation,10228
+Mobile signal strength,string,1792752958002,1792753010775,great,
+JobScheduler,service,1792752958014,1792752958058,com.google.android.settings.intelligence/.modules.routines.impl.RoutinesJobIntentService,10153
+JobScheduler,service,1792752959570,1792752964371,com.google.android.settings.intelligence/.modules.appsearchindexing.impl.AppSearchIndexUpdateJobService,10153
+Temp White List,service,1792752980081,1792753010775,shell,10226
+App Processor wakeup,service,1792753003821,1792753003821,com.google.android.gms,10152
+Wifi radio,bool,1792753003821,1792753056238,true,
+Sensor,bool,1792753003935,1792753010775,true,
+Mobile radio active,bool,1792753010775,1792753056238,true,
+Mobile signal strength,string,1792753010775,1792753056238,good,
+Mobile signal strength,string,1792753056238,1792753062321,moderate,
+Sensor,bool,1792753056422,1792753062321,true,
+Wifi radio,bool,1792753056422,1792753076863,true,
+Mobile signal strength,string,1792753062321,1792753096419,poor,
+Mobile signal strength,string,1792753096419,1792753156386,great,
+Temp White List,service,1792753096419,1792753703285,shell,10226
+Top app,service,1792753105735,1792753703285,com.leekleak.batteryarcheologist,10227
+Mobile signal strength,string,1792753156386,1792753200017,good,
+Wifi radio,bool,1792753156386,1792753231910,true,
+Sensor,bool,1792753156551,1792753161418,true,
+Temp White List,service,1792753200017,1792753215019,6e6a0a6 com.android.settings.battery.action.PERIODIC_JOB_UPDATE/u0,1000
+Mobile signal strength,string,1792753200017,1792753223985,poor,
+JobScheduler,service,1792753208894,1792752870253,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+JobScheduler,service,1792753208899,1792753703285,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+JobScheduler,service,1792753208920,1792753367668,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+Sensor,bool,1792753209114,1792753215019,true,
+Mobile signal strength,string,1792753223985,1792753287191,great,
+App Processor wakeup,service,1792753248712,1792753248712,com.google.android.gms,10152
+Wifi radio,bool,1792753248712,1792753287191,true,
+Mobile signal strength,string,1792753287191,1792753361187,good,
+App Processor wakeup,service,1792753361187,1792753361187,com.google.android.gms,10152
+Wifi radio,bool,1792753361187,1792753383902,true,
+Mobile signal strength,string,1792753361187,1792753422735,great,
+Package install,service,1792753361223,1792753361223,moe.shizuku.privileged.api,1086
+Package install,service,1792753367187,1792753367187,com.leekleak.batteryarcheologist,1
+App Processor wakeup,service,1792753422735,1792753422735,com.google.android.gms,10152
+Mobile signal strength,string,1792753422735,1792753428751,good,
+Wifi radio,bool,1792753422735,1792753505569,true,
+Mobile signal strength,string,1792753428751,1792753448835,moderate,
+Sensor,bool,1792753445562,1792753448835,true,
+Mobile signal strength,string,1792753448835,1792753505569,poor,
+Temp White List,service,1792753448835,1792753703285,272374f com.google.android.gms.personalsafety.scanners.ACTION_ACTIVITY_DETECTED/u0,10152
+Mobile signal strength,string,1792753505569,1792753570365,great,
+Mobile signal strength,string,1792753570365,1792753648181,moderate,
+Mobile signal strength,string,1792753648181,1792753700823,great,
+Mobile signal strength,string,1792753700823,1792753703285,moderate,
+Plugged,bool,1792753721973,1792753721973,true,
+Battery Level,int,1792753721973,1792753721984,100,
+Mobile signal strength,string,1792753721973,1792753737554,poor,
+Charging status,string,1792753721973,1792753801943,c,
+Brightness,int,1792753721973,1792754222959,2,
+CPU running,string,1792753721973,1792754222959,1792754222959~Unknown wakeup reason,
+Coulomb charge,int,1792753721973,1792754222959,10,
+Health,string,1792753721973,1792754222959,g,
+Mobile network type,string,1792753721973,1792754222959,nr,
+Partial wakelock,service,1792753721973,1792754222959,unknown-wakelock-holder,
+Plug,string,1792753721973,1792754222959,n,
+Screen,bool,1792753721973,1792754222959,true,unknown screen on reason
+Temperature,int,1792753721973,1792754222959,250,
+Top app,service,1792753721973,1792754222959,com.leekleak.batteryarcheologist,10227
+Voltage,int,1792753721973,1792754222959,5000,
+Wifi on,bool,1792753721973,1792754222959,true,
+Wifi signal strength,string,1792753721973,1792754222959,great,
+Wifi supplicant,string,1792753721973,1792754222959,compl,
+Battery Level,int,1792753721984,1792753724995,90,
+JobScheduler,service,1792753722003,1792753722794,"XXX@com.google.android.apps.messaging/androidx.work.impl.background.systemjob.SystemJobService""",10141
+App Processor wakeup,service,1792753722112,1792753722112,com.google.android.gms,10152
+Wifi radio,bool,1792753722112,1792753742246,true,
+Sensor,bool,1792753722219,1792753722781,true,
+Battery Level,int,1792753724995,1792753727006,80,
+Mobile radio active,bool,1792753726886,1792753737126,true,
+Battery Level,int,1792753727006,1792753803954,70,
+Mobile signal strength,string,1792753737554,1792753787554,great,
+Sensor,bool,1792753766934,1792753767487,true,
+Temp White List,service,1792753767492,1792753787497,9cec351 com.google.android.gms.personalsafety.scanners.ACTION_ACTIVITY_DETECTED/u0,10152
+Mobile signal strength,string,1792753787554,1792753817554,good,
+Charging status,string,1792753801943,1792754222959,d,
+Battery Level,int,1792753803954,1792753805965,60,
+Battery Level,int,1792753805965,1792754222959,50,
+Mobile signal strength,string,1792753817554,1792753837554,moderate,
+Wifi scan,bool,1792753832649,1792753832691,true,
+Mobile signal strength,string,1792753837554,1792753867554,poor,
+Mobile signal strength,string,1792753867554,1792753917555,great,
+Mobile signal strength,string,1792753917555,1792753947555,good,
+App Processor wakeup,service,1792753940083,1792753940083,com.google.android.gms,10152
+Wifi radio,bool,1792753940083,1792753955238,true,
+Mobile signal strength,string,1792753947555,1792753967555,moderate,
+App Processor wakeup,service,1792753956805,1792753956805,com.google.android.gms,10152
+Wifi radio,bool,1792753956805,1792753976998,true,
+Mobile signal strength,string,1792753967555,1792753997366,poor,
+Wifi scan,bool,1792753992650,1792753992695,true,
+Mobile signal strength,string,1792753997366,1792754047556,great,
+Mobile signal strength,string,1792754047556,1792754077556,good,
+Mobile signal strength,string,1792754077556,1792754097556,moderate,
+JobScheduler,service,1792754079427,1792754079428,android/com.android.server.notification.NotificationHistoryJobService,1000
+App Processor wakeup,service,1792754079447,1792754079447,com.google.android.gms,10152
+Wifi radio,bool,1792754079447,1792754099622,true,
+Sensor,bool,1792754079595,1792754079743,true,
+Sensor,bool,1792754085592,1792754086128,true,
+Temp White List,service,1792754086133,1792754106154,fc35d00 com.google.android.gms.personalsafety.scanners.ACTION_ACTIVITY_DETECTED/u0,10152
+Mobile signal strength,string,1792754097556,1792754127556,poor,
+Mobile signal strength,string,1792754127556,1792754177557,great,
+JobScheduler,service,1792754131926,1792754131931,"XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService""",10157
+Mobile radio active,bool,1792754140919,1792754151078,true,
+Wifi scan,bool,1792754152652,1792754152694,true,
+Mobile signal strength,string,1792754177557,1792754207557,good,
+Mobile signal strength,string,1792754207557,1792754222959,moderate,

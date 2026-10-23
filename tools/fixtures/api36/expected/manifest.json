@@ -1,0 +1,16 @@
+{
+  "oracle_version": "1",
+  "input_kind": "checkin",
+  "report_version": 36,
+  "checkin_app_count": 70,
+  "checkin_warning_count": 164,
+  "checkin_parser_error_count": 0,
+  "history_summary_count": 4,
+  "history_parser_error_count": 73,
+  "files": [
+    "checkin-summary.json",
+    "history-level.csv",
+    "history-summary.json",
+    "history-timeline.csv"
+  ]
+}

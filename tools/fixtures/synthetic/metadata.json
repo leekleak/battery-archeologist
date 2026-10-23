@@ -1,0 +1,12 @@
+{
+  "fixture": "synthetic/history-v12",
+  "captured_at_utc": "2026-10-23T11:11:34Z",
+  "source": "third_party/battery-historian/parseutils/parseutils_test.go, TestFixTimeline input",
+  "upstream_report_version": 12,
+  "sdk": null,
+  "source_command": "none (synthetic fixture extracted from the vendored upstream test)",
+  "bytes": 1323,
+  "lines": 68,
+  "sha256": "c9003dbbfedaec63929f1d4c4538c1324a204da37fb1c54b8fcebd6feae61760",
+  "notes": "Synthetic checkin history used to exercise the upstream summary, level CSV, and timeline paths on a report version the parser supports. Not device data."
+}

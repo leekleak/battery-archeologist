@@ -1,0 +1,1057 @@
+{
+  "kind": "checkin",
+  "report_version": 36,
+  "timestamps_altered": true,
+  "summary_count": 4,
+  "summaries": [
+    {
+      "Reason": "RESET",
+      "Active": false,
+      "StartTimeMs": 1792752870253,
+      "EndTimeMs": 1792753703285,
+      "InitialBatteryLevel": 100,
+      "FinalBatteryLevel": 100,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "MobileRadioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CPURunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {},
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {},
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {},
+      "HealthSummary": {},
+      "PlugTypeSummary": {},
+      "ChargingStatusSummary": {},
+      "PhoneStateSummary": {},
+      "WakeLockSummary": {},
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {},
+      "PhoneSignalStrengthSummary": {},
+      "WifiSignalStrengthSummary": {},
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": null,
+      "DcpuStatsSummary": null,
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 0,
+        "io": 0,
+        "irq": 0,
+        "sirq": 0,
+        "sys": 0,
+        "usr": 0
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2026-10-23"
+    },
+    {
+      "Reason": "LEVEL",
+      "Active": true,
+      "StartTimeMs": 1792753801943,
+      "EndTimeMs": 1792753803954,
+      "InitialBatteryLevel": 70,
+      "FinalBatteryLevel": 60,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 1,
+        "TotalDuration": 2011000000,
+        "MaxDuration": 2011000000
+      },
+      "MobileRadioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiOnSummary": {
+        "Num": 1,
+        "TotalDuration": 2011000000,
+        "MaxDuration": 2011000000
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 2011000000,
+        "MaxDuration": 2011000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "nr": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {
+        "\"com.leekleak.batteryarcheologist\"": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PhoneStateSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "WakeLockSummary": {
+        "unknown-wakelock-holder": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "compl": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "good": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "great": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": [
+        {
+          "BatteryLevel": 101,
+          "Start": 1792753721973,
+          "Duration": 0,
+          "StatUserTime": 0,
+          "StatSystemTime": 0,
+          "StatIOWaitTime": 0,
+          "StatIrqTime": 0,
+          "StatSoftIrqTime": 0,
+          "StatIdlTime": 0
+        },
+        {
+          "BatteryLevel": 91,
+          "Start": 1792753721973,
+          "Duration": 25000000,
+          "StatUserTime": 0,
+          "StatSystemTime": 0,
+          "StatIOWaitTime": 0,
+          "StatIrqTime": 0,
+          "StatSoftIrqTime": 0,
+          "StatIdlTime": 0
+        },
+        {
+          "BatteryLevel": 81,
+          "Start": 1792753721998,
+          "Duration": 2997000000,
+          "StatUserTime": 0,
+          "StatSystemTime": 0,
+          "StatIOWaitTime": 0,
+          "StatIrqTime": 0,
+          "StatSoftIrqTime": 0,
+          "StatIdlTime": 0
+        },
+        {
+          "BatteryLevel": 71,
+          "Start": 1792753724995,
+          "Duration": 2011000000,
+          "StatUserTime": 670000000,
+          "StatSystemTime": 380000000,
+          "StatIOWaitTime": 40000000,
+          "StatIrqTime": 20000000,
+          "StatSoftIrqTime": 10000000,
+          "StatIdlTime": 19020000000
+        }
+      ],
+      "DcpuStatsSummary": [
+        {
+          "BatteryLevel": 0,
+          "Start": 1792753721973,
+          "Duration": 0,
+          "UserTime": 0,
+          "SystemTime": 0,
+          "CPUUtilizers": null
+        },
+        {
+          "BatteryLevel": 100,
+          "Start": 1792753721973,
+          "Duration": 25000000,
+          "UserTime": 0,
+          "SystemTime": 0,
+          "CPUUtilizers": null
+        },
+        {
+          "BatteryLevel": 90,
+          "Start": 1792753721998,
+          "Duration": 2997000000,
+          "UserTime": 0,
+          "SystemTime": 0,
+          "CPUUtilizers": null
+        },
+        {
+          "BatteryLevel": 80,
+          "Start": 1792753724995,
+          "Duration": 2011000000,
+          "UserTime": 590000000,
+          "SystemTime": 350000000,
+          "CPUUtilizers": null
+        }
+      ],
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 19020000000,
+        "io": 40000000,
+        "irq": 20000000,
+        "sirq": 10000000,
+        "sys": 380000000,
+        "usr": 670000000
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2026-10-23"
+    },
+    {
+      "Reason": "LEVEL",
+      "Active": true,
+      "StartTimeMs": 1792753803954,
+      "EndTimeMs": 1792753805965,
+      "InitialBatteryLevel": 60,
+      "FinalBatteryLevel": 50,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 1,
+        "TotalDuration": 2011000000,
+        "MaxDuration": 2011000000
+      },
+      "MobileRadioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiOnSummary": {
+        "Num": 1,
+        "TotalDuration": 2011000000,
+        "MaxDuration": 2011000000
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 2011000000,
+        "MaxDuration": 2011000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "nr": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {
+        "\"com.leekleak.batteryarcheologist\"": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {},
+      "TmpWhiteListSummary": {},
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PhoneStateSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "WakeLockSummary": {
+        "unknown-wakelock-holder": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "compl": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "good": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "great": {
+          "Num": 1,
+          "TotalDuration": 2011000000,
+          "MaxDuration": 2011000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": [
+        {
+          "BatteryLevel": 61,
+          "Start": 1792753801943,
+          "Duration": 2011000000,
+          "StatUserTime": 1340000000,
+          "StatSystemTime": 2300000000,
+          "StatIOWaitTime": 10000000,
+          "StatIrqTime": 180000000,
+          "StatSoftIrqTime": 90000000,
+          "StatIdlTime": 305130000000
+        }
+      ],
+      "DcpuStatsSummary": [
+        {
+          "BatteryLevel": 70,
+          "Start": 1792753801943,
+          "Duration": 2011000000,
+          "UserTime": 650000000,
+          "SystemTime": 1290000000,
+          "CPUUtilizers": null
+        }
+      ],
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 305130000000,
+        "io": 10000000,
+        "irq": 180000000,
+        "sirq": 90000000,
+        "sys": 2300000000,
+        "usr": 1340000000
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2026-10-23"
+    },
+    {
+      "Reason": "END",
+      "Active": true,
+      "StartTimeMs": 1792753805965,
+      "EndTimeMs": 1792754222959,
+      "InitialBatteryLevel": 50,
+      "FinalBatteryLevel": 50,
+      "SummaryFormat": "batteryLevel",
+      "PluggedInSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ScreenOnSummary": {
+        "Num": 1,
+        "TotalDuration": 416994000000,
+        "MaxDuration": 416994000000
+      },
+      "MobileRadioOnSummary": {
+        "Num": 1,
+        "TotalDuration": 10159000000,
+        "MaxDuration": 10159000000
+      },
+      "WifiOnSummary": {
+        "Num": 1,
+        "TotalDuration": 416994000000,
+        "MaxDuration": 416994000000
+      },
+      "CPURunningSummary": {
+        "Num": 1,
+        "TotalDuration": 416994000000,
+        "MaxDuration": 416994000000
+      },
+      "GpsOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "SensorOnSummary": {
+        "Num": 2,
+        "TotalDuration": 684000000,
+        "MaxDuration": 536000000
+      },
+      "WifiScanSummary": {
+        "Num": 3,
+        "TotalDuration": 129000000,
+        "MaxDuration": 45000000
+      },
+      "WifiFullLockSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiRadioSummary": {
+        "Num": 3,
+        "TotalDuration": 55523000000,
+        "MaxDuration": 20193000000
+      },
+      "WifiRunningSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "WifiMulticastOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "AudioOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "CameraOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "VideoOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "LowPowerModeOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "FlashlightOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "ChargingOnSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneCallSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "PhoneScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "BLEScanSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "TotalSyncSummary": {
+        "Num": 0,
+        "TotalDuration": 0,
+        "MaxDuration": 0
+      },
+      "DataConnectionSummary": {
+        "nr": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "ConnectivitySummary": {},
+      "ForegroundProcessSummary": {},
+      "ActiveProcessSummary": {},
+      "LongWakelockSummary": {},
+      "TopApplicationSummary": {
+        "\"com.leekleak.batteryarcheologist\"": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "PerAppSyncSummary": {},
+      "WakeupReasonSummary": {},
+      "ScheduledJobSummary": {
+        "\"android/com.android.server.notification.NotificationHistoryJobService\"": {
+          "Num": 1,
+          "TotalDuration": 1000000,
+          "MaxDuration": 1000000
+        },
+        "XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService\"": {
+          "Num": 1,
+          "TotalDuration": 5000000,
+          "MaxDuration": 5000000
+        }
+      },
+      "TmpWhiteListSummary": {
+        "\"fc35d00 com.google.android.gms.personalsafety.scanners.ACTION_ACTIVITY_DETECTED/u0\"": {
+          "Num": 1,
+          "TotalDuration": 20021000000,
+          "MaxDuration": 20021000000
+        }
+      },
+      "IdleModeSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "HealthSummary": {
+        "g": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "PlugTypeSummary": {
+        "n": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "ChargingStatusSummary": {
+        "d": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "PhoneStateSummary": {
+        "default": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "WakeLockSummary": {
+        "unknown-wakelock-holder": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "WakeLockDetailedSummary": {},
+      "WifiSupplSummary": {
+        "compl": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "PhoneSignalStrengthSummary": {
+        "good": {
+          "Num": 4,
+          "TotalDuration": 101589000000,
+          "MaxDuration": 30000000000
+        },
+        "great": {
+          "Num": 3,
+          "TotalDuration": 150192000000,
+          "MaxDuration": 50190000000
+        },
+        "moderate": {
+          "Num": 4,
+          "TotalDuration": 75402000000,
+          "MaxDuration": 20000000000
+        },
+        "poor": {
+          "Num": 3,
+          "TotalDuration": 89811000000,
+          "MaxDuration": 30000000000
+        }
+      },
+      "WifiSignalStrengthSummary": {
+        "great": {
+          "Num": 1,
+          "TotalDuration": 416994000000,
+          "MaxDuration": 416994000000
+        }
+      },
+      "UserRunningSummary": {},
+      "UserForegroundSummary": {},
+      "DpstStatsSummary": [
+        {
+          "BatteryLevel": 51,
+          "Start": 1792753803954,
+          "Duration": 2011000000,
+          "StatUserTime": 1340000000,
+          "StatSystemTime": 2300000000,
+          "StatIOWaitTime": 10000000,
+          "StatIrqTime": 180000000,
+          "StatSoftIrqTime": 90000000,
+          "StatIdlTime": 305130000000
+        }
+      ],
+      "DcpuStatsSummary": [
+        {
+          "BatteryLevel": 60,
+          "Start": 1792753803954,
+          "Duration": 2011000000,
+          "UserTime": 650000000,
+          "SystemTime": 1290000000,
+          "CPUUtilizers": null
+        }
+      ],
+      "PowerStateSummary": null,
+      "DpstOverallSummary": {
+        "idle": 305130000000,
+        "io": 10000000,
+        "irq": 180000000,
+        "sirq": 90000000,
+        "sys": 2300000000,
+        "usr": 1340000000
+      },
+      "DcpuOverallSummary": {},
+      "PowerStateOverallSummary": {},
+      "AlarmSummary": {},
+      "Date": "2026-10-23"
+    }
+  ],
+  "parser_errors": [
+    "** Error in 9,h,0,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,0,+Wr,-Chtp,Est=110 with -Chtp : unknown key Chtp",
+    "** Error in 9,h,0,+Wr,-Chtp,Est=110 with -Chtp : unknown key Chtp",
+    "** Error in 9,h,0,+Wr,-Chtp,Est=110 with -Chtp : unknown key Chtp",
+    "** Error in 9,h,0,-Chtp,Eur=0 with -Chtp : unknown key Chtp",
+    "** Error in 9,h,0,Bl=100,Bs=c,Bh=g,Bp=a,Bt=250,Bv=5000,Bcc=10,Mrc=0,Wrc=0,+r,+w,+s,+S,+BP,Sb=2,+W,+ch,+Euf=0 with Mrc=0 : unknown key Mrc\n** Error in 9,h,0,Bl=100,Bs=c,Bh=g,Bp=a,Bt=250,Bv=5000,Bcc=10,Mrc=0,Wrc=0,+r,+w,+s,+S,+BP,Sb=2,+W,+ch,+Euf=0 with Wrc=0 : unknown key Wrc",
+    "** Error in 9,h,0,Bl=100,Bs=c,Bh=g,Bp=n,Bt=250,Bv=5000,Bcc=10,Mrc=0,Wrc=0,+r,+w,+S,+BP,Pcn=nr,Pss=1,Sb=2,+W,Wss=4,Wsp=compl,+Chtp,Etp=100 with Mrc=0 : unknown key Mrc\n** Error in 9,h,0,Bl=100,Bs=c,Bh=g,Bp=n,Bt=250,Bv=5000,Bcc=10,Mrc=0,Wrc=0,+r,+w,+S,+BP,Pcn=nr,Pss=1,Sb=2,+W,Wss=4,Wsp=compl,+Chtp,Etp=100 with Wrc=0 : unknown key Wrc\n** Error in 9,h,0,Bl=100,Bs=c,Bh=g,Bp=n,Bt=250,Bv=5000,Bcc=10,Mrc=0,Wrc=0,+r,+w,+S,+BP,Pcn=nr,Pss=1,Sb=2,+W,Wss=4,Wsp=compl,+Chtp,Etp=100 with +Chtp : unknown key Chtp",
+    "** Error in 9,h,0,Dpst=0,0,0,0,0,0,SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=27000 count=1764 last entry=126000 state_1 name=Active time=27000 count=1764 last entry=126000 subsystem_1 name=Display state_0 name=Off time=27000 count=1764 last entry=126000 state_1 name=On time=27000 count=1764 last entry=126000 with SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=27000 count=1764 last entry=126000 state_1 name=Active time=27000 count=1764 last entry=126000 subsystem_1 name=Display state_0 name=Off time=27000 count=1764 last entry=126000 state_1 name=On time=27000 count=1764 last entry=126000 : unknown key SubsystemPowerState",
+    "** Error in 9,h,0,Dpst=0,0,0,0,0,0,SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=30000 count=1960 last entry=140000 state_1 name=Active time=30000 count=1960 last entry=140000 subsystem_1 name=Display state_0 name=Off time=30000 count=1960 last entry=140000 state_1 name=On time=30000 count=1960 last entry=140000 with SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=30000 count=1960 last entry=140000 state_1 name=Active time=30000 count=1960 last entry=140000 subsystem_1 name=Display state_0 name=Off time=30000 count=1960 last entry=140000 state_1 name=On time=30000 count=1960 last entry=140000 : unknown key SubsystemPowerState",
+    "** Error in 9,h,0,Dpst=0,0,0,0,0,0,SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=31500 count=2058 last entry=147000 state_1 name=Active time=31500 count=2058 last entry=147000 subsystem_1 name=Display state_0 name=Off time=31500 count=2058 last entry=147000 state_1 name=On time=31500 count=2058 last entry=147000 with SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=31500 count=2058 last entry=147000 state_1 name=Active time=31500 count=2058 last entry=147000 subsystem_1 name=Display state_0 name=Off time=31500 count=2058 last entry=147000 state_1 name=On time=31500 count=2058 last entry=147000 : unknown key SubsystemPowerState",
+    "** Error in 9,h,0,Dpst=1340,2300,10,180,90,305130,SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=43500 count=2842 last entry=203000 state_1 name=Active time=43500 count=2842 last entry=203000 subsystem_1 name=Display state_0 name=Off time=43500 count=2842 last entry=203000 state_1 name=On time=43500 count=2842 last entry=203000 with SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=43500 count=2842 last entry=203000 state_1 name=Active time=43500 count=2842 last entry=203000 subsystem_1 name=Display state_0 name=Off time=43500 count=2842 last entry=203000 state_1 name=On time=43500 count=2842 last entry=203000 : unknown key SubsystemPowerState",
+    "** Error in 9,h,0,Dpst=1340,2300,10,180,90,305130,SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=45000 count=2940 last entry=210000 state_1 name=Active time=45000 count=2940 last entry=210000 subsystem_1 name=Display state_0 name=Off time=45000 count=2940 last entry=210000 state_1 name=On time=45000 count=2940 last entry=210000 with SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=45000 count=2940 last entry=210000 state_1 name=Active time=45000 count=2940 last entry=210000 subsystem_1 name=Display state_0 name=Off time=45000 count=2940 last entry=210000 state_1 name=On time=45000 count=2940 last entry=210000 : unknown key SubsystemPowerState",
+    "** Error in 9,h,0,Dpst=670,380,40,20,10,19020,SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=36000 count=2352 last entry=168000 state_1 name=Active time=36000 count=2352 last entry=168000 subsystem_1 name=Display state_0 name=Off time=36000 count=2352 last entry=168000 state_1 name=On time=36000 count=2352 last entry=168000 with SubsystemPowerState subsystem_0 name=CPU state_0 name=Idle time=36000 count=2352 last entry=168000 state_1 name=Active time=36000 count=2352 last entry=168000 subsystem_1 name=Display state_0 name=Off time=36000 count=2352 last entry=168000 state_1 name=On time=36000 count=2352 last entry=168000 : unknown key SubsystemPowerState",
+    "** Error in 9,h,1,+Chtp,+Esc=69 with +Chtp : unknown key Chtp\n** Error in 9,h,1,+Chtp,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,1,+Chtp,+Esc=69 with +Chtp : unknown key Chtp\n** Error in 9,h,1,+Chtp,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,1,-Chtp,-Esc=70 with -Chtp : unknown key Chtp\n** Error in 9,h,1,-Chtp,-Esc=70 with -Esc=70 : unknown key Esc",
+    "** Error in 9,h,1,-Chtp,-Esc=70 with -Chtp : unknown key Chtp\n** Error in 9,h,1,-Chtp,-Esc=70 with -Esc=70 : unknown key Esc",
+    "** Error in 9,h,1024,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,107,+s,+Esc=70 with +Esc=70 : unknown key Esc",
+    "** Error in 9,h,10999,+s,+Esc=78 with +Esc=78 : unknown key Esc",
+    "** Error in 9,h,11,Bl=90,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,1113,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,113,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,114,+Etw=86 with +Etw=86 : two positive transitions seen for \"Temp White List\"",
+    "** Error in 9,h,114,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,11425,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,116,-s,-Esc=69 with -Esc=69 : unknown key Esc",
+    "** Error in 9,h,1167,-s,-Esc=78 with -Esc=78 : unknown key Esc",
+    "** Error in 9,h,121,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,126,-s,-Esc=69 with -Esc=69 : unknown key Esc",
+    "** Error in 9,h,127,+s,+Wr,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,1323,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,13657,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,148,+s,+Esc=70 with +Esc=70 : unknown key Esc",
+    "** Error in 9,h,15095,+Ws,-Chtp with -Chtp : unknown key Chtp",
+    "** Error in 9,h,16811,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,1869,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,190,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,19806,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,2006,Pss=1,-Chtp with -Chtp : unknown key Chtp",
+    "** Error in 9,h,2011,Bl=60,-Chtp with -Chtp : unknown key Chtp",
+    "** Error in 9,h,206,-s,+Ejb=80 with +Ejb=80 : two positive transitions seen for \"JobScheduler\"",
+    "** Error in 9,h,22,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,236,+Etw=30 with +Etw=30 : two positive transitions seen for \"Temp White List\"",
+    "** Error in 9,h,2830,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,30000,Pss=2,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,3011,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,32,+Etp=2 with +Etp=2 : two positive transitions seen for \"Top app\"",
+    "** Error in 9,h,34,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,350,-s,-Esc=69 with -Esc=69 : unknown key Esc",
+    "** Error in 9,h,350,-s,-Esc=70 with -Esc=70 : unknown key Esc",
+    "** Error in 9,h,367,-s,-Esc=70 with -Esc=70 : unknown key Esc",
+    "** Error in 9,h,39525,-Wr,-Pr,Pss=2,+Ejb=92 with +Ejb=92 : two positive transitions seen for \"JobScheduler\"",
+    "** Error in 9,h,4,+Etp=2 with +Etp=2 : two positive transitions seen for \"Top app\"",
+    "** Error in 9,h,415,-s,-Esc=70 with -Esc=70 : unknown key Esc",
+    "** Error in 9,h,42,-Ws,-Chtp with -Chtp : unknown key Chtp",
+    "** Error in 9,h,428,Pss=4,-Chtp with -Chtp : unknown key Chtp",
+    "** Error in 9,h,4369,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,473,+Etp=100 with +Etp=100 : two positive transitions seen for \"Top app\"",
+    "** Error in 9,h,4862,-s,-Esc=70 with -Esc=70 : unknown key Esc",
+    "** Error in 9,h,5,+Ejb=18 with +Ejb=18 : two positive transitions seen for \"JobScheduler\"",
+    "** Error in 9,h,5,-Chtp,+Etw=112 with -Chtp : unknown key Chtp",
+    "** Error in 9,h,53,-s,-Esc=70 with -Esc=70 : unknown key Esc",
+    "** Error in 9,h,536,-s,-Esc=78 with -Esc=78 : unknown key Esc",
+    "** Error in 9,h,553,-s,-Esc=78 with -Esc=78 : unknown key Esc",
+    "** Error in 9,h,57,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,57,Pss=3,-Chtp with -Chtp : unknown key Chtp",
+    "** Error in 9,h,5848,+s,+Esc=78 with +Esc=78 : unknown key Esc",
+    "** Error in 9,h,6,+Etp=2 with +Etp=2 : two positive transitions seen for \"Top app\"",
+    "** Error in 9,h,62,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,6466,+Chtp with +Chtp : unknown key Chtp",
+    "** Error in 9,h,79,+s,+Esc=69 with +Esc=69 : unknown key Esc",
+    "** Error in 9,h,85,+s,+Esc=69 with +Esc=69 : unknown key Esc"
+  ]
+}

@@ -1,0 +1,12 @@
+.gradle/
+build/
+*.iml
+.idea/
+.kotlin/
+local.properties
+captures/
+artifacts/
+tools/shizuku/*.apk
+tools/shizuku/rish/
+*.hprof
+.DS_Store

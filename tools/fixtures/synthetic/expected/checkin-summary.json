@@ -1,0 +1,24 @@
+{
+  "kind": "checkin",
+  "report_version": 12,
+  "aggregation_type": "SINCE_CHARGED",
+  "build_id": "LVY29G",
+  "app_count": 1,
+  "system": {
+    "power_use_items": [
+      {
+        "name": "APP",
+        "computed_power_mah": 0
+      }
+    ]
+  },
+  "apps": [
+    {
+      "uid": 10079,
+      "name": "com.google.android.youtube",
+      "children": [
+        "com.google.android.youtube"
+      ]
+    }
+  ]
+}
