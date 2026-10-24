@@ -1,127 +1,82 @@
 package com.leekleak.batteryarcheologist.ui.theme
 
-import androidx.compose.foundation.background
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
+/**
+ * Whether the top-bar blur is drawn. Can be overridden (for example by a
+ * preview or a future setting) to skip the effect.
+ */
+val LocalBlurEnabled = compositionLocalOf { true }
+
+/**
+ * Use the stock Material 3 light/dark color schemes. No custom brand palette or
+ * dynamic Material You colors: the app follows the platform's default Material
+ * colors and typography.
+ */
 private val LightColors = lightColorScheme()
 private val DarkColors = darkColorScheme()
 
-private val ExpressiveShapes = Shapes(
-    extraSmall = RoundedCornerShape(10.dp),
-    small = RoundedCornerShape(14.dp),
-    medium = RoundedCornerShape(20.dp),
-    large = RoundedCornerShape(28.dp),
-    extraLarge = RoundedCornerShape(36.dp),
-)
-
-@Composable
-private fun expressiveTypography(): Typography {
-    val base = Typography()
-    return base.withFontFamily(GoogleSans).copy(
-        headlineLarge = base.headlineLarge.copy(
-            fontFamily = GoogleSans,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = (-0.5).sp,
-        ),
-        headlineMedium = base.headlineMedium.copy(
-            fontFamily = GoogleSans,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = (-0.3).sp,
-        ),
-        titleLarge = base.titleLarge.copy(
-            fontFamily = GoogleSans,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = (-0.2).sp,
-        ),
-        labelLarge = base.labelLarge.copy(
-            fontFamily = GoogleSans,
-            fontWeight = FontWeight.SemiBold,
-        ),
-    )
-}
-
-private fun Typography.withFontFamily(family: androidx.compose.ui.text.font.FontFamily): Typography =
-    copy(
-        displayLarge = displayLarge.copy(fontFamily = family),
-        displayMedium = displayMedium.copy(fontFamily = family),
-        displaySmall = displaySmall.copy(fontFamily = family),
-        headlineLarge = headlineLarge.copy(fontFamily = family),
-        headlineMedium = headlineMedium.copy(fontFamily = family),
-        headlineSmall = headlineSmall.copy(fontFamily = family),
-        titleLarge = titleLarge.copy(fontFamily = family),
-        titleMedium = titleMedium.copy(fontFamily = family),
-        titleSmall = titleSmall.copy(fontFamily = family),
-        bodyLarge = bodyLarge.copy(fontFamily = family),
-        bodyMedium = bodyMedium.copy(fontFamily = family),
-        bodySmall = bodySmall.copy(fontFamily = family),
-        labelLarge = labelLarge.copy(fontFamily = family),
-        labelMedium = labelMedium.copy(fontFamily = family),
-        labelSmall = labelSmall.copy(fontFamily = family),
-    )
-
 @Composable
 fun BatteryArcheologistTheme(content: @Composable () -> Unit) {
-    val dark = isSystemInDarkTheme()
-    val context = LocalContext.current
-    val colors = when {
-        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S && dark ->
-            dynamicDarkColorScheme(context)
-        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S ->
-            dynamicLightColorScheme(context)
-        dark -> DarkColors
-        else -> LightColors
+    val darkTheme = isSystemInDarkTheme()
+    val view = LocalView.current
+
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = view.context.findActivity()?.window ?: return@SideEffect
+            val controller = WindowCompat.getInsetsController(window, view)
+            controller.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightNavigationBars = !darkTheme
+        }
     }
 
-    MaterialTheme(
-        colorScheme = colors,
-        shapes = ExpressiveShapes,
-        typography = expressiveTypography(),
-        content = content,
-    )
+    CompositionLocalProvider(LocalBlurEnabled provides true) {
+        MaterialTheme(
+            colorScheme = if (darkTheme) DarkColors else LightColors,
+            typography = Typography(),
+            shapes = Shapes(),
+            content = content,
+        )
+    }
 }
 
-/** Soft tonal wash used behind the whole app, in the spirit of Traffic Light. */
+/**
+ * Root surface for the app. Uses a flat Material background so text and icons
+ * inherit the correct content color in both light and dark themes.
+ */
 @Composable
 fun BatteryArcheologistBackground(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val colors = MaterialTheme.colorScheme
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colors.background),
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        0f to colors.primaryContainer.copy(alpha = 0.16f),
-                        0.50f to colors.background,
-                        1f to colors.tertiaryContainer.copy(alpha = 0.10f),
-                    ),
-                ),
-        ) {
-            content()
-        }
+        content()
     }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

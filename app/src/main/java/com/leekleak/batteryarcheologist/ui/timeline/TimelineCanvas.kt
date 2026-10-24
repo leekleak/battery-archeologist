@@ -1,7 +1,8 @@
 package com.leekleak.batteryarcheologist.ui.timeline
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +23,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -33,18 +35,21 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.leekleak.batteryarcheologist.R
+import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.roundToLong
 
 private object TimelineCanvasDimens {
-    val Gutter = 76.dp
+    val Gutter = 80.dp
     val RightPadding = 8.dp
-    val AxisBottom = 22.dp
-    val BatteryTop = 26.dp
-    val BatteryBottom = 72.dp
-    val RowsGap = 6.dp
-    val RowHeight = 30.dp
-    val BottomPadding = 4.dp
-    val MinTickSpacing = 72.dp
+    val AxisBottom = 28.dp
+    val BatteryTop = 30.dp
+    val BatteryBottom = 84.dp
+    val RowsGap = 8.dp
+    val RowHeight = 40.dp
+    val BottomPadding = 6.dp
+    val MinTickSpacing = 84.dp
 
     fun rowsTop(hasBattery: Boolean): Dp =
         if (hasBattery) BatteryBottom + RowsGap else AxisBottom + 2.dp
@@ -75,6 +80,8 @@ private class TimelineMetrics(density: Density) {
     val batteryStroke = with(density) { 2.dp.toPx() }
     val reportStroke = with(density) { 1.5.dp.toPx() }
     val reportDot = with(density) { 3.dp.toPx() }
+    val cursorStroke = with(density) { 1.5.dp.toPx() }
+    val cursorDot = with(density) { 4.dp.toPx() }
     val plotCorner = with(density) { 8.dp.toPx() }
     val minTickSpacing = with(density) { TimelineCanvasDimens.MinTickSpacing.toPx() }
 
@@ -133,20 +140,24 @@ private class TimelineRender(
 }
 
 /**
- * Dense, pannable, pinch-zoomable timeline canvas.
+ * Timeline canvas with a draggable inspection cursor.
  *
- * Every value that changes with the viewport (culled entries, tick labels,
- * battery path, lane assignment) is built once per viewport change in a
- * `remember` block. The draw pass itself only draws precomputed values.
+ * The chart uses a fixed full-report viewport; horizontal drags move the
+ * cursor and vertical drags are left to the parent scroll container, so the
+ * timeline can live in an ordinary vertically scrolling page.
+ *
+ * Every value that depends on the data or cursor is built once in a `remember`
+ * block. The draw pass itself only draws precomputed values.
  */
 @Composable
 internal fun TimelineCanvas(
     data: TimelineData,
-    viewport: TimelineViewport,
-    onViewportChange: (TimelineViewport) -> Unit,
+    cursorMs: Long?,
+    onCursorMsChange: (Long) -> Unit,
     palette: TimelinePalette,
     modifier: Modifier = Modifier,
 ) {
+    val viewport = data.initialViewport
     val hasBattery = data.batteryPoints.isNotEmpty()
     val canvasHeight = TimelineCanvasDimens.height(data.rows.size, hasBattery)
 
@@ -157,11 +168,11 @@ internal fun TimelineCanvas(
     val textStyles = remember(typography, palette) {
         TimelineTextStyles(
             axis = typography.labelSmall.copy(
-                fontSize = 9.sp,
+                fontSize = 10.sp,
                 color = palette.axisText,
             ),
             row = typography.labelSmall.copy(
-                fontSize = 9.sp,
+                fontSize = 11.sp,
                 fontWeight = FontWeight.Medium,
                 color = palette.rowText,
             ),
@@ -169,11 +180,26 @@ internal fun TimelineCanvas(
     }
 
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    val latestViewport by rememberUpdatedState(viewport)
-    val latestOnViewportChange by rememberUpdatedState(onViewportChange)
+    val latestOnCursorMsChange by rememberUpdatedState(onCursorMsChange)
     val latestSize by rememberUpdatedState(canvasSize)
 
-    val render = remember(data, viewport, canvasSize, palette, textStyles, metrics, textMeasurer) {
+    val rowLabels = ArrayList<String>(data.rows.size)
+    for (row in data.rows) {
+        rowLabels.add(stringResource(row.group.labelRes))
+    }
+    val batteryLabel = stringResource(R.string.timeline_group_battery)
+
+    val render = remember(
+        data,
+        viewport,
+        canvasSize,
+        palette,
+        textStyles,
+        metrics,
+        textMeasurer,
+        rowLabels,
+        batteryLabel,
+    ) {
         buildTimelineRender(
             data = data,
             viewport = viewport,
@@ -181,7 +207,22 @@ internal fun TimelineCanvas(
             metrics = metrics,
             styles = textStyles,
             textMeasurer = textMeasurer,
+            rowLabels = rowLabels,
+            batteryLabel = batteryLabel,
         )
+    }
+
+    val cursorX = remember(cursorMs, canvasSize, viewport, metrics) {
+        cursorMs
+            ?.takeIf { it in viewport.startMs..viewport.endMs }
+            ?.let { timeMs ->
+                val plotWidth = canvasSize.width - metrics.gutter - metrics.rightPadding
+                if (plotWidth <= 1f) {
+                    null
+                } else {
+                    metrics.gutter + viewport.fraction(timeMs) * plotWidth
+                }
+            }
     }
 
     Canvas(
@@ -191,28 +232,44 @@ internal fun TimelineCanvas(
             .testTag("timeline_canvas")
             .onSizeChanged { canvasSize = it }
             .pointerInput(data, metrics) {
-                detectTransformGestures { centroid, pan, zoom, _ ->
-                    val size = latestSize
+                fun timeAt(x: Float, size: IntSize): Long {
                     val plotWidth = size.width - metrics.gutter - metrics.rightPadding
-                    if (plotWidth > 1f) {
-                        val focus = ((centroid.x - metrics.gutter) / plotWidth)
-                            .coerceIn(0f, 1f)
-                        val next = TimelineMath.transformViewport(
-                            viewport = latestViewport,
-                            range = data.range,
-                            zoomFactor = zoom,
-                            panFraction = pan.x / plotWidth,
-                            focusFraction = focus,
-                        )
-                        if (next != latestViewport) {
-                            latestOnViewportChange(next)
+                    if (plotWidth <= 1f) return viewport.startMs
+                    val fraction = ((x - metrics.gutter) / plotWidth).coerceIn(0f, 1f)
+                    return viewport.startMs +
+                        (fraction * viewport.spanMs).roundToLong()
+                }
+
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    val size = latestSize
+                    latestOnCursorMsChange(timeAt(down.position.x, size))
+
+                    // Only claim horizontal movement. Vertical drags are left
+                    // unconsumed so the enclosing page can scroll normally.
+                    var horizontal = false
+                    val startX = down.position.x
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                        if (!change.pressed) break
+                        if (!horizontal &&
+                            abs(change.position.x - startX) > viewConfiguration.touchSlop
+                        ) {
+                            horizontal = true
+                        }
+                        if (horizontal) {
+                            change.consume()
+                            latestOnCursorMsChange(
+                                timeAt(change.position.x, latestSize),
+                            )
                         }
                     }
                 }
             },
     ) {
         if (render != null) {
-            drawTimeline(render, palette, metrics)
+            drawTimeline(render, palette, metrics, cursorX)
         }
     }
 }
@@ -224,6 +281,8 @@ private fun buildTimelineRender(
     metrics: TimelineMetrics,
     styles: TimelineTextStyles,
     textMeasurer: TextMeasurer,
+    rowLabels: List<String>,
+    batteryLabel: String,
 ): TimelineRender? {
     val plotLeft = metrics.gutter
     val plotRight = widthPx - metrics.rightPadding
@@ -233,21 +292,25 @@ private fun buildTimelineRender(
     val hasBattery = data.batteryPoints.isNotEmpty()
     val rowsTop = metrics.rowsTop(hasBattery)
     val plotBottom = rowsTop + metrics.rowHeight * data.rows.size
-    val origin = data.reportTakenMs ?: data.range.endMs
 
     val tickCount = TimelineMath.tickCountForWidth(plotWidth, metrics.minTickSpacing)
-    val ticks = TimelineMath.tickTimes(viewport, tickCount, anchorMs = origin).map { timeMs ->
+    val tickAnchor = TimelineMath.localDayStart(viewport.startMs)
+    val ticks = TimelineMath.tickTimes(
+        viewport = viewport,
+        targetTicks = tickCount,
+        anchorMs = tickAnchor,
+    ).map { timeMs ->
         RenderTick(
             x = plotLeft + viewport.fraction(timeMs) * plotWidth,
             label = textMeasurer.measure(
-                text = TimelineMath.formatRelativeOffset(timeMs - origin),
+                text = TimelineMath.formatClockTime(timeMs, viewport.spanMs),
                 style = styles.axis,
             ),
         )
     }
 
-    val rowLabels = data.rows.map { row ->
-        textMeasurer.measure(row.group.label, styles.row)
+    val rowLabelLayouts = data.rows.mapIndexed { index, _ ->
+        textMeasurer.measure(rowLabels[index], styles.row)
     }
 
     val visibleRows = data.visibleRows(viewport.startMs, viewport.endMs)
@@ -312,8 +375,8 @@ private fun buildTimelineRender(
         hasBattery = hasBattery,
         ticks = ticks,
         rows = rows,
-        rowLabels = rowLabels,
-        batteryLabel = textMeasurer.measure("Battery", styles.row),
+        rowLabels = rowLabelLayouts,
+        batteryLabel = textMeasurer.measure(batteryLabel, styles.row),
         battery = battery,
         reportX = reportX,
     )
@@ -369,6 +432,7 @@ private fun DrawScope.drawTimeline(
     render: TimelineRender,
     palette: TimelinePalette,
     metrics: TimelineMetrics,
+    cursorX: Float?,
 ) {
     // Rounded plot background, shared by the battery strip and metric rows.
     drawRoundRect(
@@ -512,7 +576,7 @@ private fun DrawScope.drawTimeline(
         )
     }
 
-    // Report-taken marker is drawn last so it stays visible over dense bars.
+    // Report-taken marker is drawn over the data.
     render.reportX?.let { x ->
         drawLine(
             color = palette.report.copy(alpha = 0.85f),
@@ -523,6 +587,22 @@ private fun DrawScope.drawTimeline(
         drawCircle(
             color = palette.report,
             radius = metrics.reportDot,
+            center = Offset(x, render.axisBottom),
+        )
+    }
+
+    // The inspection cursor is the strongest line so it stays visible over
+    // every series color.
+    cursorX?.let { x ->
+        drawLine(
+            color = palette.cursor.copy(alpha = 0.9f),
+            start = Offset(x, render.axisBottom),
+            end = Offset(x, render.plotBottom),
+            strokeWidth = metrics.cursorStroke,
+        )
+        drawCircle(
+            color = palette.cursor,
+            radius = metrics.cursorDot,
             center = Offset(x, render.axisBottom),
         )
     }

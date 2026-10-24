@@ -1,6 +1,10 @@
 package com.leekleak.batteryarcheologist.ui.timeline
 
 import com.leekleak.batteryarcheologist.core.model.TimelineEntry
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToLong
@@ -236,8 +240,9 @@ object TimelineMath {
     /**
      * Tick timestamps within [viewport], aligned to [anchorMs].
      *
-     * The anchor is normally the report-taken time, so labels stay at clean
-     * offsets such as `-15m` and `-1h` even when the viewport is padded.
+     * For the global clock axis the anchor is the start of the local day, so
+     * labels fall on clean local times (for example 08:00, 09:00) even when the
+     * viewport is padded.
      */
     fun tickTimes(
         viewport: TimelineViewport,
@@ -260,31 +265,51 @@ object TimelineMath {
         return result
     }
 
+    private val CLOCK_TIME: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("HH:mm", Locale.getDefault())
+    private val CLOCK_TIME_SECONDS: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("HH:mm:ss", Locale.getDefault())
+    private val CLOCK_DATE_TIME: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("MMM d HH:mm", Locale.getDefault())
+
     /**
-     * Formats a timestamp offset for the axis, relative to the report time.
-     * Examples: `0`, `-42s`, `-12m`, `-1h5m`, `+8m`.
+     * Formats an epoch timestamp as a global wall-clock time.
+     *
+     * Spans over a day include the date; short spans include seconds so ticks
+     * do not repeat the same minute.
      */
-    fun formatRelativeOffset(offsetMs: Long): String {
-        val magnitude = abs(offsetMs)
-        val body = when {
-            magnitude < 60_000L -> "${magnitude / 1_000L}s"
-            magnitude < 3_600_000L -> {
-                val minutes = magnitude / 60_000L
-                val seconds = (magnitude % 60_000L) / 1_000L
-                if (seconds == 0L) "${minutes}m" else "${minutes}m${seconds}s"
-            }
-            else -> {
-                val hours = magnitude / 3_600_000L
-                val minutes = (magnitude % 3_600_000L) / 60_000L
-                if (minutes == 0L) "${hours}h" else "${hours}h${minutes}m"
-            }
+    fun formatClockTime(
+        timeMs: Long,
+        spanMs: Long = DEFAULT_MIN_SPAN_MS,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+    ): String {
+        val formatter = when {
+            spanMs >= DAY_MS -> CLOCK_DATE_TIME
+            spanMs < HOUR_MS -> CLOCK_TIME_SECONDS
+            else -> CLOCK_TIME
         }
-        return when {
-            offsetMs == 0L -> "0"
-            offsetMs < 0L -> "-$body"
-            else -> "+$body"
-        }
+        return formatter.withZone(zoneId).format(Instant.ofEpochMilli(timeMs))
     }
+
+    /** Full global timestamp used by the cursor readout. */
+    fun formatClockDateTime(
+        timeMs: Long,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+    ): String = CLOCK_DATE_TIME.withZone(zoneId).format(Instant.ofEpochMilli(timeMs))
+
+    /** Start of the local day containing [timeMs], used to align clock ticks. */
+    fun localDayStart(
+        timeMs: Long,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+    ): Long = Instant.ofEpochMilli(timeMs)
+        .atZone(zoneId)
+        .toLocalDate()
+        .atStartOfDay(zoneId)
+        .toInstant()
+        .toEpochMilli()
+
+    private const val HOUR_MS = 3_600_000L
+    private const val DAY_MS = 86_400_000L
 
     /** Formats a duration compactly for headers: `42s`, `12m`, `3h 5m`, `2d 4h`. */
     fun formatSpan(spanMs: Long): String {

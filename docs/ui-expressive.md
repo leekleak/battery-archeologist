@@ -1,33 +1,43 @@
 # M3 Expressive UI task
 
-Goal: move the app's visual language toward Material 3 Expressive, following
-Traffic Light's use of tonal surfaces, large shapes, expressive type, and a
-floating toolbar.
+Goal: keep the app's layout language close to Material 3 Expressive — tonal
+surfaces, large shapes, expressive type, and a floating toolbar — while using
+**stock Material colors**. There is no custom brand palette and no dynamic
+Material You color; Haze is used only to blur the content behind the top bar.
 
-## Done (first pass)
+Traffic Light (`~/Documents/GitHub/traffic-light`, GPL-3.0, same author) is the
+reference for the expressive shell and, in particular, for the Haze top bar.
+Reusing and adapting that code is allowed with attribution.
 
-- [x] Expressive theme shapes (`10–36 dp` rounded corners).
-- [x] Heavier headline/title weights and tighter headline spacing.
-- [x] Soft tonal gradient behind the app.
-- [x] Permission hero uses a Material shape (`Cookie12Sided`) and gradient.
+## Done
+
 - [x] Bottom `HorizontalFloatingToolbar` navigation with icon + selected label.
 - [x] Custom vector icons for Overview, Timeline, System, Apps, Reports.
-- [x] Google Sans Flex typography from Traffic Light.
 - [x] Tonal surface cards and a bottom-sheet app detail treatment.
 - [x] Test tags on all toolbar tabs for `android input`/UIAutomator.
+- [x] Screens split into Overview, Timeline, System, Apps, Reports with their
+      own ViewModel state.
+- [x] Stock Material `lightColorScheme()`/`darkColorScheme()`, default
+      `Typography()` and `Shapes()`; the custom palette was removed.
+
+## Required (done)
+
+- [x] **Haze blur on the top bar must remain.** Port Traffic Light's
+      `HazeScaffold` + `PageTitle` pattern into `ui/components/AppScaffold.kt`
+      (`hazeSource` on the scrolling content column, `hazeBlur` with
+      `HazeInput.Sources`, `HazeMaterials.ultraThin()`, and a vertical
+      progressive gradient 1f → 0f on a title bar with no opaque background).
+      Details and the previous artifact are in `docs/session-handoff.md`.
+- [x] Verify the title bar in light and dark mode with a cropped screenshot
+      before accepting the port.
 
 ## Next
 
-- [ ] Adopt Haze/HazeScaffold with a blurred tonal top bar and scrolling title,
-      as in Traffic Light.
-- [ ] Add an emphasized display style for battery metrics using the variable
-      font axes.
-- [ ] Use `MaterialShapes` for hero cards and the capture action, not only the
-      permission glyph.
+- [ ] Use `MaterialShapes` for hero cards and the capture action.
 - [ ] Animate tab selection, card expansion, and capture progress.
-- [ ] Add an expressive permission illustration/rotation, like Traffic Light's
-      overview hero.
-- [ ] Audit contrast in light/dynamic themes after each change.
+- [ ] Reconsider the permission illustration now that the gradient hero was
+      removed with the custom palette.
+- [ ] Audit contrast in light and dark themes after each change.
 - [ ] Take 1280×720 screenshots of every tab and compare against Traffic Light
       spacing/typography.
 

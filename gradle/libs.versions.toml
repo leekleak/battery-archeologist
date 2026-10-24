@@ -6,6 +6,7 @@ coreKtx = "1.19.1"
 activityCompose = "1.13.0"
 composeUi = "1.12.1"
 material3 = "1.5.0-beta02"
+haze = "2.0.1"
 lifecycle = "2.11.0"
 coroutines = "1.11.0"
 shizuku = "13.1.5"
@@ -20,10 +21,14 @@ androidx-compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics", ver
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "composeUi" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "composeUi" }
 androidx-compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
+haze-blur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "haze" }
+haze-blur-materials = { module = "dev.chrisbanes.haze:haze-blur-materials", version.ref = "haze" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 wire-runtime = { module = "com.squareup.wire:wire-runtime", version.ref = "wire" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 shizuku-api = { module = "dev.rikka.shizuku:api", version.ref = "shizuku" }

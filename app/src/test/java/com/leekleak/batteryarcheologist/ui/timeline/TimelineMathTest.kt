@@ -125,7 +125,7 @@ class TimelineMathTest {
 
     @Test
     fun ticksAlignToTheReportAnchor() {
-        val anchor = 1_700_000_000_000L
+        val anchor = java.time.Instant.parse("2023-11-14T22:00:00Z").toEpochMilli()
         val viewport = TimelineViewport(anchor - 3_600_000L, anchor + 3_600_000L)
 
         val ticks = TimelineMath.tickTimes(viewport, targetTicks = 5, anchorMs = anchor)
@@ -141,8 +141,14 @@ class TimelineMathTest {
             ticks,
         )
         assertEquals(
-            listOf("-1h", "-30m", "0", "+30m", "+1h"),
-            ticks.map { TimelineMath.formatRelativeOffset(it - anchor) },
+            listOf("21:00", "21:30", "22:00", "22:30", "23:00"),
+            ticks.map {
+                TimelineMath.formatClockTime(
+                    it,
+                    spanMs = viewport.spanMs,
+                    zoneId = java.time.ZoneOffset.UTC,
+                )
+            },
         )
     }
 
@@ -156,12 +162,28 @@ class TimelineMathTest {
     }
 
     @Test
-    fun relativeOffsetsAreCompactAndSigned() {
-        assertEquals("0", TimelineMath.formatRelativeOffset(0L))
-        assertEquals("-42s", TimelineMath.formatRelativeOffset(-42_000L))
-        assertEquals("+1m30s", TimelineMath.formatRelativeOffset(90_000L))
-        assertEquals("-1h", TimelineMath.formatRelativeOffset(-3_600_000L))
-        assertEquals("-1h5m", TimelineMath.formatRelativeOffset(-3_900_000L))
+    fun clockTimesUseGlobalWallClockLabels() {
+        val time = java.time.Instant.parse("2023-11-14T22:13:00Z").toEpochMilli()
+        val utc = java.time.ZoneOffset.UTC
+
+        assertEquals(
+            "22:13",
+            TimelineMath.formatClockTime(time, spanMs = 2 * 3_600_000L, zoneId = utc),
+        )
+        assertEquals(
+            "22:13:00",
+            TimelineMath.formatClockTime(time, spanMs = 30 * 60_000L, zoneId = utc),
+        )
+        assertTrue(
+            TimelineMath.formatClockTime(time, spanMs = 3 * 86_400_000L, zoneId = utc)
+                .contains("22:13"),
+        )
+        assertEquals(
+            "2023-11-14T00:00:00Z",
+            java.time.Instant
+                .ofEpochMilli(TimelineMath.localDayStart(time, utc))
+                .toString(),
+        )
     }
 
     @Test

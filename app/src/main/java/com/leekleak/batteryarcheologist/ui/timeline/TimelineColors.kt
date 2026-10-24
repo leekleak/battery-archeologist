@@ -8,11 +8,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 
 /**
- * Semantic series colors for the dense timeline.
+ * Semantic series colors built entirely from the active Material 3 scheme.
  *
- * The traffic-light accents (green charging, amber wakelocks, red CPU) stay
- * recognizable in both themes while the chrome (grid, labels, surfaces) comes
- * from the active Material 3 color scheme.
+ * There is no custom brand palette: each series maps to a Material role. The
+ * cursor readout carries the exact values, so color is a secondary cue rather
+ * than the only way to read the chart.
  */
 @Immutable
 internal data class TimelinePalette(
@@ -31,6 +31,7 @@ internal data class TimelinePalette(
     val plotBackground: Color,
     val plotStripe: Color,
     val report: Color,
+    val cursor: Color,
 ) {
     fun seriesColor(group: TimelineGroup): Color = when (group) {
         TimelineGroup.BATTERY -> battery
@@ -48,31 +49,25 @@ internal data class TimelinePalette(
 internal fun rememberTimelinePalette(): TimelinePalette {
     val scheme = MaterialTheme.colorScheme
     val dark = scheme.background.luminance() < 0.5f
-    return remember(
-        dark,
-        scheme.primary,
-        scheme.error,
-        scheme.onSurface,
-        scheme.onSurfaceVariant,
-        scheme.surface,
-    ) {
+    return remember(dark, scheme) {
         val battery = scheme.primary
         TimelinePalette(
             battery = battery,
             batteryFill = battery.copy(alpha = 0.16f),
-            charging = if (dark) Color(0xFF81C784) else Color(0xFF2E7D32),
-            screen = if (dark) Color(0xFF4DB6AC) else Color(0xFF00796B),
-            wifi = if (dark) Color(0xFF64B5F6) else Color(0xFF1565C0),
-            wakelock = if (dark) Color(0xFFFFB74D) else Color(0xFFB26A00),
-            topApp = if (dark) Color(0xFFCE93D8) else Color(0xFF6A1B9A),
-            cpu = if (dark) Color(0xFFEF9A9A) else Color(0xFFC62828),
-            other = if (dark) Color(0xFF90A4AE) else Color(0xFF546E7A),
-            grid = scheme.onSurface.copy(alpha = if (dark) 0.14f else 0.10f),
+            charging = scheme.tertiary,
+            screen = scheme.secondary,
+            wifi = scheme.primary,
+            wakelock = scheme.error,
+            topApp = scheme.tertiary,
+            cpu = scheme.error,
+            other = scheme.onSurfaceVariant,
+            grid = scheme.onSurface.copy(alpha = if (dark) 0.16f else 0.10f),
             axisText = scheme.onSurfaceVariant,
-            rowText = scheme.onSurface.copy(alpha = 0.84f),
-            plotBackground = scheme.surface.copy(alpha = if (dark) 0.50f else 0.70f),
+            rowText = scheme.onSurface.copy(alpha = 0.86f),
+            plotBackground = scheme.surfaceContainerLow,
             plotStripe = scheme.onSurface.copy(alpha = if (dark) 0.05f else 0.035f),
             report = scheme.error,
+            cursor = scheme.onSurface,
         )
     }
 }

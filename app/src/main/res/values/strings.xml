@@ -1,4 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Battery Archeologist</string>
+
+    <!-- Navigation -->
+    <string name="tab_overview">Overview</string>
+    <string name="tab_timeline">Timeline</string>
+    <string name="tab_system">System</string>
+    <string name="tab_apps">Apps</string>
+    <string name="tab_reports">Reports</string>
+
+    <!-- Actions -->
+    <string name="action_capture">Capture</string>
+    <string name="action_capturing">Capturing…</string>
+    <string name="action_share">Share</string>
+    <string name="action_share_raw">Share raw</string>
+    <string name="action_share_report">Share report</string>
+    <string name="action_view_raw">View raw</string>
+    <string name="action_open">Open</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_import">Import</string>
+    <string name="action_import_report">Import report</string>
+    <string name="action_show_details">Show details</string>
+    <string name="action_hide_details">Hide details</string>
+    <string name="action_open_shizuku">Open Shizuku</string>
+    <string name="action_refresh_status">Refresh status</string>
+    <string name="action_grant_shizuku_access">Grant Shizuku access</string>
+    <string name="action_open_shizuku_and_start">Open Shizuku and start the service</string>
+    <string name="action_install_shizuku">Install Shizuku</string>
+
+    <!-- Permission -->
+    <string name="permission_subtitle">Battery Historian on your phone. Shizuku is required to read privileged battery stats.</string>
+    <string name="permission_adb_only">ADB mode only. No root required.</string>
+    <string name="permission_checking_title">Checking Shizuku…</string>
+    <string name="permission_checking_detail">Looking for the Shizuku binder.</string>
+    <string name="permission_not_running_title">Shizuku is not running</string>
+    <string name="permission_not_running_detail">Open Shizuku and start it via ADB or wireless debugging.</string>
+    <string name="permission_not_installed_title">Shizuku is not installed</string>
+    <string name="permission_not_installed_detail">Install Shizuku, start it, then come back here.</string>
+    <string name="permission_permission_required_title">Permission required</string>
+    <string name="permission_permission_required_detail">Shizuku is running. Grant this app access.</string>
+    <string name="permission_connected_title">Connected</string>
+    <string name="permission_connected_detail">uid %1$d · %2$s</string>
+    <string name="permission_mode_adb">ADB</string>
+    <string name="permission_mode_root">root</string>
+    <string name="permission_waiting">Waiting for Shizuku…</string>
+
+    <!-- Overview -->
+    <string name="overview_report_title">Report</string>
+    <string name="overview_captured">Captured</string>
+    <string name="overview_capture_duration">Capture duration</string>
+    <string name="overview_saved_as">Saved as</string>
+    <string name="overview_top_apps_by_power">Top apps by power</string>
+    <string name="overview_parser_issues">Parser issues</string>
+    <string name="overview_parser_warnings">Parser warnings</string>
+    <string name="overview_parser_notice">%1$s while parsing. Details are in Report details on the System tab.</string>
+    <string name="overview_discharge">Discharge</string>
+    <string name="overview_intervals">Intervals</string>
+    <string name="overview_last_change">Last change</string>
+    <string name="overview_last_interval">Last interval</string>
+    <string name="overview_loading">Loading report…</string>
+    <plurals name="overview_parser_error_count">
+        <item quantity="one">%1$d error</item>
+        <item quantity="other">%1$d errors</item>
+    </plurals>
+    <plurals name="overview_parser_warning_count">
+        <item quantity="one">%1$d warning</item>
+        <item quantity="other">%1$d warnings</item>
+    </plurals>
+
+    <!-- System -->
+    <string name="system_battery">Battery</string>
+    <string name="system_capacity">Capacity</string>
+    <string name="system_battery_realtime">Battery realtime</string>
+    <string name="system_total_realtime">Total realtime</string>
+    <string name="system_stats_unavailable">System stats unavailable</string>
+    <string name="system_report_details">Report details</string>
+    <string name="system_report_details_subtitle">Parser internals and file metadata</string>
+    <string name="system_checkin_version">Checkin version</string>
+    <string name="system_total_lines">Total lines</string>
+    <string name="system_history_lines">History lines</string>
+    <string name="system_history_string_pool">History string pool</string>
+    <string name="system_resets">Resets</string>
+    <string name="system_size">Size</string>
+    <string name="system_saved_as">Saved as</string>
+    <string name="system_parser_warnings">Parser warnings</string>
+    <string name="system_parser_errors">Parser errors</string>
+    <string name="system_parsing_failed">Parsing failed</string>
+    <string name="system_history_failure">History: %1$s</string>
+    <string name="system_checkin_failure">Checkin: %1$s</string>
+    <string name="system_capacity_estimated">%1$s (estimated)</string>
+    <plurals name="system_apps_in_report">
+        <item quantity="one">%1$d app in this report</item>
+        <item quantity="other">%1$d apps in this report</item>
+    </plurals>
+
+    <!-- Apps -->
+    <string name="apps_by_power">Apps by power</string>
+    <string name="apps_no_data_title">No app data</string>
+    <string name="apps_no_data_body">This report does not contain per-app usage. Capture a fresh report to see app power.</string>
+    <string name="apps_cpu_value">%1$s CPU</string>
+    <string name="apps_section_power">Power</string>
+    <string name="apps_section_cpu">CPU</string>
+    <string name="apps_section_activity">Activity</string>
+    <string name="apps_section_network">Network</string>
+    <string name="apps_device_power">Device power</string>
+    <string name="apps_cpu_power">CPU power</string>
+    <string name="apps_cpu_total">Total</string>
+    <string name="apps_cpu_user">User</string>
+    <string name="apps_cpu_system">System</string>
+    <string name="apps_foreground">Foreground</string>
+    <string name="apps_wakeups">Wakeups</string>
+    <string name="apps_camera">Camera</string>
+    <string name="apps_audio">Audio</string>
+    <string name="apps_flashlight">Flashlight</string>
+    <string name="apps_mobile_traffic">Mobile traffic</string>
+    <string name="apps_wifi_traffic">Wi-Fi traffic</string>
+    <string name="apps_identity">uid %1$d</string>
+    <string name="apps_identity_version">uid %1$d · %2$s</string>
+    <plurals name="apps_count">
+        <item quantity="one">%1$d app</item>
+        <item quantity="other">%1$d apps</item>
+    </plurals>
+
+    <!-- Reports -->
+    <string name="report_origin_captured">Captured</string>
+    <string name="report_origin_saved">Saved</string>
+    <string name="report_origin_imported">Imported</string>
+    <string name="reports_import_support">Open a bugreport or checkin file saved on this device.</string>
+    <string name="reports_current_title">Current report</string>
+    <string name="reports_current_subtitle">%1$s · %2$s</string>
+    <string name="reports_saved_file">Saved file</string>
+    <string name="reports_size">Size</string>
+    <string name="reports_saved_title">Saved reports</string>
+    <string name="reports_nothing_saved">Nothing saved on this device yet.</string>
+    <string name="reports_summary">%1$s · %2$s on this device</string>
+    <string name="reports_saved_subtitle">%1$s · %2$s · %3$s</string>
+    <string name="reports_no_saved_title">No saved reports</string>
+    <string name="reports_no_saved_body">Captured and imported reports stay on this device so you can reopen or share them later. Import a bugreport or checkin file to get started.</string>
+    <string name="reports_delete_title">Delete report?</string>
+    <string name="reports_delete_body">%1$s will be removed from this device.</string>
+    <string name="reports_raw_title">Raw capture</string>
+    <string name="reports_raw_empty">(empty capture)</string>
+    <string name="reports_raw_not_saved">not saved on this device</string>
+    <string name="reports_raw_subtitle">%1$s · %2$s · %3$s</string>
+    <plurals name="reports_saved_report_count">
+        <item quantity="one">%1$d report</item>
+        <item quantity="other">%1$d reports</item>
+    </plurals>
+
+    <!-- Timeline -->
+    <string name="timeline_no_entries">No timeline entries</string>
+    <string name="timeline_hint">Drag across the chart to inspect a moment.</string>
+    <string name="timeline_range_summary">%1$s – %2$s · %3$s</string>
+    <string name="timeline_interval_clock_range">%1$s – %2$s</string>
+    <string name="timeline_selected_time">Selected %1$s</string>
+    <string name="timeline_cursor_empty">No active events at this time.</string>
+    <string name="timeline_no_active_event">—</string>
+    <string name="timeline_value_on">On</string>
+    <string name="timeline_value_off">Off</string>
+    <string name="timeline_unavailable">Timeline unavailable</string>
+    <string name="timeline_unavailable_body">Timeline data is not available for this report.</string>
+    <string name="timeline_discharge_intervals">Discharge intervals</string>
+    <string name="timeline_battery_range">%1$d%% → %2$d%%</string>
+    <string name="timeline_group_battery">Battery</string>
+    <string name="timeline_group_charging">Charging</string>
+    <string name="timeline_group_screen">Screen</string>
+    <string name="timeline_group_wifi">Wi-Fi</string>
+    <string name="timeline_group_wakelocks">Wakelocks</string>
+    <string name="timeline_group_top_app">Top app</string>
+    <string name="timeline_group_cpu">CPU</string>
+    <string name="timeline_group_other">Other</string>
+
+    <!-- Common -->
+    <string name="empty_report_title">No report loaded</string>
+    <string name="empty_report_body">Capture battery stats or open a saved report to see this tab.</string>
+    <string name="label_unknown">Unknown</string>
+    <string name="label_unknown_time">Unknown time</string>
+    <string name="label_na">n/a</string>
+    <string name="label_unavailable">unavailable</string>
+    <string name="common_and">and</string>
+
+    <!-- Errors -->
+    <string name="error_share_failed">Could not share %1$s</string>
 </resources>

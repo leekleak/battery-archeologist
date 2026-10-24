@@ -1,25 +1,19 @@
 package com.leekleak.batteryarcheologist.ui.timeline
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,32 +23,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.core.model.TimelineEntry
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
 
-private const val ZOOM_FACTOR = 1.7f
-
 /**
- * First end-to-end Timeline surface for a parsed Battery Historian report.
+ * Full-report timeline surface with a draggable inspection cursor.
  *
- * [entries] may contain battery rows; they are automatically lifted into the
- * overlay. Passing [batteryEntries] explicitly is useful when the parser keeps
- * the battery series separate. [reportTakenMs] draws a vertical marker and
- * becomes the zero point for the relative time axis.
+ * The chart uses a fixed full-report viewport: time runs horizontally, rows are
+ * stacked vertically, and the page itself scrolls vertically. Horizontal drags
+ * move the cursor; vertical drags are left to the enclosing scroll container.
  *
- * The component owns its viewport state and exposes it only through the
- * canvas/controls, so the host screen does not need to wire pan or zoom.
+ * The cursor readout spells out the value of every row at the selected moment,
+ * so the report is not readable only by decoding colors.
  */
 @Composable
 fun TimelineScreen(
     entries: List<TimelineEntry>,
-    title: String,
     modifier: Modifier = Modifier,
     batteryEntries: List<TimelineEntry> = emptyList(),
     reportTakenMs: Long? = null,
@@ -67,130 +57,44 @@ fun TimelineScreen(
         )
     }
     val palette = rememberTimelinePalette()
-    var viewport by remember(data) { mutableStateOf(data.initialViewport) }
-
-    val legendGroups = remember(data) {
-        buildList {
-            if (data.batteryPoints.isNotEmpty()) add(TimelineGroup.BATTERY)
-            addAll(data.rows.map { it.group })
-        }
+    var cursorMs by remember(data) {
+        mutableStateOf<Long?>(data.reportTakenMs ?: data.range.endMs)
     }
-    val legendCounts = remember(data) {
-        buildMap {
-            if (data.batteryPoints.isNotEmpty()) {
-                put(TimelineGroup.BATTERY, data.batteryPoints.size)
-            }
-            for (row in data.rows) {
-                put(row.group, row.series.size)
-            }
-        }
-    }
-
-    val minViewportSpan = TimelineMath.MIN_VIEWPORT_MS.coerceAtMost(data.range.spanMs)
-    val canZoomIn = viewport.spanMs > minViewportSpan
-    val canZoomOut = viewport.spanMs < data.range.spanMs
-    val canReset = viewport != data.initialViewport
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .testTag("timeline_screen")
-            .semantics { testTagsAsResourceId = true },
-        shape = RoundedCornerShape(20.dp),
+            .testTag("timeline_screen"),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = timelineSummary(data),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
-                ) {
-                    TimelineControlButton(
-                        label = "−",
-                        description = "Zoom out",
-                        testTag = "timeline_zoom_out",
-                        enabled = canZoomOut,
-                        onClick = {
-                            viewport = TimelineMath.zoomViewport(
-                                viewport = viewport,
-                                range = data.range,
-                                zoomFactor = 1f / ZOOM_FACTOR,
-                            )
-                        },
-                    )
-                    TimelineControlButton(
-                        label = "+",
-                        description = "Zoom in",
-                        testTag = "timeline_zoom_in",
-                        enabled = canZoomIn,
-                        onClick = {
-                            viewport = TimelineMath.zoomViewport(
-                                viewport = viewport,
-                                range = data.range,
-                                zoomFactor = ZOOM_FACTOR,
-                            )
-                        },
-                    )
-                    TimelineControlButton(
-                        label = "Reset",
-                        description = "Reset zoom",
-                        testTag = "timeline_reset",
-                        enabled = canReset,
-                        onClick = { viewport = data.initialViewport },
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                for (group in legendGroups) {
-                    LegendChip(
-                        label = group.label,
-                        count = legendCounts[group] ?: 0,
-                        color = palette.seriesColor(group),
-                    )
-                }
-                if (reportTakenMs != null) {
-                    ReportChip(color = palette.report)
-                }
-            }
+            Text(
+                text = stringResource(
+                    R.string.timeline_range_summary,
+                    TimelineMath.formatClockTime(data.range.startMs, data.range.spanMs),
+                    TimelineMath.formatClockTime(data.range.endMs, data.range.spanMs),
+                    TimelineMath.formatSpan(data.range.spanMs),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
 
             if (data.isEmpty) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
+                        .padding(vertical = 48.dp)
                         .testTag("timeline_canvas"),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "No timeline entries",
+                        text = stringResource(R.string.timeline_no_entries),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -198,24 +102,17 @@ fun TimelineScreen(
             } else {
                 TimelineCanvas(
                     data = data,
-                    viewport = viewport,
-                    onViewportChange = { viewport = it },
+                    cursorMs = cursorMs,
+                    onCursorMsChange = { cursorMs = it },
                     palette = palette,
                 )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "Pinch or drag to explore",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                CursorReadout(
+                    data = data,
+                    cursorMs = cursorMs ?: data.range.endMs,
+                    palette = palette,
                 )
                 Text(
-                    text = "${TimelineMath.formatSpan(viewport.spanMs)} visible",
+                    text = stringResource(R.string.timeline_hint),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -224,101 +121,148 @@ fun TimelineScreen(
     }
 }
 
-private fun timelineSummary(data: TimelineData): String {
-    val groups = data.rows.size
-    val groupLabel = if (groups == 1) "1 row" else "$groups rows"
-    return "${TimelineMath.formatSpan(data.range.spanMs)} · ${data.eventCount} entries · $groupLabel"
-}
-
+/**
+ * Textual values at the cursor. Every row is listed, including rows with no
+ * active event, so the user can tell the difference between "off" and "no
+ * data for this row".
+ */
 @Composable
-private fun TimelineControlButton(
-    label: String,
-    description: String,
-    testTag: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
+private fun CursorReadout(
+    data: TimelineData,
+    cursorMs: Long,
+    palette: TimelinePalette,
 ) {
-    TextButton(
-        onClick = onClick,
-        enabled = enabled,
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-        modifier = Modifier
-            .height(32.dp)
-            .testTag(testTag)
-            .semantics { contentDescription = description },
-    ) {
-        Text(text = label, style = MaterialTheme.typography.labelMedium)
+    val battery = batteryLevelAt(data.batteryPoints, cursorMs)
+    val rows = data.rows.map { row ->
+        row.group to row.series.entryAt(cursorMs)
     }
-}
+    val hasValue = battery != null || rows.any { it.second != null }
 
-@Composable
-private fun LegendChip(
-    label: String,
-    count: Int,
-    color: Color,
-) {
     Surface(
-        shape = RoundedCornerShape(50),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("timeline_cursor_readout"),
+        shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(6.dp)
-                    .background(color, CircleShape),
-            )
-            Text(text = label, style = MaterialTheme.typography.labelSmall)
             Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                text = stringResource(
+                    R.string.timeline_selected_time,
+                    TimelineMath.formatClockDateTime(cursorMs),
+                ),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
             )
+
+            if (battery != null) {
+                CursorValueRow(
+                    color = palette.battery,
+                    label = stringResource(R.string.timeline_group_battery),
+                    value = "${battery.toInt()}%",
+                )
+            }
+            rows.forEach { (group, entry) ->
+                CursorValueRow(
+                    color = palette.seriesColor(group),
+                    label = stringResource(group.labelRes),
+                    value = cursorValue(entry),
+                )
+            }
+
+            if (!hasValue) {
+                Text(
+                    text = stringResource(R.string.timeline_cursor_empty),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun ReportChip(color: Color) {
-    Surface(
-        shape = RoundedCornerShape(50),
-        color = color.copy(alpha = 0.12f),
-        contentColor = color,
+private fun cursorValue(entry: TimelineEntry?): String {
+    val raw = entry?.value?.trim().orEmpty()
+    if (raw.isEmpty()) return stringResource(R.string.timeline_no_active_event)
+    return when {
+        raw.equals("true", ignoreCase = true) -> stringResource(R.string.timeline_value_on)
+        raw.equals("false", ignoreCase = true) -> stringResource(R.string.timeline_value_off)
+        raw.length > 28 -> raw.take(27) + "…"
+        else -> raw
+    }
+}
+
+@Composable
+private fun CursorValueRow(
+    color: Color,
+    label: String,
+    value: String,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(6.dp)
-                    .background(color, CircleShape),
-            )
-            Text(text = "Report taken", style = MaterialTheme.typography.labelSmall)
-        }
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .background(color, CircleShape),
+        )
+        Text(
+            text = label,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 
 @Preview(
+    name = "Timeline light",
     showBackground = true,
     widthDp = 411,
     heightDp = 891,
-    backgroundColor = 0xFF101418L,
 )
 @Composable
-private fun TimelineScreenPreview() {
+private fun TimelineScreenLightPreview() {
     BatteryArcheologistTheme {
-        val fixture = remember { TimelineFixtures.build() }
-        TimelineScreen(
-            entries = fixture.entries,
-            title = fixture.title,
-            batteryEntries = fixture.batteryEntries,
-            reportTakenMs = fixture.reportTakenMs,
-            modifier = Modifier.padding(12.dp),
-        )
+        TimelineScreenPreviewContent()
     }
+}
+
+@Preview(
+    name = "Timeline dark",
+    showBackground = true,
+    widthDp = 411,
+    heightDp = 891,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+private fun TimelineScreenDarkPreview() {
+    BatteryArcheologistTheme {
+        TimelineScreenPreviewContent()
+    }
+}
+
+@Composable
+private fun TimelineScreenPreviewContent() {
+    val fixture = remember { TimelineFixtures.build() }
+    TimelineScreen(
+        entries = fixture.entries,
+        batteryEntries = fixture.batteryEntries,
+        reportTakenMs = fixture.reportTakenMs,
+        modifier = Modifier.padding(12.dp),
+    )
 }

@@ -1,5 +1,7 @@
 package com.leekleak.batteryarcheologist.ui.timeline
 
+import androidx.annotation.StringRes
+import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.core.model.TimelineEntry
 
 /**
@@ -10,15 +12,15 @@ import com.leekleak.batteryarcheologist.core.model.TimelineEntry
  * `Charging on`, ...), but unknown metrics fall back to [OTHER] instead of
  * being dropped.
  */
-enum class TimelineGroup(val label: String) {
-    BATTERY("Battery"),
-    CHARGING("Charging"),
-    SCREEN("Screen"),
-    WIFI("Wi-Fi"),
-    WAKELOCK("Wakelocks"),
-    TOP_APP("Top app"),
-    CPU("CPU"),
-    OTHER("Other"),
+enum class TimelineGroup(@StringRes val labelRes: Int) {
+    BATTERY(R.string.timeline_group_battery),
+    CHARGING(R.string.timeline_group_charging),
+    SCREEN(R.string.timeline_group_screen),
+    WIFI(R.string.timeline_group_wifi),
+    WAKELOCK(R.string.timeline_group_wakelocks),
+    TOP_APP(R.string.timeline_group_top_app),
+    CPU(R.string.timeline_group_cpu),
+    OTHER(R.string.timeline_group_other),
     ;
 
     companion object {
@@ -84,6 +86,31 @@ class TimelineSeries private constructor(
             }
         }
         return result
+    }
+
+    /**
+     * Last entry covering [timeMs], or null when nothing is active.
+     *
+     * Used by the cursor readout so a point on the chart can be turned into
+     * readable values without rescanning the whole series on every frame.
+     */
+    fun entryAt(timeMs: Long): TimelineEntry? {
+        if (entries.isEmpty()) return null
+
+        var low = 0
+        var high = entries.size
+        while (low < high) {
+            val mid = (low + high) ushr 1
+            if (entries[mid].startMs <= timeMs) low = mid + 1 else high = mid
+        }
+
+        var index = low - 1
+        while (index >= 0 && prefixMaxEndMs[index] >= timeMs) {
+            val entry = entries[index]
+            if (maxOf(entry.startMs, entry.endMs) >= timeMs) return entry
+            index--
+        }
+        return null
     }
 
     companion object {
