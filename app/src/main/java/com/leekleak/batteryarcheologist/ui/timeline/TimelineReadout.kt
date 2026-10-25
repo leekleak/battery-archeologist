@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
+import com.leekleak.batteryarcheologist.ui.components.FloatingSurfaceDefaults
 import com.leekleak.batteryarcheologist.ui.theme.LocalBlurEnabled
 import dev.chrisbanes.haze.HazeInput
 import dev.chrisbanes.haze.HazeProgressive
@@ -84,6 +85,7 @@ internal fun TimelineReadout(
     val scrollValues = rowCount > 7
     val blurEnabled = LocalBlurEnabled.current
     val hazeState = rememberHazeState()
+    val cardColor = FloatingSurfaceDefaults.containerColor()
 
     Surface(
         modifier = modifier
@@ -91,8 +93,8 @@ internal fun TimelineReadout(
             .onSizeChanged { onHeightChanged(it.height) }
             .testTag("timeline_cursor_readout"),
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 3.dp,
+        color = cardColor,
+        border = FloatingSurfaceDefaults.border(),
         shadowElevation = 3.dp,
     ) {
         Box {
@@ -156,13 +158,13 @@ internal fun TimelineReadout(
                         if (blurEnabled) {
                             Color.Transparent
                         } else {
-                            MaterialTheme.colorScheme.surfaceContainer
+                            cardColor
                         },
                     )
                     .hazeBlur(
                         input = HazeInput.Sources(hazeState),
                         style = HazeMaterials.ultraThin(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            containerColor = cardColor,
                         ).then {
                             progressive(
                                 HazeProgressive.verticalGradient(

@@ -3,7 +3,6 @@ package com.leekleak.batteryarcheologist.ui.apps
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,14 +13,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
@@ -30,12 +26,11 @@ import com.leekleak.batteryarcheologist.core.analytics.AppPowerStats
 import com.leekleak.batteryarcheologist.data.AppUsage
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats
 import com.leekleak.batteryarcheologist.ui.components.FancyBottomSheet
+import com.leekleak.batteryarcheologist.ui.components.FancySectionCard
 import com.leekleak.batteryarcheologist.ui.components.FancySheetHeader
 import com.leekleak.batteryarcheologist.ui.components.SummaryRow
-import com.leekleak.batteryarcheologist.ui.components.fancyCard
 import com.leekleak.batteryarcheologist.ui.components.formatByteCount
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
-import com.leekleak.batteryarcheologist.ui.theme.googleSans
 
 /**
  * Per-app detail shown from [AppsScreen] in a fancy bottom sheet.
@@ -104,7 +99,7 @@ fun AppDetailContent(
             onTogglePin = onTogglePin,
         )
 
-        AppDetailSection(title = stringResource(R.string.apps_section_power)) {
+        FancySectionCard(title = stringResource(R.string.apps_section_power)) {
             if (power != null && power.hasDevicePower) {
                 SummaryRow(
                     label = stringResource(R.string.apps_device_power),
@@ -119,7 +114,7 @@ fun AppDetailContent(
             }
         }
 
-        AppDetailSection(title = stringResource(R.string.apps_section_cpu)) {
+        FancySectionCard(title = stringResource(R.string.apps_section_cpu)) {
             SummaryRow(
                 stringResource(R.string.apps_cpu_total),
                 formatSeconds(cpuUser + cpuSystem),
@@ -128,7 +123,7 @@ fun AppDetailContent(
             SummaryRow(stringResource(R.string.apps_cpu_system), formatSeconds(cpuSystem))
         }
 
-        AppDetailSection(title = stringResource(R.string.apps_section_activity)) {
+        FancySectionCard(title = stringResource(R.string.apps_section_activity)) {
             SummaryRow(
                 stringResource(R.string.apps_foreground),
                 formatSeconds(app.foreground?.total_time_msec ?: 0f),
@@ -151,7 +146,7 @@ fun AppDetailContent(
             )
         }
 
-        AppDetailSection(title = stringResource(R.string.apps_section_network)) {
+        FancySectionCard(title = stringResource(R.string.apps_section_network)) {
             SummaryRow(
                 stringResource(R.string.apps_mobile_traffic),
                 formatByteCount(mobileBytes),
@@ -212,30 +207,6 @@ private fun AppDetailHeader(
         },
         trailing = pinAction,
     )
-}
-
-/** A titled group of [SummaryRow]s inside the app detail sheet. */
-@Composable
-private fun AppDetailSection(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    val titleFont = remember { googleSans(weight = 600f) }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fancyCard()
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontFamily = titleFont,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        content()
-    }
 }
 
 /** Deterministic fixture shared by the local app-row and detail previews. */

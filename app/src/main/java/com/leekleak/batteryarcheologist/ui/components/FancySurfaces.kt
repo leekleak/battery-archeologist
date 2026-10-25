@@ -58,6 +58,47 @@ fun Modifier.fancyCard(
     .background(color)
 
 /**
+ * Titled group of rows on a [fancyCard] surface.
+ *
+ * This is the section style used inside fancy bottom sheets; keeping it in one
+ * place lets the Other tab reuse the exact same surface, heading and rhythm.
+ */
+@Composable
+fun FancySectionCard(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    titleColor: Color = MaterialTheme.colorScheme.primary,
+    subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val titleFont = remember { googleSans(weight = 600f) }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .fancyCard(containerColor)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontFamily = titleFont,
+            color = titleColor,
+        )
+        if (subtitle != null) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = subtitleColor,
+            )
+        }
+        content()
+    }
+}
+
+/**
  * Standard header of a fancy bottom sheet: optional leading visual (icon or app
  * icon), a Google Sans title with an optional supporting line, and optional
  * trailing actions.

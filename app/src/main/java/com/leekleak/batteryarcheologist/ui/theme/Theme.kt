@@ -3,6 +3,7 @@ package com.leekleak.batteryarcheologist.ui.theme
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -10,12 +11,15 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
@@ -26,17 +30,29 @@ import androidx.core.view.WindowCompat
 val LocalBlurEnabled = compositionLocalOf { true }
 
 /**
- * Use the stock Material 3 light/dark color schemes. No custom brand palette or
- * dynamic Material You colors: the app follows the platform's default Material
- * colors and typography.
+ * Material You colors: on Android 12+ the theme uses the device's wallpaper
+ * palette (including the user's accent color and light/dark setting); older
+ * releases fall back to the stock Material 3 light/dark schemes. There is no
+ * custom brand palette.
  */
 private val LightColors = lightColorScheme()
 private val DarkColors = darkColorScheme()
 
 @Composable
-fun BatteryArcheologistTheme(content: @Composable () -> Unit) {
-    val darkTheme = isSystemInDarkTheme()
+fun BatteryArcheologistTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit,
+) {
     val view = LocalView.current
+    val colorScheme = when {
+        dynamicColor && !view.isInEditMode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        }
+        darkTheme -> DarkColors
+        else -> LightColors
+    }
 
     if (!view.isInEditMode) {
         SideEffect {
@@ -49,7 +65,7 @@ fun BatteryArcheologistTheme(content: @Composable () -> Unit) {
 
     CompositionLocalProvider(LocalBlurEnabled provides true) {
         MaterialTheme(
-            colorScheme = if (darkTheme) DarkColors else LightColors,
+            colorScheme = colorScheme,
             typography = Typography(),
             shapes = Shapes(),
             content = content,

@@ -2,9 +2,11 @@
 
 Goal: keep the app's layout language close to Material 3 Expressive — tonal
 surfaces, large shapes, expressive type, and a floating toolbar — while using
-**stock Material colors**. There is no custom brand palette and no dynamic
-Material You color; Haze blurs the content behind the top bar and behind the
-timeline readout's pinned header.
+**Material You dynamic color**. On Android 12+ every screen takes its palette
+from the device wallpaper (and the user's accent/theme choice); older releases
+fall back to the stock Material 3 light/dark schemes. There is no custom brand
+palette. Haze blurs the content behind the top bar and behind the timeline
+readout's pinned header.
 
 The Navigation 3 host puts the reports home at the root and pushes the three-tab
 report viewer on top. Capture, import, saved reports, and reset live on the
@@ -28,8 +30,10 @@ Reusing and adapting that code is allowed with attribution.
       import, saved reports, raw/share, and reset.
 - [x] Permission illustration: a `MaterialShapes.Sunny` hero with a
       state-specific icon.
-- [x] Stock Material `lightColorScheme()`/`darkColorScheme()`, default
-      `Typography()` and `Shapes()`; the custom palette was removed.
+- [x] Material You dynamic color: `BatteryArcheologistTheme` uses
+      `dynamicLightColorScheme`/`dynamicDarkColorScheme` on Android 12+ and
+      falls back to stock `lightColorScheme()`/`darkColorScheme()` below that.
+      Default `Typography()` and `Shapes()`; the custom palette was removed.
 - [x] Fancy dialog and sheet surfaces ported from Traffic Light
       (`ui/components/FancySurfaces.kt`): icon + Google Sans title headers,
       rounded tonal cards, and end-aligned action rows. The reset/delete

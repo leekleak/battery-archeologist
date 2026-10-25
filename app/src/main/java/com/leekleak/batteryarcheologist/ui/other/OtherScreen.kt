@@ -1,7 +1,6 @@
 package com.leekleak.batteryarcheologist.ui.other
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,8 +14,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.data.ReportData
+import com.leekleak.batteryarcheologist.ui.components.FancySectionCard
 import com.leekleak.batteryarcheologist.ui.components.ParserNoticeCard
-import com.leekleak.batteryarcheologist.ui.components.SectionCard
 import com.leekleak.batteryarcheologist.ui.components.SummaryRow
 import com.leekleak.batteryarcheologist.ui.components.formatBytes
 
@@ -86,7 +85,7 @@ private fun BatteryCard(report: ReportData) {
         else -> stringResource(R.string.label_unknown)
     }
 
-    SectionCard(
+    FancySectionCard(
         modifier = Modifier.testTag("system_summary"),
         title = stringResource(R.string.system_battery),
         subtitle = if (stats != null) {
@@ -132,80 +131,78 @@ private fun ReportDetailsCard(report: ReportData) {
     val checkinVersion = snapshot.checkinVersion
         ?: report.checkin?.stats?.report_version
 
-    SectionCard(
+    FancySectionCard(
         title = stringResource(R.string.system_report_details),
         subtitle = stringResource(R.string.system_report_details_subtitle),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SummaryRow(
-                stringResource(R.string.system_checkin_version),
-                checkinVersion?.toString() ?: stringResource(R.string.label_unknown),
+        SummaryRow(
+            stringResource(R.string.system_checkin_version),
+            checkinVersion?.toString() ?: stringResource(R.string.label_unknown),
+        )
+        SummaryRow(
+            stringResource(R.string.system_total_lines),
+            "%,d".format(snapshot.totalLines),
+        )
+        SummaryRow(
+            stringResource(R.string.system_history_lines),
+            "%,d".format(snapshot.historyLines),
+        )
+        SummaryRow(
+            stringResource(R.string.system_history_string_pool),
+            "%,d".format(snapshot.historyStringPoolLines),
+        )
+        SummaryRow(
+            stringResource(R.string.system_resets),
+            snapshot.resetEvents.toString(),
+        )
+        SummaryRow(
+            stringResource(R.string.system_size),
+            formatBytes(report.sizeBytes.toLong()),
+        )
+        report.savedName?.let {
+            SummaryRow(stringResource(R.string.system_saved_as), it)
+        }
+        SummaryRow(
+            stringResource(R.string.system_unsupported_fields),
+            if (unsupported.isEmpty()) {
+                stringResource(R.string.system_unsupported_none)
+            } else {
+                stringResource(
+                    R.string.system_unsupported_fields_value,
+                    unsupported.size,
+                    unsupportedOccurrences,
+                )
+            },
+        )
+        if (unsupported.isNotEmpty()) {
+            Text(
+                text = unsupported.entries
+                    .sortedByDescending { it.value }
+                    .take(5)
+                    .joinToString(" · ") { "${it.key} ×${it.value}" },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            SummaryRow(
-                stringResource(R.string.system_total_lines),
-                "%,d".format(snapshot.totalLines),
+        }
+        SummaryRow(
+            stringResource(R.string.system_parser_warnings),
+            warnings.toString(),
+        )
+        SummaryRow(
+            stringResource(R.string.system_parser_errors),
+            errors.toString(),
+        )
+        if (warningMessages.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.system_warning_details),
+                style = MaterialTheme.typography.labelMedium,
             )
-            SummaryRow(
-                stringResource(R.string.system_history_lines),
-                "%,d".format(snapshot.historyLines),
-            )
-            SummaryRow(
-                stringResource(R.string.system_history_string_pool),
-                "%,d".format(snapshot.historyStringPoolLines),
-            )
-            SummaryRow(
-                stringResource(R.string.system_resets),
-                snapshot.resetEvents.toString(),
-            )
-            SummaryRow(
-                stringResource(R.string.system_size),
-                formatBytes(report.sizeBytes.toLong()),
-            )
-            report.savedName?.let {
-                SummaryRow(stringResource(R.string.system_saved_as), it)
-            }
-            SummaryRow(
-                stringResource(R.string.system_unsupported_fields),
-                if (unsupported.isEmpty()) {
-                    stringResource(R.string.system_unsupported_none)
-                } else {
-                    stringResource(
-                        R.string.system_unsupported_fields_value,
-                        unsupported.size,
-                        unsupportedOccurrences,
-                    )
-                },
-            )
-            if (unsupported.isNotEmpty()) {
+            warningMessages.take(3).forEach { message ->
                 Text(
-                    text = unsupported.entries
-                        .sortedByDescending { it.value }
-                        .take(5)
-                        .joinToString(" · ") { "${it.key} ×${it.value}" },
+                    text = "• $message",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            }
-            SummaryRow(
-                stringResource(R.string.system_parser_warnings),
-                warnings.toString(),
-            )
-            SummaryRow(
-                stringResource(R.string.system_parser_errors),
-                errors.toString(),
-            )
-            if (warningMessages.isNotEmpty()) {
-                Text(
-                    text = stringResource(R.string.system_warning_details),
-                    style = MaterialTheme.typography.labelMedium,
-                )
-                warningMessages.take(3).forEach { message ->
-                    Text(
-                        text = "• $message",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
             }
         }
     }

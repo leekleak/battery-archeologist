@@ -57,13 +57,12 @@ fun BottomBar(
     ) {
         HorizontalFloatingToolbar(
             modifier = Modifier.border(
-                width = 1.5.dp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                border = FloatingSurfaceDefaults.border(),
                 shape = MaterialTheme.shapes.extraLargeIncreased,
             ),
             expanded = true,
             colors = FloatingToolbarDefaults.standardFloatingToolbarColors().copy(
-                toolbarContainerColor = MaterialTheme.colorScheme.background,
+                toolbarContainerColor = FloatingSurfaceDefaults.containerColor(),
             ),
         ) {
             ContentTab.entries.forEach { tab ->

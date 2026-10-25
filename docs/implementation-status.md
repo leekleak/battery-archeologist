@@ -52,7 +52,9 @@
    `docs/session-handoff.md`. The Haze top-bar blur is a hard requirement and is
    implemented following Traffic Light's `HazeScaffold`/`PageTitle` pattern.
    Still open: expressive cards, animations, and a contrast audit. The
-   permission Sunny hero is done. Colors and typography stay stock Material.
+   permission Sunny hero is done. Colors use Material You dynamic color on
+   Android 12+ (stock Material schemes below that); typography stays stock
+   Material.
 3. `parseutils`: low-power/RPM state machines and pretty-print helpers
    (connectivity and doze are now ported).
 4. `checkinparse`: future report versions beyond v36, plus the remaining
