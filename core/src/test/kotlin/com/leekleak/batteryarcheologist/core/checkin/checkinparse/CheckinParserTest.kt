@@ -59,8 +59,10 @@ class CheckinParserTest {
         assertEquals(100f, stats.system!!.battery!!.battery_realtime_msec.v(), 0f)
         assertEquals(10f, app(stats, 1000).cpu!!.user_time_ms.v(), 0f)
         assertEquals(20f, app(stats, 1000).cpu!!.system_time_ms.v(), 0f)
-        assertTrue(result.warnings.contains("unknown data category my-new-section"))
-        assertTrue(result.warnings.contains("newer report version 36 found"))
+        assertEquals(
+            listOf("unknown data category my-new-section"),
+            result.warnings,
+        )
     }
 
     @Test
@@ -91,8 +93,12 @@ class CheckinParserTest {
         assertEquals(14L, wakelock.window_current_duration_msec.v())
         assertEquals(15L, wakelock.window_max_duration_msec.v())
         assertEquals(16L, wakelock.window_total_duration_msec.v())
-        // The bp (background partial) group has no field in this proto.
-        assertTrue(result.warnings.contains("wl has 6 new fields"))
+        assertEquals(1f, wakelock.background_partial_time_msec.v(), 0f)
+        assertEquals(2f, wakelock.background_partial_count.v(), 0f)
+        assertEquals(3L, wakelock.background_partial_current_duration_msec.v())
+        assertEquals(4L, wakelock.background_partial_max_duration_msec.v())
+        assertEquals(5L, wakelock.background_partial_total_duration_msec.v())
+        assertEquals(emptyList<String>(), result.warnings)
     }
 
     @Test
@@ -115,7 +121,7 @@ class CheckinParserTest {
     }
 
     @Test
-    fun `state time layout from version 17 onwards reports new fields`() {
+    fun `state time layout from version 17 uses the AOSP process state order`() {
         val raw = """
             9,0,i,vers,17,1,BUILD,BUILD
             9,0,i,uid,1000,android
@@ -129,11 +135,32 @@ class CheckinParserTest {
         val stateTime = app(stats, 1000).state_time!!
         assertEquals(10L, stateTime.top_time_msec.v())
         assertEquals(20L, stateTime.foreground_service_time_msec.v())
-        assertEquals(30L, stateTime.top_sleeping_time_msec.v())
-        assertEquals(40f, stateTime.foreground_time_msec.v(), 0f)
-        assertEquals(50L, stateTime.background_time_msec.v())
+        assertEquals(30f, stateTime.foreground_time_msec.v(), 0f)
+        assertEquals(40L, stateTime.background_time_msec.v())
+        assertEquals(50L, stateTime.top_sleeping_time_msec.v())
         assertEquals(60f, stateTime.cached_time_msec.v(), 0f)
-        assertTrue(result.warnings.none { it.startsWith("st has") })
+        assertEquals(0L, stateTime.heavy_weight_time_msec.v())
+        assertEquals(emptyList<String>(), result.warnings)
+    }
+
+    @Test
+    fun `version 36 state time maps heavy weight and cached`() {
+        val raw = """
+            9,0,i,vers,36,1,BUILD,BUILD
+            9,0,i,uid,1000,android
+            9,1000,l,st,10,20,30,40,50,60,70
+        """.trimIndent()
+
+        val result = CheckinParser.parse(raw, emptyList())
+
+        assertTrue(result.errors.toString(), result.errors.isEmpty())
+        val stateTime = app(requireStats(result.stats), 1000).state_time!!
+        assertEquals(30f, stateTime.foreground_time_msec.v(), 0f)
+        assertEquals(40L, stateTime.background_time_msec.v())
+        assertEquals(50L, stateTime.top_sleeping_time_msec.v())
+        assertEquals(60L, stateTime.heavy_weight_time_msec.v())
+        assertEquals(70f, stateTime.cached_time_msec.v(), 0f)
+        assertEquals(emptyList<String>(), result.warnings)
     }
 
     @Test
@@ -249,11 +276,18 @@ class CheckinParserTest {
             assertEquals((0 until 6).toList(), tx.map { it.level.v() })
         }
 
-        // 11 recognized pwi names plus the synthesized APP entry.
-        assertEquals(12, system.power_use_item.size)
+        // All recognized pwi names plus the synthesized APP entry.
         assertEquals(
-            listOf("APP", "BLUETOOTH", "CELL", "DEFAULT", "DEFAULT", "DEFAULT", "DEFAULT",
-                "FLASHLIGHT", "IDLE", "PHONE", "SCREEN", "WIFI"),
+            system.power_use_item.map { it.name?.name ?: "" }.sorted().toString(),
+            20,
+            system.power_use_item.size,
+        )
+        assertEquals(
+            listOf(
+                "AMBIENT_DISPLAY", "APP", "AUDIO", "BLUETOOTH", "CAMERA", "CELL", "CPU",
+                "DEFAULT", "DEFAULT", "DEFAULT", "DEFAULT", "FLASHLIGHT", "GNSS", "IDLE",
+                "MEMORY", "PHONE", "SCREEN", "SENSORS", "VIDEO", "WIFI",
+            ),
             system.power_use_item.map { it.name?.name ?: "" }.sorted(),
         )
         assertEquals(0.04068f, system.power_use_item.first {
@@ -302,7 +336,8 @@ class CheckinParserTest {
         // Apps and their common sections.
         val systemUi = app(stats, 10185)
         assertEquals("SYSTEM_UI", systemUi.name)
-        assertEquals(500_973L, systemUi.state_time!!.top_sleeping_time_msec.v())
+        assertEquals(500_973f, systemUi.state_time!!.foreground_time_msec.v(), 0f)
+        assertEquals(0L, systemUi.state_time!!.top_sleeping_time_msec.v())
         assertEquals(193f, systemUi.cpu!!.user_time_ms.v(), 0f)
         assertEquals(57f, systemUi.cpu!!.system_time_ms.v(), 0f)
 
@@ -370,7 +405,8 @@ class CheckinParserTest {
         assertEquals(500_973L, messaging.state_time!!.foreground_service_time_msec.v())
 
         val dialer = app(stats, 10157)
-        assertEquals(7f, dialer.state_time!!.foreground_time_msec.v(), 0f)
+        assertEquals(7L, dialer.state_time!!.background_time_msec.v())
+        assertEquals(500_966f, dialer.state_time!!.cached_time_msec.v(), 0f)
         assertEquals(
             "XXX@com.google.android.dialer/androidx.work.impl.background.systemjob.SystemJobService",
             dialer.scheduled_job.single().name.v(),
@@ -389,7 +425,8 @@ class CheckinParserTest {
             radio.child.map { it.name.orEmpty() }.sorted(),
         )
         assertTrue(radio.wakelock.any { it.name == "*telephony-radio*" })
-        assertEquals(500_973L, radio.state_time!!.top_sleeping_time_msec.v())
+        assertEquals(500_973f, radio.state_time!!.foreground_time_msec.v(), 0f)
+        assertEquals(0L, radio.state_time!!.top_sleeping_time_msec.v())
 
         val composite = app(stats, 1073)
         assertEquals(
@@ -420,83 +457,100 @@ class CheckinParserTest {
         assertEquals(500_973f, target.foreground!!.total_time_msec.v(), 0f)
         assertEquals(24f, target.cpu!!.user_time_ms.v(), 0f)
 
-        // Warning parity with the oracle manifest: 164 warnings, zero errors, same text.
-        assertEquals("warnings: ${result.warnings}", 164, result.warnings.size)
-        assertEquals(expectedWarnings().sorted(), result.warnings.sorted())
-        listOf(
-            "The underlying format for bt has 1 additional field(s) that are not captured.",
-            "The underlying format for dc has 4 additional field(s) that are not captured.",
-            "dcc has 6 additional field(s) that are not captured.",
-            "dct has 6 additional field(s) that are not captured.",
-            "newer report version 36 found",
-            "st has 1 new fields",
-            "wl has 6 new fields",
-            "user activity now has 3 additional fields",
-            "unknown data category awl",
-            "unknown data category ctf",
-            "unknown data category jbc",
-            "unknown data category rpm",
-            "unknown data category wmct",
-            "Unknown powerUseItem name camera",
-            "Unknown powerUseItem name cpu",
-            "Unknown powerUseItem name memory",
-            "found unexpected uid 1066 for section \"pwi\"",
-            "found unexpected uid 1069 for section \"pwi\"",
-            "found unexpected uid 1084 for section \"pwi\"",
-            "found unexpected uid 1092 for section \"cpu\"",
-        ).forEach { expected ->
-            assertTrue("missing warning: $expected", result.warnings.contains(expected))
+        // The port now understands the report-version-36 additions, so the
+        // 2017 oracle's per-row warnings are gone. UID 1092 has no package row
+        // in this fixture, which is still worth one warning.
+        assertEquals(
+            listOf("found unexpected uid 1092 for section \"cpu\""),
+            result.warnings,
+        )
+    }
+
+    @Test
+    fun `parses modern report version 36 sections without per-row warnings`() {
+        val dct = List(23) { "0" }.joinToString(",")
+        val raw = """
+            9,0,i,vers,36,216,BUILD,BUILD
+            9,0,i,uid,1000,android
+            9,1000,l,fgs,100,2
+            9,1000,l,awl,300,200
+            9,1000,l,jbc,"job",1,2,3
+            9,1000,l,jbd,4,5,600,1,1,1,1,1
+            9,1000,l,ctf,A,3,10,20,30,1,2,3
+            9,0,l,gcf,100,200,300
+            9,1000,l,wmc,400,5
+            9,0,l,wmct,500,6
+            9,1000,l,blem,1,2,3,4,5,6,7,8,9,10,11
+            9,1000,l,ua,1,2,3,4,5,6,7
+            9,0,l,bt,0,1,2,3,4,5,6,7,8,9,10,11
+            9,0,l,dc,1,2,3,4,5,6,7,8,9,10
+            9,0,l,dct,$dct
+            9,0,l,dcc,$dct
+            9,0,l,rpm,"VDD_CX",100,2,50,1
+            9,0,l,pwi,cpu,1.5,0,0,0
+            9,1000,l,pwi,uid,2.5,0,0,0
+            9,1000,l,st,10,20,30,40,50,60,70
+            9,1000,l,wl,lock,5,f,2,3,4,5,7,p,8,9,10,11,1,bp,2,3,4,5,12,w,13,14,15,16
+        """.trimIndent()
+
+        val result = CheckinParser.parse(raw, emptyList())
+
+        assertTrue("errors: ${result.errors}", result.errors.isEmpty())
+        assertEquals("warnings: ${result.warnings}", emptyList<String>(), result.warnings)
+        val stats = requireStats(result.stats)
+        val parsed = app(stats, 1000)
+        with(stats.system!!) {
+            assertEquals(11f, battery!!.screen_doze_realtime_msec.v(), 0f)
+            with(battery_discharge!!) {
+                assertEquals(7f, screen_doze.v(), 0f)
+                assertEquals(8f, screen_doze_count.v(), 0f)
+                assertEquals(9f, light_doze_count.v(), 0f)
+                assertEquals(10f, deep_doze_count.v(), 0f)
+            }
+            assertEquals(23, data_connection.size)
+            assertEquals(
+                BatteryStats.System.DataConnection.Name.NR,
+                data_connection[20].name,
+            )
+            assertEquals(listOf(100L, 200L, 300L), global_cpu_freq!!.freq_khz)
+            assertEquals(500f, global_wifi_multicast!!.total_time_msec.v(), 0f)
+            assertEquals(6, global_wifi_multicast!!.count.v())
+            assertEquals("VDD_CX", resource_power_manager.single().name)
+        }
+        with(parsed) {
+            assertEquals(100f, foreground_service!!.total_time_msec.v(), 0f)
+            assertEquals(2f, foreground_service!!.count.v(), 0f)
+            assertEquals(300f, aggregated_wakelock!!.partial_time_msec.v(), 0f)
+            assertEquals(200f, aggregated_wakelock!!.background_partial_time_msec.v(), 0f)
+            assertEquals(4, jobs_deferred!!.deferred_event_count.v())
+            assertEquals(5, jobs_deferred!!.deferred_count.v())
+            assertEquals(600L, jobs_deferred!!.total_latency_msec.v())
+            assertEquals(listOf(1, 1, 1, 1, 1), jobs_deferred!!.latency_bucket_count)
+            assertEquals(listOf(1, 2, 3), scheduled_job.single().stop_reason_count)
+            val cpuFreq = cpu_times_at_freq.single()
+            assertEquals("A", cpuFreq.type)
+            assertEquals(3, cpuFreq.freq_count.v())
+            assertEquals(listOf(10L, 20L, 30L), cpuFreq.time_ms)
+            assertEquals(listOf(1L, 2L, 3L), cpuFreq.screen_off_time_ms)
+            assertEquals(400f, wifi_multicast!!.total_time_msec.v(), 0f)
+            assertEquals(5, wifi_multicast!!.count.v())
+            with(bluetooth_misc!!) {
+                assertEquals(7, ble_scan_result_count_bg.v())
+                assertEquals(8L, ble_scan_unoptimized_time_msec.v())
+                assertEquals(9L, ble_scan_unoptimized_time_msec_bg.v())
+                assertEquals(10L, ble_scan_unoptimized_max_time_msec.v())
+                assertEquals(11L, ble_scan_unoptimized_max_time_msec_bg.v())
+            }
+            assertEquals(listOf(1f, 2f, 3f, 4f, 5f, 6f, 7f), user_activity.map { it.count.v() })
+            assertEquals(60L, state_time!!.heavy_weight_time_msec.v())
+            assertEquals(70f, state_time!!.cached_time_msec.v(), 0f)
+            assertEquals(1f, wakelock.single().background_partial_time_msec.v(), 0f)
         }
     }
 
     private fun <T : Any> requireStats(value: T?): T {
         org.junit.Assert.assertNotNull(value)
         return value!!
-    }
-
-    /**
-     * Reads the warnings array out of the oracle summary without pulling a JSON library into
-     * :core. The fixture's warnings contain no `]`, so a simple string scan is sufficient.
-     */
-    private fun expectedWarnings(): List<String> {
-        val text = fixture("expected/checkin-summary.json")
-        val key = text.indexOf("\"warnings\":")
-        check(key >= 0) { "warnings array not found in oracle summary" }
-        val start = text.indexOf('[', key)
-        val end = text.indexOf(']', start)
-        check(start > key && end > start) { "unterminated warnings array in oracle summary" }
-        val array = text.substring(start, end)
-        return Regex("\"((?:[^\"\\\\]|\\\\.)*)\"").findAll(array)
-            .map { unescapeJson(it.groupValues[1]) }
-            .toList()
-    }
-
-    private fun unescapeJson(value: String): String {
-        val out = StringBuilder(value.length)
-        var i = 0
-        while (i < value.length) {
-            val c = value[i]
-            if (c != '\\' || i + 1 >= value.length) {
-                out.append(c)
-                i++
-                continue
-            }
-            when (val escaped = value[i + 1]) {
-                '"', '\\', '/' -> out.append(escaped)
-                'b' -> out.append('\b')
-                'f' -> out.append('\u000C')
-                'n' -> out.append('\n')
-                'r' -> out.append('\r')
-                't' -> out.append('\t')
-                'u' -> {
-                    out.append(value.substring(i + 2, i + 6).toInt(16).toChar())
-                    i += 4
-                }
-                else -> out.append(escaped)
-            }
-            i += 2
-        }
-        return out.toString()
     }
 
     private fun Float?.v(): Float = this ?: 0f

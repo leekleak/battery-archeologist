@@ -17,6 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.leekleak.batteryarcheologist.data.AndroidReportRepository
+import com.leekleak.batteryarcheologist.data.SharedPreferencesPinnedAppsStore
 import com.leekleak.batteryarcheologist.ui.navigation.MainScreen
 import com.leekleak.batteryarcheologist.ui.state.MainViewModel
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistBackground
@@ -37,6 +38,9 @@ fun BatteryArcheologistRoot(gateway: ShizukuGateway) {
     val repository = remember(appContext) {
         AndroidReportRepository(appContext, gateway)
     }
+    val pinnedAppsStore = remember(appContext) {
+        SharedPreferencesPinnedAppsStore(appContext)
+    }
     val viewModel: MainViewModel = viewModel(
         factory = viewModelFactory {
             initializer {
@@ -47,6 +51,7 @@ fun BatteryArcheologistRoot(gateway: ShizukuGateway) {
                     requestShizukuPermission = { gateway.requestPermission() },
                     openShizuku = { gateway.openShizuku() },
                     refreshShizuku = { gateway.refresh() },
+                    pinnedAppsStore = pinnedAppsStore,
                 )
             }
         },

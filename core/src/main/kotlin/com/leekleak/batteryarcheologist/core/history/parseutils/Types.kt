@@ -340,6 +340,11 @@ class ActivitySummary(
     var wifiRunningSummary: Dist = Dist()
     var wifiMulticastOnSummary: Dist = Dist()
 
+    var cellularHighTxPowerSummary: Dist = Dist()
+    var screenDozeSummary: Dist = Dist()
+    var usbDataLinkSummary: Dist = Dist()
+    var bluetoothOnSummary: Dist = Dist()
+
     var audioOnSummary: Dist = Dist()
     var cameraOnSummary: Dist = Dist()
     var videoOnSummary: Dist = Dist()
@@ -365,6 +370,9 @@ class ActivitySummary(
     val scheduledJobSummary: MutableMap<String, Dist> = LinkedHashMap()
     val tmpWhiteListSummary: MutableMap<String, Dist> = LinkedHashMap()
     val idleModeSummary: MutableMap<String, Dist> = LinkedHashMap()
+
+    val gpsSignalQualitySummary: MutableMap<String, Dist> = LinkedHashMap()
+    val nrStateSummary: MutableMap<String, Dist> = LinkedHashMap()
 
     val healthSummary: MutableMap<String, Dist> = LinkedHashMap()
     val plugTypeSummary: MutableMap<String, Dist> = LinkedHashMap()
@@ -421,6 +429,10 @@ class ActivitySummary(
         other.wifiRadioSummary = wifiRadioSummary.copy()
         other.wifiRunningSummary = wifiRunningSummary.copy()
         other.wifiMulticastOnSummary = wifiMulticastOnSummary.copy()
+        other.cellularHighTxPowerSummary = cellularHighTxPowerSummary.copy()
+        other.screenDozeSummary = screenDozeSummary.copy()
+        other.usbDataLinkSummary = usbDataLinkSummary.copy()
+        other.bluetoothOnSummary = bluetoothOnSummary.copy()
         other.audioOnSummary = audioOnSummary.copy()
         other.cameraOnSummary = cameraOnSummary.copy()
         other.videoOnSummary = videoOnSummary.copy()
@@ -442,6 +454,8 @@ class ActivitySummary(
         other.scheduledJobSummary.putAll(copyMap(scheduledJobSummary))
         other.tmpWhiteListSummary.putAll(copyMap(tmpWhiteListSummary))
         other.idleModeSummary.putAll(copyMap(idleModeSummary))
+        other.gpsSignalQualitySummary.putAll(copyMap(gpsSignalQualitySummary))
+        other.nrStateSummary.putAll(copyMap(nrStateSummary))
         other.healthSummary.putAll(copyMap(healthSummary))
         other.plugTypeSummary.putAll(copyMap(plugTypeSummary))
         other.chargingStatusSummary.putAll(copyMap(chargingStatusSummary))
@@ -492,6 +506,8 @@ data class AnalysisReport(
     val errors: List<String> = emptyList(),
     val overflowMs: Long = 0L,
     val timeToDelta: Map<String, String> = emptyMap(),
+    /** Unknown history keys and how many times each occurred. */
+    val unsupportedKeys: Map<String, Int> = emptyMap(),
 )
 
 /**
@@ -516,6 +532,8 @@ data class HistoryResult(
     val timestampsAltered: Boolean = false,
     val reportVersion: Int = 0,
     val timeToDelta: Map<String, String> = emptyMap(),
+    /** Unknown history keys and how many times each occurred. */
+    val unsupportedKeys: Map<String, Int> = emptyMap(),
 )
 
 /**

@@ -53,6 +53,8 @@
     <string name="overview_parser_issues">Parser issues</string>
     <string name="overview_parser_warnings">Parser warnings</string>
     <string name="overview_parser_notice">%1$s while parsing. Details are in Report details on the System tab.</string>
+    <string name="overview_parser_unsupported">Newer report fields skipped</string>
+    <string name="overview_parser_unsupported_notice">%1$d newer history fields were skipped. Details are in Report details on the System tab.</string>
     <string name="overview_discharge">Discharge</string>
     <string name="overview_intervals">Intervals</string>
     <string name="overview_last_change">Last change</string>
@@ -84,6 +86,10 @@
     <string name="system_saved_as">Saved as</string>
     <string name="system_parser_warnings">Parser warnings</string>
     <string name="system_parser_errors">Parser errors</string>
+    <string name="system_unsupported_fields">Unsupported newer fields</string>
+    <string name="system_unsupported_fields_value">%1$d kinds · %2$d occurrences</string>
+    <string name="system_unsupported_none">None</string>
+    <string name="system_warning_details">Warning details</string>
     <string name="system_parsing_failed">Parsing failed</string>
     <string name="system_history_failure">History: %1$s</string>
     <string name="system_checkin_failure">Checkin: %1$s</string>
@@ -94,7 +100,13 @@
     </plurals>
 
     <!-- Apps -->
-    <string name="apps_by_power">Apps by power</string>
+    <string name="apps_search_hint">Search apps</string>
+    <string name="apps_search_clear">Clear search</string>
+    <string name="apps_pinned">Pinned</string>
+    <string name="apps_pin">Pin app</string>
+    <string name="apps_unpin">Unpin app</string>
+    <string name="apps_no_matches_title">No matching apps</string>
+    <string name="apps_no_matches_body">No apps match “%1$s”.</string>
     <string name="apps_no_data_title">No app data</string>
     <string name="apps_no_data_body">This report does not contain per-app usage. Capture a fresh report to see app power.</string>
     <string name="apps_cpu_value">%1$s CPU</string>
@@ -116,10 +128,8 @@
     <string name="apps_wifi_traffic">Wi-Fi traffic</string>
     <string name="apps_identity">uid %1$d</string>
     <string name="apps_identity_version">uid %1$d · %2$s</string>
-    <plurals name="apps_count">
-        <item quantity="one">%1$d app</item>
-        <item quantity="other">%1$d apps</item>
-    </plurals>
+    <string name="apps_identity_package">%1$s · uid %2$d</string>
+    <string name="apps_identity_package_version">%1$s · uid %2$d · %3$s</string>
 
     <!-- Reports -->
     <string name="report_origin_captured">Captured</string>
@@ -165,25 +175,32 @@
 
     <!-- Timeline -->
     <string name="timeline_no_entries">No timeline entries</string>
-    <string name="timeline_hint">Drag across the chart to inspect a moment.</string>
     <string name="timeline_range_summary">%1$s – %2$s · %3$s</string>
-    <string name="timeline_interval_clock_range">%1$s – %2$s</string>
-    <string name="timeline_selected_time">Selected %1$s</string>
+    <string name="timeline_previous_change">Previous data change</string>
+    <string name="timeline_next_change">Next data change</string>
     <string name="timeline_cursor_empty">No active events at this time.</string>
-    <string name="timeline_no_active_event">—</string>
-    <string name="timeline_value_on">On</string>
-    <string name="timeline_value_off">Off</string>
+    <string name="timeline_filter_icon">Filter metrics</string>
+    <string name="timeline_filter_icon_active">Filter metrics, active</string>
+    <string name="timeline_filter_title">Filter metrics</string>
+    <string name="timeline_filter_description">Choose which rows appear in the timeline.</string>
+    <string name="timeline_filter_select_all">Select all</string>
+    <string name="timeline_filter_clear_all">Clear all</string>
+    <string name="timeline_filter_apply">Apply</string>
     <string name="timeline_unavailable">Timeline unavailable</string>
     <string name="timeline_unavailable_body">Timeline data is not available for this report.</string>
-    <string name="timeline_discharge_intervals">Discharge intervals</string>
-    <string name="timeline_battery_range">%1$d%% → %2$d%%</string>
     <string name="timeline_group_battery">Battery</string>
     <string name="timeline_group_charging">Charging</string>
     <string name="timeline_group_screen">Screen</string>
     <string name="timeline_group_wifi">Wi-Fi</string>
+    <string name="timeline_group_radio">Radio</string>
+    <string name="timeline_group_gps">GPS</string>
     <string name="timeline_group_wakelocks">Wakelocks</string>
     <string name="timeline_group_top_app">Top app</string>
     <string name="timeline_group_cpu">CPU</string>
+    <string name="timeline_group_apps">Apps</string>
+    <string name="timeline_group_device">Device</string>
+    <string name="timeline_group_media">Media</string>
+    <string name="timeline_group_system">System</string>
     <string name="timeline_group_other">Other</string>
 
     <!-- Common -->

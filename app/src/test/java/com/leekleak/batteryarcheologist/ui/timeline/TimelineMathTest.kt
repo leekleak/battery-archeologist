@@ -187,6 +187,23 @@ class TimelineMathTest {
     }
 
     @Test
+    fun cursorTimestampsIncludeSeconds() {
+        val time = java.time.Instant.parse("2023-11-14T22:13:45Z").toEpochMilli()
+
+        assertTrue(
+            TimelineMath.formatClockDateTime(time, java.time.ZoneOffset.UTC)
+                .endsWith("22:13:45"),
+        )
+        assertEquals(
+            "22:13:45",
+            TimelineMath.formatClockTimeSeconds(time, java.time.ZoneOffset.UTC),
+        )
+        assertTrue(
+            TimelineMath.formatClockDate(time, java.time.ZoneOffset.UTC).isNotBlank(),
+        )
+    }
+
+    @Test
     fun spansAreFormattedForHeaders() {
         assertEquals("42s", TimelineMath.formatSpan(42_000L))
         assertEquals("1m 30s", TimelineMath.formatSpan(90_000L))

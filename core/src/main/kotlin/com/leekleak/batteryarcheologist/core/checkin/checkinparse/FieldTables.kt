@@ -8,12 +8,14 @@
 package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Apk.Service as BatteryAppService
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.AggregatedWakelock as BatteryAppAggregatedWakelock
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Audio as BatteryAppAudio
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.BluetoothMisc as BatteryAppBluetoothMisc
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Camera as BatteryAppCamera
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Cpu as BatteryAppCpu
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Flashlight as BatteryAppFlashlight
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Foreground as BatteryAppForeground
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.ForegroundService as BatteryAppForegroundService
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Network as BatteryAppNetwork
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Process as BatteryAppProcess
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.ScheduledJob as BatteryAppScheduledJob
@@ -24,6 +26,7 @@ import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Vibr
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Video as BatteryAppVideo
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.WakeupAlarm as BatteryAppWakeupAlarm
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Wifi as BatteryAppWifi
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.WifiMulticast as BatteryAppWifiMulticast
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.Battery as BatterySystemBattery
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.BatteryDischarge as BatterySystemBatteryDischarge
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.BatteryLevel as BatterySystemBatteryLevel
@@ -35,8 +38,10 @@ import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.G
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.KernelWakelock as BatterySystemKernelWakelock
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.Misc as BatterySystemMisc
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.PowerUseSummary as BatterySystemPowerUseSummary
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.ResourcePowerManager as BatterySystemResourcePowerManager
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.SignalScanningTime as BatterySystemSignalScanningTime
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.WakeupReason as BatterySystemWakeupReason
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System.WifiMulticast as BatterySystemWifiMulticast
 
 internal val BATTERY_APP_SERVICE_SPEC: MessageSpec<BatteryAppService.Builder> = MessageSpec(
     fields = listOf(
@@ -64,6 +69,11 @@ internal val BATTERY_APP_BLUETOOTH_MISC_SPEC: MessageSpec<BatteryAppBluetoothMis
         FieldSpec("ble_scan_actual_time_msec", FieldType.INT64, { it.ble_scan_actual_time_msec }, { b, v -> b.ble_scan_actual_time_msec = v as Long }),
         FieldSpec("ble_scan_actual_time_msec_bg", FieldType.INT64, { it.ble_scan_actual_time_msec_bg }, { b, v -> b.ble_scan_actual_time_msec_bg = v as Long }),
         FieldSpec("ble_scan_result_count", FieldType.INT32, { it.ble_scan_result_count }, { b, v -> b.ble_scan_result_count = v as Int }),
+        FieldSpec("ble_scan_result_count_bg", FieldType.INT32, { it.ble_scan_result_count_bg }, { b, v -> b.ble_scan_result_count_bg = v as Int }),
+        FieldSpec("ble_scan_unoptimized_time_msec", FieldType.INT64, { it.ble_scan_unoptimized_time_msec }, { b, v -> b.ble_scan_unoptimized_time_msec = v as Long }),
+        FieldSpec("ble_scan_unoptimized_time_msec_bg", FieldType.INT64, { it.ble_scan_unoptimized_time_msec_bg }, { b, v -> b.ble_scan_unoptimized_time_msec_bg = v as Long }),
+        FieldSpec("ble_scan_unoptimized_max_time_msec", FieldType.INT64, { it.ble_scan_unoptimized_max_time_msec }, { b, v -> b.ble_scan_unoptimized_max_time_msec = v as Long }),
+        FieldSpec("ble_scan_unoptimized_max_time_msec_bg", FieldType.INT64, { it.ble_scan_unoptimized_max_time_msec_bg }, { b, v -> b.ble_scan_unoptimized_max_time_msec_bg = v as Long }),
     ),
     factory = { BatteryAppBluetoothMisc.Builder() },
 )
@@ -100,6 +110,33 @@ internal val BATTERY_APP_FOREGROUND_SPEC: MessageSpec<BatteryAppForeground.Build
     ),
     factory = { BatteryAppForeground.Builder() },
 )
+
+internal val BATTERY_APP_FOREGROUND_SERVICE_SPEC: MessageSpec<BatteryAppForegroundService.Builder> =
+    MessageSpec(
+        fields = listOf(
+            FieldSpec("total_time_msec", FieldType.FLOAT, { it.total_time_msec }, { b, v -> b.total_time_msec = v as Float }),
+            FieldSpec("count", FieldType.FLOAT, { it.count }, { b, v -> b.count = v as Float }),
+        ),
+        factory = { BatteryAppForegroundService.Builder() },
+    )
+
+internal val BATTERY_APP_AGGREGATED_WAKELOCK_SPEC: MessageSpec<BatteryAppAggregatedWakelock.Builder> =
+    MessageSpec(
+        fields = listOf(
+            FieldSpec("partial_time_msec", FieldType.FLOAT, { it.partial_time_msec }, { b, v -> b.partial_time_msec = v as Float }),
+            FieldSpec("background_partial_time_msec", FieldType.FLOAT, { it.background_partial_time_msec }, { b, v -> b.background_partial_time_msec = v as Float }),
+        ),
+        factory = { BatteryAppAggregatedWakelock.Builder() },
+    )
+
+internal val BATTERY_APP_WIFI_MULTICAST_SPEC: MessageSpec<BatteryAppWifiMulticast.Builder> =
+    MessageSpec(
+        fields = listOf(
+            FieldSpec("total_time_msec", FieldType.FLOAT, { it.total_time_msec }, { b, v -> b.total_time_msec = v as Float }),
+            FieldSpec("count", FieldType.INT32, { it.count }, { b, v -> b.count = v as Int }),
+        ),
+        factory = { BatteryAppWifiMulticast.Builder() },
+    )
 
 internal val BATTERY_APP_NETWORK_SPEC: MessageSpec<BatteryAppNetwork.Builder> = MessageSpec(
     fields = listOf(
@@ -174,6 +211,7 @@ internal val BATTERY_APP_STATE_TIME_SPEC: MessageSpec<BatteryAppStateTime.Builde
         FieldSpec("foreground_service_time_msec", FieldType.INT64, { it.foreground_service_time_msec }, { b, v -> b.foreground_service_time_msec = v as Long }),
         FieldSpec("top_sleeping_time_msec", FieldType.INT64, { it.top_sleeping_time_msec }, { b, v -> b.top_sleeping_time_msec = v as Long }),
         FieldSpec("background_time_msec", FieldType.INT64, { it.background_time_msec }, { b, v -> b.background_time_msec = v as Long }),
+        FieldSpec("heavy_weight_time_msec", FieldType.INT64, { it.heavy_weight_time_msec }, { b, v -> b.heavy_weight_time_msec = v as Long }),
     ),
     factory = { BatteryAppStateTime.Builder() },
 )
@@ -242,6 +280,7 @@ internal val BATTERY_SYSTEM_BATTERY_SPEC: MessageSpec<BatterySystemBattery.Build
         FieldSpec("estimated_battery_capacity_mah", FieldType.INT64, { it.estimated_battery_capacity_mah }, { b, v -> b.estimated_battery_capacity_mah = v as Long }),
         FieldSpec("min_learned_battery_capacity_uah", FieldType.INT64, { it.min_learned_battery_capacity_uah }, { b, v -> b.min_learned_battery_capacity_uah = v as Long }),
         FieldSpec("max_learned_battery_capacity_uah", FieldType.INT64, { it.max_learned_battery_capacity_uah }, { b, v -> b.max_learned_battery_capacity_uah = v as Long }),
+        FieldSpec("screen_doze_realtime_msec", FieldType.FLOAT, { it.screen_doze_realtime_msec }, { b, v -> b.screen_doze_realtime_msec = v as Float }),
     ),
     factory = { BatterySystemBattery.Builder() },
 )
@@ -254,9 +293,34 @@ internal val BATTERY_SYSTEM_BATTERY_DISCHARGE_SPEC: MessageSpec<BatterySystemBat
         FieldSpec("screen_off", FieldType.FLOAT, { it.screen_off }, { b, v -> b.screen_off = v as Float }),
         FieldSpec("total_mah", FieldType.INT64, { it.total_mah }, { b, v -> b.total_mah = v as Long }),
         FieldSpec("total_mah_screen_off", FieldType.INT64, { it.total_mah_screen_off }, { b, v -> b.total_mah_screen_off = v as Long }),
+        FieldSpec("screen_doze", FieldType.FLOAT, { it.screen_doze }, { b, v -> b.screen_doze = v as Float }),
+        FieldSpec("screen_doze_count", FieldType.FLOAT, { it.screen_doze_count }, { b, v -> b.screen_doze_count = v as Float }),
+        FieldSpec("light_doze_count", FieldType.FLOAT, { it.light_doze_count }, { b, v -> b.light_doze_count = v as Float }),
+        FieldSpec("deep_doze_count", FieldType.FLOAT, { it.deep_doze_count }, { b, v -> b.deep_doze_count = v as Float }),
     ),
     factory = { BatterySystemBatteryDischarge.Builder() },
 )
+
+internal val BATTERY_SYSTEM_WIFI_MULTICAST_SPEC: MessageSpec<BatterySystemWifiMulticast.Builder> =
+    MessageSpec(
+        fields = listOf(
+            FieldSpec("total_time_msec", FieldType.FLOAT, { it.total_time_msec }, { b, v -> b.total_time_msec = v as Float }),
+            FieldSpec("count", FieldType.INT32, { it.count }, { b, v -> b.count = v as Int }),
+        ),
+        factory = { BatterySystemWifiMulticast.Builder() },
+    )
+
+internal val BATTERY_SYSTEM_RESOURCE_POWER_MANAGER_SPEC: MessageSpec<BatterySystemResourcePowerManager.Builder> =
+    MessageSpec(
+        fields = listOf(
+            FieldSpec("name", FieldType.STRING, { it.name }, { b, v -> b.name = v as String }),
+            FieldSpec("total_time_msec", FieldType.FLOAT, { it.total_time_msec }, { b, v -> b.total_time_msec = v as Float }),
+            FieldSpec("total_count", FieldType.INT32, { it.total_count }, { b, v -> b.total_count = v as Int }),
+            FieldSpec("screen_off_time_msec", FieldType.FLOAT, { it.screen_off_time_msec }, { b, v -> b.screen_off_time_msec = v as Float }),
+            FieldSpec("screen_off_count", FieldType.INT32, { it.screen_off_count }, { b, v -> b.screen_off_count = v as Int }),
+        ),
+        factory = { BatterySystemResourcePowerManager.Builder() },
+    )
 
 internal val BATTERY_SYSTEM_BATTERY_LEVEL_SPEC: MessageSpec<BatterySystemBatteryLevel.Builder> = MessageSpec(
     fields = listOf(

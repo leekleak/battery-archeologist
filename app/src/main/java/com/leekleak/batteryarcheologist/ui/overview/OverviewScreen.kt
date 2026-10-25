@@ -50,17 +50,25 @@ fun OverviewScreen(
             (report.checkin?.errors?.size ?: 0) +
             (if (report.historyFailure != null) 1 else 0) +
             (if (report.checkinFailure != null) 1 else 0)
-        if (warnings > 0 || errors > 0) {
+        val unsupported = report.history?.unsupportedKeys.orEmpty()
+        if (warnings > 0 || errors > 0 || unsupported.isNotEmpty()) {
             item {
+                val title = when {
+                    errors > 0 -> R.string.overview_parser_issues
+                    warnings > 0 -> R.string.overview_parser_warnings
+                    else -> R.string.overview_parser_unsupported
+                }
+                val message = if (warnings > 0 || errors > 0) {
+                    parserNoticeMessage(warnings, errors)
+                } else {
+                    stringResource(
+                        R.string.overview_parser_unsupported_notice,
+                        unsupported.size,
+                    )
+                }
                 ParserNoticeCard(
-                    title = stringResource(
-                        if (errors > 0) {
-                            R.string.overview_parser_issues
-                        } else {
-                            R.string.overview_parser_warnings
-                        },
-                    ),
-                    message = parserNoticeMessage(warnings, errors),
+                    title = stringResource(title),
+                    message = message,
                     isError = errors > 0,
                 )
             }

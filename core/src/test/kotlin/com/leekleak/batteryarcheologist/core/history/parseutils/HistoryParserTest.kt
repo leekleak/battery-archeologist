@@ -371,4 +371,45 @@ class HistoryParserTest {
         assertEquals(1, topRows.size)
         assertTrue(topRows.all { it[1] == "service" && it[5] == "10191" })
     }
+
+    @Test
+    fun `android 16 state flags and events are modeled without line errors`() {
+        val input = listOf(
+            "9,0,i,vers,36,216,BUILD,BUILD",
+            "9,h,0:RESET:TIME:1792826610202",
+            "9,h,0,Bl=79,Bs=d,Mrc=0,Wrc=0,+Chtp,Gss=good,+Sd,+Ud,-Esc=5,Eds=7",
+            "9,h,1000,-Chtp,Gss=none,-Sd,-Ud,+Esc=6",
+            "9,h,1000,+b",
+            "9,h,1000,-b",
+            "9,h,1000,Enl=1",
+            "9,h,1000,WeirdKey=1",
+        ).joinToString("\n")
+
+        val result = analyze(input)
+
+        assertEquals(emptyList<String>(), result.errors)
+        assertEquals(mapOf("WeirdKey" to 1), result.unsupportedKeys)
+        val metrics = csvRows(result.csv).map { it[0] }.toSet()
+        assertTrue(
+            "missing metrics: $metrics",
+            metrics.containsAll(
+                listOf(
+                    HistoryMetrics.CELLULAR_HIGH_TX_POWER,
+                    HistoryMetrics.GPS_SIGNAL_QUALITY,
+                    HistoryMetrics.SCREEN_DOZE,
+                    HistoryMetrics.USB_DATA_LINK,
+                    HistoryMetrics.STATE_EVENT,
+                    HistoryMetrics.DISPLAY_STATE_EVENT,
+                    HistoryMetrics.BLUETOOTH_ON,
+                ),
+            ),
+        )
+        val summary = result.summaries.single()
+        assertEquals(Dist(1, 1000, 1000), summary.cellularHighTxPowerSummary)
+        assertEquals(Dist(1, 1000, 1000), summary.screenDozeSummary)
+        assertEquals(Dist(1, 1000, 1000), summary.usbDataLinkSummary)
+        assertEquals(Dist(1, 1000, 1000), summary.bluetoothOnSummary)
+        assertEquals(Dist(1, 1000, 1000), summary.gpsSignalQualitySummary["good"])
+        assertEquals(4000L, summary.gpsSignalQualitySummary.getValue("none").totalDurationMs)
+    }
 }

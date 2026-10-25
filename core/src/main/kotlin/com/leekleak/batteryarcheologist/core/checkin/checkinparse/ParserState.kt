@@ -40,6 +40,7 @@ internal class ParserState(
     val counter: IntCounter = IntCounter(),
 ) {
     val warnings = ArrayList<String>()
+    private val warningCounts = LinkedHashMap<String, Int>()
     val errors = ArrayList<String>()
 
     /** UID -> app proto builder. A TreeMap keeps output deterministic. */
@@ -59,4 +60,23 @@ internal class ParserState(
 
     /** Same data as [resolvedPackages], in the generated usagestats proto shape. */
     var resolvedUsagePackages: Map<String, PackageInfo> = emptyMap()
+
+    /**
+     * Records a warning once and counts repeated occurrences.
+     *
+     * Modern captures can produce thousands of identical per-row warnings. The
+     * caller sees one entry per message, with the repeat count appended.
+     */
+    fun addWarning(message: String) {
+        val count = warningCounts.merge(message, 1, Int::plus) ?: 1
+        if (count == 1) {
+            warnings += message
+        }
+    }
+
+    /** Returns [warnings], annotating repeated messages with their occurrence count. */
+    fun finalizedWarnings(): List<String> = warnings.map { message ->
+        val count = warningCounts[message] ?: 1
+        if (count > 1) "$message (×$count)" else message
+    }
 }

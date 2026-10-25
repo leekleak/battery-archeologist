@@ -2,25 +2,37 @@ package com.leekleak.batteryarcheologist.ui.timeline
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
-import com.leekleak.batteryarcheologist.core.history.parseutils.ActivitySummary
 import com.leekleak.batteryarcheologist.data.ReportData
+import com.leekleak.batteryarcheologist.data.SharedPreferencesTimelineFilterStore
+import com.leekleak.batteryarcheologist.ui.components.NAVBAR_PADDING
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 
 /**
@@ -28,7 +40,9 @@ import com.leekleak.batteryarcheologist.ui.components.SectionCard
  *
  * The whole page scrolls vertically. The chart is a single item and only
  * claims horizontal drags for its inspection cursor, so vertical drags scroll
- * the page instead of fighting the chart.
+ * the page instead of fighting the chart. The cursor readout is an overlay
+ * above the navigation bar, so its values stay visible while the (very tall,
+ * all-metrics) chart scrolls behind it.
  */
 @Composable
 fun TimelineTab(
@@ -55,90 +69,96 @@ fun TimelineTab(
         return
     }
 
+    val context = LocalContext.current
+    val filterStore = remember(context) { SharedPreferencesTimelineFilterStore(context) }
+    var filter by remember { mutableStateOf(filterStore.load()) }
+    var filterSheetOpen by remember { mutableStateOf(false) }
+    var readoutHeightPx by remember { mutableIntStateOf(0) }
+
     val reportEndMs = remember(history) {
         history.summaries.maxOfOrNull { it.endTimeMs }
     }
-    val intervals = remember(history) {
-        history.summaries.filter {
-            it.initialBatteryLevel >= 0 &&
-                it.finalBatteryLevel >= 0 &&
-                it.initialBatteryLevel != it.finalBatteryLevel
-        }
+    val data = remember(history.entries, reportEndMs, filter) {
+        TimelineData.build(
+            entries = history.entries,
+            reportTakenMs = reportEndMs,
+            visibleMetrics = if (filter.active) filter.metrics else null,
+        )
     }
+    var cursorMs by remember(history) { mutableStateOf<Long?>(null) }
+    val rawCursor = cursorMs ?: data.lastChangeMs ?: data.range.endMs
+    val cursor = data.clampCursor(rawCursor) ?: rawCursor
+    val palette = rememberTimelinePalette()
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        item(key = "timeline_chart") {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("parsed_timeline"),
-            ) {
-                TimelineScreen(
-                    entries = history.entries,
-                    reportTakenMs = reportEndMs,
-                )
-            }
-        }
+    val layoutDirection = LocalLayoutDirection.current
+    val horizontalStart = contentPadding.calculateStartPadding(layoutDirection)
+    val horizontalEnd = contentPadding.calculateEndPadding(layoutDirection)
+    val navigationInset = WindowInsets.navigationBars
+        .asPaddingValues()
+        .calculateBottomPadding()
+    val readoutBottomGap = navigationInset + NAVBAR_PADDING + 16.dp
+    val readoutHeight = with(LocalDensity.current) { readoutHeightPx.toDp() }
+    val chartPadding = PaddingValues(
+        start = horizontalStart,
+        top = contentPadding.calculateTopPadding(),
+        end = horizontalEnd,
+        bottom = readoutBottomGap + readoutHeight + 8.dp,
+    )
 
-        if (intervals.isNotEmpty()) {
-            item(key = "timeline_intervals") {
-                DischargeIntervalsCard(intervals)
-            }
-        }
-    }
-}
-
-/**
- * Discharge intervals are part of the vertically scrolling page now; the
- * bottom sheet was removed together with the manual zoom controls.
- */
-@Composable
-private fun DischargeIntervalsCard(intervals: List<ActivitySummary>) {
-    SectionCard(
-        modifier = Modifier.testTag("discharge_intervals"),
-        title = stringResource(R.string.timeline_discharge_intervals),
-    ) {
-        intervals.forEach { summary ->
-            val durationMs = (summary.endTimeMs - summary.startTimeMs).coerceAtLeast(0L)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = chartPadding,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            item(key = "timeline_chart") {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("parsed_timeline"),
                 ) {
-                    Text(
-                        text = stringResource(
-                            R.string.timeline_battery_range,
-                            summary.initialBatteryLevel,
-                            summary.finalBatteryLevel,
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Text(
-                        text = TimelineMath.formatSpan(durationMs),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    TimelineScreen(
+                        data = data,
+                        cursorMs = cursor,
+                        onCursorMsChange = {
+                            cursorMs = data.clampCursor(it) ?: it
+                        },
                     )
                 }
-                Text(
-                    text = stringResource(
-                        R.string.timeline_interval_clock_range,
-                        TimelineMath.formatClockTime(summary.startTimeMs, durationMs),
-                        TimelineMath.formatClockTime(summary.endTimeMs, durationMs),
-                    ),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
             }
+        }
+
+        TimelineReadout(
+            data = data,
+            cursorMs = cursor,
+            palette = palette,
+            filterActive = filter.active,
+            onCursorMsChange = {
+                cursorMs = data.clampCursor(it) ?: it
+            },
+            onFilterClick = { filterSheetOpen = true },
+            onHeightChanged = { readoutHeightPx = it },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(
+                    start = horizontalStart,
+                    end = horizontalEnd,
+                    bottom = NAVBAR_PADDING + 16.dp,
+                ),
+        )
+
+        if (filterSheetOpen) {
+            TimelineFilterSheet(
+                availableMetrics = data.availableMetrics,
+                initialFilter = filter,
+                onDismiss = { filterSheetOpen = false },
+                onApply = { applied ->
+                    filter = applied
+                    filterStore.save(applied)
+                    filterSheetOpen = false
+                },
+            )
         }
     }
 }

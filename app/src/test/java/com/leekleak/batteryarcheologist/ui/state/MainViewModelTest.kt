@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Parcel
 import com.leekleak.batteryarcheologist.core.model.CheckinSnapshot
 import com.leekleak.batteryarcheologist.core.model.ShizukuState
+import com.leekleak.batteryarcheologist.data.PinnedAppsStore
 import com.leekleak.batteryarcheologist.data.ReportData
 import com.leekleak.batteryarcheologist.data.ReportOrigin
 import com.leekleak.batteryarcheologist.data.ReportRepository
@@ -447,6 +448,43 @@ class MainViewModelTest {
         assertEquals(ContentTab.APPS, viewModel.state.value.selectedTab)
     }
 
+    @Test
+    fun pinnedAppsAreLoadedOnStart() = runTest(dispatcher) {
+        val store = FakePinnedAppsStore(setOf("com.example.app"))
+
+        val (viewModel, _) = start(loadedRepository(), pinnedAppsStore = store)
+
+        assertEquals(setOf("com.example.app"), viewModel.state.value.pinnedApps)
+    }
+
+    @Test
+    fun togglePinnedAppAddsAndRemovesPersistedPin() = runTest(dispatcher) {
+        val store = FakePinnedAppsStore()
+        val (viewModel, _) = start(loadedRepository(), pinnedAppsStore = store)
+
+        viewModel.togglePinnedApp("com.example.app")
+
+        assertEquals(setOf("com.example.app"), viewModel.state.value.pinnedApps)
+        assertEquals(setOf("com.example.app"), store.pins)
+
+        viewModel.togglePinnedApp("com.example.app")
+
+        assertTrue(viewModel.state.value.pinnedApps.isEmpty())
+        assertTrue(store.pins.isEmpty())
+        assertEquals(2, store.saveCalls)
+    }
+
+    @Test
+    fun togglePinnedAppIgnoresBlankNames() = runTest(dispatcher) {
+        val store = FakePinnedAppsStore()
+        val (viewModel, _) = start(loadedRepository(), pinnedAppsStore = store)
+
+        viewModel.togglePinnedApp("")
+
+        assertTrue(viewModel.state.value.pinnedApps.isEmpty())
+        assertEquals(0, store.saveCalls)
+    }
+
     private fun loadedRepository(): FakeReportRepository =
         FakeReportRepository(
             savedReports = listOf(savedReport("old.txt", epochMillis = 1)),
@@ -458,6 +496,7 @@ class MainViewModelTest {
     private fun TestScope.start(
         repository: ReportRepository,
         initialShizuku: ShizukuState = ShizukuState.Ready(2000),
+        pinnedAppsStore: PinnedAppsStore = FakePinnedAppsStore(),
     ): Started {
         val shizuku = MutableStateFlow(initialShizuku)
         val viewModel = MainViewModel(
@@ -467,6 +506,7 @@ class MainViewModelTest {
             requestShizukuPermission = {},
             openShizuku = {},
             refreshShizuku = {},
+            pinnedAppsStore = pinnedAppsStore,
         )
         advanceUntilIdle()
         return Started(viewModel, shizuku)
@@ -493,6 +533,22 @@ class MainViewModelTest {
         val viewModel: MainViewModel,
         val shizuku: MutableStateFlow<ShizukuState>,
     )
+
+    private class FakePinnedAppsStore(
+        initial: Set<String> = emptySet(),
+    ) : PinnedAppsStore {
+        var pins: Set<String> = initial
+            private set
+        var saveCalls: Int = 0
+            private set
+
+        override fun load(): Set<String> = pins
+
+        override fun save(pins: Set<String>) {
+            this.pins = pins
+            saveCalls++
+        }
+    }
 
     private fun List<UiEffect>.messages(): List<String> =
         filterIsInstance<UiEffect.Message>().map { it.text }

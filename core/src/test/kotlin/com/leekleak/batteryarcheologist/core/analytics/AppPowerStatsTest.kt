@@ -39,8 +39,7 @@ class AppPowerStatsTest {
         assertEquals(1f, app.cpuPowerMah, 1e-6f)
         assertEquals(0.0333333f, app.cpuPowerPct, 1e-5f)
         assertEquals("0.001%", AppPowerStats.formatPercent(app.devicePowerPct))
-        assertEquals("0.033%", AppPowerStats.formatPercent(app.cpuPowerPct))
-    }
+        assertEquals("0.033%", AppPowerStats.formatPercent(app.cpuPowerPct))    }
 
     @Test
     fun `falls back to estimated battery capacity`() {
@@ -64,7 +63,17 @@ class AppPowerStatsTest {
         val report = AppPowerStats.calculate(stats)
         assertTrue(report.capacityEstimated)
         assertEquals(2500f, report.capacityMah, 0f)
-        assertEquals("1.000%", AppPowerStats.formatPercent(report.apps.single().devicePowerPct))
+        assertEquals("1%", AppPowerStats.formatPercent(report.apps.single().devicePowerPct))
+    }
+
+    @Test
+    fun `formatPercent drops trailing zeros but keeps tiny values visible`() {
+        assertEquals("0%", AppPowerStats.formatPercent(0f))
+        assertEquals("1%", AppPowerStats.formatPercent(1f))
+        assertEquals("1423%", AppPowerStats.formatPercent(1423f))
+        assertEquals("0.614%", AppPowerStats.formatPercent(0.614f))
+        assertEquals("0.02%", AppPowerStats.formatPercent(0.02f))
+        assertEquals("<0.001%", AppPowerStats.formatPercent(0.0004f))
     }
 
     @Test
@@ -84,7 +93,7 @@ class AppPowerStatsTest {
         val report = AppPowerStats.calculate(stats)
         assertTrue(!report.isAvailable)
         assertEquals(0f, report.apps.single().devicePowerPct, 0f)
-        assertEquals("0.000%", AppPowerStats.formatPercent(report.apps.single().devicePowerPct))
+        assertEquals("0%", AppPowerStats.formatPercent(report.apps.single().devicePowerPct))
     }
 
     @Test

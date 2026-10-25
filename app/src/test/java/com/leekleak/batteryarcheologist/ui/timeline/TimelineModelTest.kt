@@ -223,6 +223,127 @@ class TimelineModelTest {
     }
 
     @Test
+    fun everyMetricGetsItsOwnNamedRowInsteadOfFallingIntoOther() {
+        val data = TimelineData.build(
+            listOf(
+                entry("Coulomb charge", 0L, 100L, value = "819"),
+                entry("GPS signal quality", 0L, 100L, value = "good"),
+                entry("Charging on", 0L, 100L, value = "true"),
+            ),
+        )
+
+        assertEquals(
+            listOf("Charging", "GPS signal", "Charge counter"),
+            data.rows.map { it.label },
+        )
+        assertTrue(data.rows.none { it.label == "Other" })
+        val charge = data.rows.single { it.metric == "Coulomb charge" }
+        assertEquals(
+            "819 mAh",
+            formatTimelineValue(charge.spec, charge.series.entries.single()),
+        )
+    }
+
+    @Test
+    fun filteringKeepsOnlySelectedRowsAndTheirChangeTimes() {
+        val data = TimelineData.build(
+            entries = listOf(
+                entry("Screen", 0L, 100L),
+                entry("Wifi on", 50L, 60L),
+                entry("Coulomb charge", 70L, 70L, value = "819"),
+            ),
+            visibleMetrics = setOf("Screen"),
+        )
+
+        assertEquals(listOf("Screen"), data.rows.map { it.metric })
+        assertEquals(
+            setOf("Screen", "Wifi on", "Coulomb charge"),
+            data.availableMetrics.map { it.metric }.toSet(),
+        )
+        assertEquals(listOf(0L, 100L), data.changeTimesMs.toList())
+        assertEquals(100L, data.nextChange(0L))
+        assertEquals(0L, data.previousChange(50L))
+        assertNull(data.nextChange(100L))
+    }
+
+    @Test
+    fun filteredArrowTicksIgnoreBatteryOnlyChanges() {
+        val battery = listOf(
+            entry("Battery Level", 0L, 0L, value = "90"),
+            entry("Battery Level", 50L, 50L, value = "80"),
+            entry("Battery Level", 100L, 100L, value = "70"),
+        )
+        val data = TimelineData.build(
+            entries = listOf(entry("Screen", 0L, 100L)),
+            batteryEntries = battery,
+            visibleMetrics = setOf("Screen"),
+        )
+
+        assertEquals(listOf(0L, 100L), data.changeTimesMs.toList())
+    }
+
+    @Test
+    fun cursorCannotEnterThePaddingOutsideTheVisibleChanges() {
+        val data = TimelineData.build(
+            entries = listOf(entry("Screen", 100L, 200L)),
+            visibleMetrics = setOf("Screen"),
+        )
+
+        assertEquals(100L, data.clampCursor(0L))
+        assertEquals(100L, data.clampCursor(100L))
+        assertEquals(150L, data.clampCursor(150L))
+        assertEquals(200L, data.clampCursor(500L))
+    }
+
+    @Test
+    fun cursorSteppingUsesTheNextAndPreviousDataChange() {
+        val data = TimelineData.build(
+            listOf(
+                entry("Screen", 100L, 200L),
+                entry("Wifi on", 150L, 160L),
+            ),
+        )
+
+        assertNull(data.previousChange(100L))
+        assertEquals(100L, data.previousChange(120L))
+        assertEquals(150L, data.nextChange(120L))
+        assertEquals(160L, data.nextChange(150L))
+        assertNull(data.nextChange(200L))
+    }
+
+    @Test
+    fun valuesAreFormattedForTheReadout() {
+        assertEquals(
+            "Discharging",
+            formatTimelineValue(
+                metricSpec("Charging status"),
+                entry("Charging status", 0L, value = "d"),
+            ),
+        )
+        assertEquals(
+            "Great",
+            formatTimelineValue(
+                metricSpec("Wifi signal strength"),
+                entry("Wifi signal strength", 0L, value = "great"),
+            ),
+        )
+        assertEquals(
+            "21.9 °C",
+            formatTimelineValue(
+                metricSpec("Temperature"),
+                entry("Temperature", 0L, value = "219"),
+            ),
+        )
+        assertEquals(
+            "Running · Alarm",
+            formatTimelineValue(
+                metricSpec("CPU running"),
+                entry("CPU running", 0L, value = "1~2~Alarm"),
+            ),
+        )
+    }
+
+    @Test
     fun visibleRowsKeepEveryRowForStableLabels() {
         val data = TimelineData.build(
             listOf(

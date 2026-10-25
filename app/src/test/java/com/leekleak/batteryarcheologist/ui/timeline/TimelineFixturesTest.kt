@@ -22,6 +22,18 @@ class TimelineFixturesTest {
 
         assertEquals(
             listOf(
+                "Charging",
+                "Charging status",
+                "Screen",
+                "Wi-Fi",
+                "Wakelocks",
+                "Top app",
+                "CPU",
+            ),
+            data.rows.map { it.label },
+        )
+        assertEquals(
+            setOf(
                 TimelineGroup.CHARGING,
                 TimelineGroup.SCREEN,
                 TimelineGroup.WIFI,
@@ -29,7 +41,7 @@ class TimelineFixturesTest {
                 TimelineGroup.TOP_APP,
                 TimelineGroup.CPU,
             ),
-            data.rows.map { it.group },
+            data.rows.map { it.group }.toSet(),
         )
         assertTrue(data.batteryPoints.isNotEmpty())
     }

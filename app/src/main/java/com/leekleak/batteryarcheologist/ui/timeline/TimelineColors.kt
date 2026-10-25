@@ -21,16 +21,21 @@ internal data class TimelinePalette(
     val charging: Color,
     val screen: Color,
     val wifi: Color,
+    val radio: Color,
+    val gps: Color,
     val wakelock: Color,
     val topApp: Color,
     val cpu: Color,
+    val apps: Color,
+    val device: Color,
+    val media: Color,
+    val system: Color,
     val other: Color,
     val grid: Color,
     val axisText: Color,
     val rowText: Color,
     val plotBackground: Color,
     val plotStripe: Color,
-    val report: Color,
     val cursor: Color,
 ) {
     fun seriesColor(group: TimelineGroup): Color = when (group) {
@@ -38,9 +43,15 @@ internal data class TimelinePalette(
         TimelineGroup.CHARGING -> charging
         TimelineGroup.SCREEN -> screen
         TimelineGroup.WIFI -> wifi
+        TimelineGroup.RADIO -> radio
+        TimelineGroup.GPS -> gps
         TimelineGroup.WAKELOCK -> wakelock
         TimelineGroup.TOP_APP -> topApp
         TimelineGroup.CPU -> cpu
+        TimelineGroup.APPS -> apps
+        TimelineGroup.DEVICE -> device
+        TimelineGroup.MEDIA -> media
+        TimelineGroup.SYSTEM -> system
         TimelineGroup.OTHER -> other
     }
 }
@@ -57,16 +68,21 @@ internal fun rememberTimelinePalette(): TimelinePalette {
             charging = scheme.tertiary,
             screen = scheme.secondary,
             wifi = scheme.primary,
+            radio = scheme.tertiary,
+            gps = scheme.secondary,
             wakelock = scheme.error,
             topApp = scheme.tertiary,
             cpu = scheme.error,
+            apps = scheme.primary,
+            device = scheme.onSurfaceVariant,
+            media = scheme.tertiary,
+            system = scheme.onSurfaceVariant,
             other = scheme.onSurfaceVariant,
             grid = scheme.onSurface.copy(alpha = if (dark) 0.16f else 0.10f),
             axisText = scheme.onSurfaceVariant,
             rowText = scheme.onSurface.copy(alpha = 0.86f),
             plotBackground = scheme.surfaceContainerLow,
             plotStripe = scheme.onSurface.copy(alpha = if (dark) 0.05f else 0.035f),
-            report = scheme.error,
             cursor = scheme.onSurface,
         )
     }

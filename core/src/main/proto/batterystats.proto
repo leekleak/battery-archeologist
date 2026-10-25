@@ -183,6 +183,16 @@ message BatteryStats {
       optional int64 ble_scan_actual_time_msec_bg = 5;
       // Count of results returned by BLE scanning.
       optional int32 ble_scan_result_count = 6;
+      // Count of results returned by BLE scanning in the background.
+      optional int32 ble_scan_result_count_bg = 7;
+      // Total time spent in unoptimized BLE scans.
+      optional int64 ble_scan_unoptimized_time_msec = 8;
+      // Total time spent in unoptimized BLE scans in the background.
+      optional int64 ble_scan_unoptimized_time_msec_bg = 9;
+      // Maximum duration of an unoptimized BLE scan.
+      optional int64 ble_scan_unoptimized_max_time_msec = 10;
+      // Maximum duration of an unoptimized BLE scan in the background.
+      optional int64 ble_scan_unoptimized_max_time_msec_bg = 11;
     }
     optional BluetoothMisc bluetooth_misc = 28; // blem
 
@@ -206,6 +216,20 @@ message BatteryStats {
     }
     optional Cpu cpu = 23; // cpu.
 
+    // Per-UID time spent at each CPU frequency. Printed by `ctf` for the
+    // aggregate ("A") and for every process state.
+    message CpuTimesAtFreq {
+      // "A" for the aggregate row, otherwise one of Uid.UID_PROCESS_TYPES.
+      optional string type = 1;
+      // Number of frequencies in each of the two arrays below.
+      optional int32 freq_count = 2;
+      // Time spent at each frequency while the screen was on.
+      repeated int64 time_ms = 3;
+      // Time spent at each frequency while the screen was off.
+      repeated int64 screen_off_time_ms = 4;
+    }
+    repeated CpuTimesAtFreq cpu_times_at_freq = 33; // ctf.
+
     message Flashlight {
       // Duration spent running flashlight.
       optional float total_time_msec = 1;
@@ -221,6 +245,14 @@ message BatteryStats {
       optional float count = 2;
     };
     optional Foreground foreground = 5; // fg.
+
+    message ForegroundService {
+      // Duration spent running as a foreground service.
+      optional float total_time_msec = 1;
+      // #times.
+      optional float count = 2;
+    };
+    optional ForegroundService foreground_service = 30; // fgs.
 
     // The modem controller doesn't provide a mechanism for determining when an
     // app has the modem active but is not transmitting data, so there's no way
@@ -299,8 +331,21 @@ message BatteryStats {
       optional int64 background_time_msec = 4;
       // #times of use when in background. (This is included in count above.)
       optional int32 background_count = 5;
+      // Completion counts, indexed by the order of JobParameters.getJobStopReasonCodes().
+      repeated int32 stop_reason_count = 6;
     };
     repeated ScheduledJob scheduled_job = 14; // jb.
+
+    // Jobs deferred statistics (`jbd`): how often jobs were deferred and how
+    // fresh the last run was when the app became active.
+    message JobsDeferred {
+      optional int32 deferred_event_count = 1;
+      optional int32 deferred_count = 2;
+      optional int64 total_latency_msec = 3;
+      // Counts for the buckets <1h, 1-2h, 2-4h, 4-8h, >8h.
+      repeated int32 latency_bucket_count = 4;
+    }
+    optional JobsDeferred jobs_deferred = 32; // jbd.
 
     message Sensor {
       // e.g., 24 (significant motion detector).
@@ -358,6 +403,9 @@ message BatteryStats {
       // Time the uid had any process in an active background state, but none in
       // the "foreground" or better state.
       optional int64 background_time_msec = 7;
+      // Time the uid had a process in the heavy-weight state (a background
+      // process the system tries hard not to kill).
+      optional int64 heavy_weight_time_msec = 8;
     };
     optional StateTime state_time = 15; // st.
 
@@ -382,6 +430,10 @@ message BatteryStats {
         TOUCH = 2;
         // When an accessibility service takes an action on behalf of the user.
         ACCESSIBILITY = 3;
+        // Attention detection (for example, looking at the screen).
+        ATTENTION = 4;
+        FACE_DOWN = 5;
+        DEVICE_STATE = 6;
       };
       optional Name name = 1;
       optional float count = 2;
@@ -466,9 +518,23 @@ message BatteryStats {
       optional int64 window_max_duration_msec = 13;
       optional int64 window_total_duration_msec = 16;
 
-      // Next tag = 17
+      // Background partial wakelocks ("bp" group, report version 36+).
+      optional float background_partial_time_msec = 17;
+      optional float background_partial_count = 18;
+      optional int64 background_partial_current_duration_msec = 19;
+      optional int64 background_partial_max_duration_msec = 20;
+      optional int64 background_partial_total_duration_msec = 21;
+
+      // Next tag = 22
     };
     repeated Wakelock wakelock = 11; // wl.
+
+    // Cumulative wakelock time across all named wakelocks (`awl`).
+    message AggregatedWakelock {
+      optional float partial_time_msec = 1;
+      optional float background_partial_time_msec = 2;
+    }
+    optional AggregatedWakelock aggregated_wakelock = 31; // awl.
 
     message WakeupAlarm {
       optional string name = 1;
@@ -508,10 +574,17 @@ message BatteryStats {
     };
     optional Wifi wifi = 12; // wfl.
 
+    // Time the uid held the Wi-Fi multicast wakelock (`wmc`).
+    message WifiMulticast {
+      optional float total_time_msec = 1;
+      optional int32 count = 2;
+    }
+    optional WifiMulticast wifi_multicast = 34; // wmc.
+
     // Idle for wifi is associated with wifi full locks.
     optional ControllerActivity wifi_controller = 27; // wfcd.
 
-    // Next tag: 30
+    // Next tag: 35
   };
   repeated App app = 26; // App-level stats.
 
@@ -559,6 +632,8 @@ message BatteryStats {
       optional int64 min_learned_battery_capacity_uah = 10;
       // The maximum learned battery capacity in uAh.
       optional int64 max_learned_battery_capacity_uah = 11;
+      // Time spent on battery while the display was in doze.
+      optional float screen_doze_realtime_msec = 12;
     };
     optional Battery battery = 1; // bt.
 
@@ -578,6 +653,12 @@ message BatteryStats {
       // This will only be non-zero for devices that report battery discharge
       // via a coulomb counter.
       optional int64 total_mah_screen_off = 6;
+      // Discharged points while the display was in doze, plus counts for
+      // doze/light-doze/deep-doze discharges.
+      optional float screen_doze = 7;
+      optional float screen_doze_count = 8;
+      optional float light_doze_count = 9;
+      optional float deep_doze_count = 10;
     };
     optional BatteryDischarge battery_discharge = 2; // dc.
 
@@ -646,7 +727,13 @@ message BatteryStats {
         LTE = 13;
         EHRPD = 14;
         HSPAP = 15;
-        OTHER = 16;
+        GSM = 16;
+        TD_SCDMA = 17;
+        IWLAN = 18;
+        LTE_CA = 19;
+        NR = 20;
+        EMERGENCY_SERVICE = 21;
+        OTHER = 22;
       };
       optional Name name = 1;
       // Duration running in the given state.
@@ -835,6 +922,15 @@ message BatteryStats {
         OVERCOUNTED = 9;
         DEFAULT = 10;
         FLASHLIGHT = 11;
+        // Power components added in Android 12+.
+        CPU = 12;
+        CAMERA = 13;
+        AUDIO = 14;
+        VIDEO = 15;
+        SENSORS = 16;
+        GNSS = 17;
+        MEMORY = 18;
+        AMBIENT_DISPLAY = 19;
       };
       optional Name name = 1;
       optional float computed_power_mah = 2;
@@ -950,7 +1046,31 @@ message BatteryStats {
     };
     repeated WifiState wifi_state = 15; // wst & wsc.
 
-    // Next tag: 27
+    // Global CPU frequency table printed by `gcf`. The time in each frequency
+    // bucket is reported per UID through App.cpu_times_at_freq (`ctf`).
+    message GlobalCpuFreq {
+      repeated int64 freq_khz = 1;
+    }
+    optional GlobalCpuFreq global_cpu_freq = 27; // gcf.
+
+    // System-wide Wi-Fi multicast wakelock time (`wmct`).
+    message WifiMulticast {
+      optional float total_time_msec = 1;
+      optional int32 count = 2;
+    }
+    optional WifiMulticast global_wifi_multicast = 28; // wmct.
+
+    // Resource power manager state (`rpm`).
+    message ResourcePowerManager {
+      optional string name = 1;
+      optional float total_time_msec = 2;
+      optional int32 total_count = 3;
+      optional float screen_off_time_msec = 4;
+      optional int32 screen_off_count = 5;
+    }
+    repeated ResourcePowerManager resource_power_manager = 29; // rpm.
+
+    // Next tag: 30
   };
   optional System system = 27; // System-level stats.
 

@@ -25,12 +25,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -41,13 +43,13 @@ import kotlin.math.max
 import kotlin.math.roundToLong
 
 private object TimelineCanvasDimens {
-    val Gutter = 80.dp
+    val Gutter = 96.dp
     val RightPadding = 8.dp
     val AxisBottom = 28.dp
     val BatteryTop = 30.dp
     val BatteryBottom = 84.dp
     val RowsGap = 8.dp
-    val RowHeight = 40.dp
+    val RowHeight = 36.dp
     val BottomPadding = 6.dp
     val MinTickSpacing = 84.dp
 
@@ -78,10 +80,12 @@ private class TimelineMetrics(density: Density) {
     val minBarWidth = with(density) { 2.dp.toPx() }
     val instantHalfHeight = with(density) { 3.5.dp.toPx() }
     val batteryStroke = with(density) { 2.dp.toPx() }
-    val reportStroke = with(density) { 1.5.dp.toPx() }
-    val reportDot = with(density) { 3.dp.toPx() }
     val cursorStroke = with(density) { 1.5.dp.toPx() }
-    val cursorDot = with(density) { 4.dp.toPx() }
+    val cursorHandleHalfWidth = with(density) { 5.dp.toPx() }
+    val cursorHandleHeight = with(density) { 7.dp.toPx() }
+    val rowLabelMaxWidth = with(density) {
+        (TimelineCanvasDimens.Gutter - 8.dp).roundToPx()
+    }
     val plotCorner = with(density) { 8.dp.toPx() }
     val minTickSpacing = with(density) { TimelineCanvasDimens.MinTickSpacing.toPx() }
 
@@ -133,7 +137,6 @@ private class TimelineRender(
     val rowLabels: List<TextLayoutResult>,
     val batteryLabel: TextLayoutResult,
     val battery: BatteryPaths?,
-    val reportX: Float?,
 ) {
     fun xFor(timeMs: Long): Float =
         plotLeft + viewport.fraction(timeMs) * plotWidth
@@ -185,7 +188,7 @@ internal fun TimelineCanvas(
 
     val rowLabels = ArrayList<String>(data.rows.size)
     for (row in data.rows) {
-        rowLabels.add(stringResource(row.group.labelRes))
+        rowLabels.add(row.spec.chartLabel)
     }
     val batteryLabel = stringResource(R.string.timeline_group_battery)
 
@@ -236,28 +239,56 @@ internal fun TimelineCanvas(
                     val plotWidth = size.width - metrics.gutter - metrics.rightPadding
                     if (plotWidth <= 1f) return viewport.startMs
                     val fraction = ((x - metrics.gutter) / plotWidth).coerceIn(0f, 1f)
-                    return viewport.startMs +
+                    val raw = viewport.startMs +
                         (fraction * viewport.spanMs).roundToLong()
+                    // Do not allow the cursor into the empty padding around
+                    // the data: every cursor position must correspond to a
+                    // real first/last data change.
+                    return data.clampCursor(raw) ?: raw
                 }
 
                 awaitEachGesture {
                     val down = awaitFirstDown(requireUnconsumed = false)
                     val size = latestSize
-                    latestOnCursorMsChange(timeAt(down.position.x, size))
+                    val plotLeft = metrics.gutter
+                    val plotRight = size.width - metrics.rightPadding
 
-                    // Only claim horizontal movement. Vertical drags are left
-                    // unconsumed so the enclosing page can scroll normally.
-                    var horizontal = false
+                    // The label gutter belongs to the page scroll. A gesture
+                    // starting there must never move the inspection cursor.
+                    if (down.position.x < plotLeft || down.position.x > plotRight) {
+                        return@awaitEachGesture
+                    }
+
                     val startX = down.position.x
+                    val startY = down.position.y
+                    var horizontal = false
+                    var vertical = false
+
                     while (true) {
                         val event = awaitPointerEvent()
                         val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                        if (!change.pressed) break
-                        if (!horizontal &&
-                            abs(change.position.x - startX) > viewConfiguration.touchSlop
-                        ) {
-                            horizontal = true
+                        val dx = abs(change.position.x - startX)
+                        val dy = abs(change.position.y - startY)
+
+                        if (!change.pressed) {
+                            // A tap (no drag) still places the cursor. A scroll
+                            // never does, and no cursor update happens on down.
+                            if (!horizontal && !vertical &&
+                                dx <= viewConfiguration.touchSlop &&
+                                dy <= viewConfiguration.touchSlop
+                            ) {
+                                latestOnCursorMsChange(timeAt(change.position.x, latestSize))
+                            }
+                            break
                         }
+
+                        if (!horizontal && !vertical) {
+                            when {
+                                dx > viewConfiguration.touchSlop && dx > dy -> horizontal = true
+                                dy > viewConfiguration.touchSlop && dy > dx -> vertical = true
+                            }
+                        }
+
                         if (horizontal) {
                             change.consume()
                             latestOnCursorMsChange(
@@ -310,7 +341,13 @@ private fun buildTimelineRender(
     }
 
     val rowLabelLayouts = data.rows.mapIndexed { index, _ ->
-        textMeasurer.measure(rowLabels[index], styles.row)
+        textMeasurer.measure(
+            text = rowLabels[index],
+            style = styles.row,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            constraints = Constraints(maxWidth = metrics.rowLabelMaxWidth),
+        )
     }
 
     val visibleRows = data.visibleRows(viewport.startMs, viewport.endMs)
@@ -336,7 +373,7 @@ private fun buildTimelineRender(
             )
         }
         RenderRow(
-            group = visible.row.group,
+            group = visible.row.spec.group,
             bars = bars,
             centerY = rowsTop + metrics.rowHeight * (index + 0.5f),
             laneCount = maxLane + 1,
@@ -357,10 +394,6 @@ private fun buildTimelineRender(
         null
     }
 
-    val reportX = data.reportTakenMs
-        ?.takeIf { it in viewport.startMs..viewport.endMs }
-        ?.let { plotLeft + viewport.fraction(it) * plotWidth }
-
     return TimelineRender(
         viewport = viewport,
         plotLeft = plotLeft,
@@ -378,7 +411,6 @@ private fun buildTimelineRender(
         rowLabels = rowLabelLayouts,
         batteryLabel = textMeasurer.measure(batteryLabel, styles.row),
         battery = battery,
-        reportX = reportX,
     )
 }
 
@@ -576,34 +608,24 @@ private fun DrawScope.drawTimeline(
         )
     }
 
-    // Report-taken marker is drawn over the data.
-    render.reportX?.let { x ->
-        drawLine(
-            color = palette.report.copy(alpha = 0.85f),
-            start = Offset(x, render.axisBottom),
-            end = Offset(x, render.plotBottom),
-            strokeWidth = metrics.reportStroke,
-        )
-        drawCircle(
-            color = palette.report,
-            radius = metrics.reportDot,
-            center = Offset(x, render.axisBottom),
-        )
-    }
-
     // The inspection cursor is the strongest line so it stays visible over
     // every series color.
     cursorX?.let { x ->
+        // The inspection cursor is the only movable vertical line. The handle
+        // and primary colour make it distinct from the grid.
         drawLine(
-            color = palette.cursor.copy(alpha = 0.9f),
+            color = palette.battery.copy(alpha = 0.92f),
             start = Offset(x, render.axisBottom),
             end = Offset(x, render.plotBottom),
             strokeWidth = metrics.cursorStroke,
         )
-        drawCircle(
-            color = palette.cursor,
-            radius = metrics.cursorDot,
-            center = Offset(x, render.axisBottom),
-        )
+        val handleTop = render.axisBottom - metrics.cursorHandleHeight
+        val handle = Path().apply {
+            moveTo(x - metrics.cursorHandleHalfWidth, handleTop)
+            lineTo(x + metrics.cursorHandleHalfWidth, handleTop)
+            lineTo(x, render.axisBottom)
+            close()
+        }
+        drawPath(handle, palette.battery)
     }
 }

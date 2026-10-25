@@ -32,6 +32,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.data.ReportStore
+import com.leekleak.batteryarcheologist.ui.apps.AppLabelResolver
 import com.leekleak.batteryarcheologist.ui.components.NAVBAR_PADDING
 import com.leekleak.batteryarcheologist.ui.permission.PermissionScreen
 import com.leekleak.batteryarcheologist.ui.reports.ReportViewerScreen
@@ -64,6 +65,9 @@ fun MainScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val navigator = rememberAppNavigator()
+    val appLabelResolver = remember(context.applicationContext) {
+        AppLabelResolver(context.applicationContext)
+    }
 
     // NavDisplay remembers entries per back stack, so entry content must read
     // the latest state through a State instead of capturing this composition's
@@ -132,6 +136,8 @@ fun MainScreen(
                     ReportViewerScreen(
                         state = currentState.value,
                         onSelectTab = viewModel::selectTab,
+                        onTogglePin = viewModel::togglePinnedApp,
+                        appLabelResolver = appLabelResolver,
                         onBack = {
                             viewModel.closeReport()
                             navigator.goBack()

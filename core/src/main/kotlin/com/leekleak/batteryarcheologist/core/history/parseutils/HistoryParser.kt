@@ -51,6 +51,14 @@ object HistoryMetrics {
     const val WIFI_ON = "Wifi on"
     const val WIFI_RUNNING = "Wifi running"
     const val MOBILE_RADIO = "Mobile radio active"
+    const val CELLULAR_HIGH_TX_POWER = "Cellular high TX power"
+    const val SCREEN_DOZE = "Screen doze"
+    const val USB_DATA_LINK = "USB data link"
+    const val GPS_SIGNAL_QUALITY = "GPS signal quality"
+    const val NR_STATE = "NR state"
+    const val BLUETOOTH_ON = "Bluetooth on"
+    const val STATE_EVENT = "State"
+    const val DISPLAY_STATE_EVENT = "Display state changed"
 }
 
 /** Connectivity constants from `android.net.ConnectivityManager`. */
@@ -136,6 +144,7 @@ object HistoryParser {
             timestampsAltered = report.timestampsAltered,
             reportVersion = report.reportVersion,
             timeToDelta = report.timeToDelta,
+            unsupportedKeys = report.unsupportedKeys,
         )
     }
 }
@@ -213,6 +222,7 @@ internal fun analyzeHistory(
         errors = errors,
         overflowMs = overflowMs,
         timeToDelta = deltaMapping.timeToDelta.toMap(),
+        unsupportedKeys = analyzer.unsupportedKeys.toMap(),
     )
 }
 
@@ -277,6 +287,9 @@ private class HistoryAnalyzer(
     var summary: ActivitySummary = ActivitySummary(format)
     val summaries: MutableList<ActivitySummary> = ArrayList()
     val idxMap: MutableMap<String, ServiceUID> = LinkedHashMap()
+
+    /** Unknown history keys, counted so callers can report one line per key. */
+    val unsupportedKeys: MutableMap<String, Int> = LinkedHashMap()
 
     /** Handles one already-filtered history line. Returns an error message or null. */
     fun analyzeLine(line: String, scrubPII: Boolean): String? {
@@ -875,6 +888,85 @@ private class HistoryAnalyzer(
                 return null
             }
 
+            // Screen doze, USB data link, and cellular high-TX-power state flags.
+            "Sd" -> return state.screenDoze.assign(
+                state.currentTimeMs,
+                summary.active,
+                summary.startTimeMs,
+                summary.screenDozeSummary,
+                transition,
+                HistoryMetrics.SCREEN_DOZE,
+                csvState,
+            )
+
+            "Ud" -> return state.usbDataLink.assign(
+                state.currentTimeMs,
+                summary.active,
+                summary.startTimeMs,
+                summary.usbDataLinkSummary,
+                transition,
+                HistoryMetrics.USB_DATA_LINK,
+                csvState,
+            )
+
+            "Chtp" -> return state.cellularHighTxPower.assign(
+                state.currentTimeMs,
+                summary.active,
+                summary.startTimeMs,
+                summary.cellularHighTxPowerSummary,
+                transition,
+                HistoryMetrics.CELLULAR_HIGH_TX_POWER,
+                csvState,
+            )
+
+            // GPS signal quality and NR state are string-valued state flags.
+            "Gss" -> return state.gpsSignalQuality.assign(
+                state.currentTimeMs,
+                summary.active,
+                summary.startTimeMs,
+                summary.gpsSignalQualitySummary,
+                value,
+                HistoryMetrics.GPS_SIGNAL_QUALITY,
+                csvState,
+            )
+
+            "nrs" -> return state.nrState.assign(
+                state.currentTimeMs,
+                summary.active,
+                summary.startTimeMs,
+                summary.nrStateSummary,
+                value,
+                HistoryMetrics.NR_STATE,
+                csvState,
+            )
+
+            // Newer instantaneous history events. Their payload is a bitmask; the
+            // timeline keeps the raw value.
+            "Esc" -> {
+                addCSVInstantEvent(
+                    csvState,
+                    state,
+                    HistoryMetrics.STATE_EVENT,
+                    "state",
+                    value.ifEmpty { transition },
+                )
+                return null
+            }
+
+            "Eds" -> {
+                addCSVInstantEvent(
+                    csvState,
+                    state,
+                    HistoryMetrics.DISPLAY_STATE_EVENT,
+                    "display_state",
+                    value.ifEmpty { transition },
+                )
+                return null
+            }
+
+            // Modem/Wi-Fi rail charge counters from the initial history line.
+            "Mrc", "Wrc" -> return null
+
             "Sb" -> return state.brightness.assign(
                 state.currentTimeMs,
                 value,
@@ -976,7 +1068,19 @@ private class HistoryAnalyzer(
                 csvState,
             )
 
-            "Enl" -> return "sample: Null Event line = $transition$key$value"
+            // Bluetooth on/off state (Android 8+).
+            "b" -> return state.bluetoothOn.assign(
+                state.currentTimeMs,
+                summary.active,
+                summary.startTimeMs,
+                summary.bluetoothOnSummary,
+                transition,
+                HistoryMetrics.BLUETOOTH_ON,
+                csvState,
+            )
+
+            // Null history event: nothing to record.
+            "Enl" -> return null
 
             "Epr" -> {
                 val serviceUid = idxMap[value]
@@ -1550,7 +1654,11 @@ private class HistoryAnalyzer(
                     state.dpstTokenIndex++
                     return null
                 }
-                return "unknown key $key"
+                // A key this parser does not model (usually a newer Android
+                // release). Keep the rest of the line and report the key once
+                // through unsupportedKeys instead of failing the line.
+                unsupportedKeys.merge(key, 1, Int::plus)
+                return null
             }
         }
     }
@@ -1695,6 +1803,22 @@ private class HistoryAnalyzer(
         state.wifiFullLock.updateSummary(now, active, start, summary.wifiFullLockSummary)
         state.wifiRadio.updateSummary(now, active, start, summary.wifiRadioSummary)
         state.wifiRunning.updateSummary(now, active, start, summary.wifiRunningSummary)
+        state.bluetoothOn.updateSummary(now, active, start, summary.bluetoothOnSummary)
+        state.screenDoze.updateSummary(now, active, start, summary.screenDozeSummary)
+        state.usbDataLink.updateSummary(now, active, start, summary.usbDataLinkSummary)
+        state.cellularHighTxPower.updateSummary(
+            now,
+            active,
+            start,
+            summary.cellularHighTxPowerSummary,
+        )
+        state.gpsSignalQuality.updateSummary(
+            now,
+            active,
+            start,
+            summary.gpsSignalQualitySummary,
+        )
+        state.nrState.updateSummary(now, active, start, summary.nrStateSummary)
         state.plugged.updateSummary(now, active, start, summary.pluggedInSummary)
         state.gpsOn.updateSummary(now, active, start, summary.gpsOnSummary)
         state.sensorOn.updateSummary(now, active, start, summary.sensorOnSummary)

@@ -67,6 +67,11 @@ require_emulator
 "$ADB" -s "$SERIAL" shell pm path "$SHIZUKU_PACKAGE" >/dev/null 2>&1 || fail "Shizuku not installed"
 "$ADB" -s "$SERIAL" shell pidof shizuku_server >/dev/null 2>&1 || fail "Shizuku server not running"
 
+# Pinned apps persist across runs, so start the pin/unpin check from a clean
+# slate. Reports and every other preference stay untouched.
+"$ADB" -s "$SERIAL" shell run-as "$APP_PACKAGE" rm -f shared_prefs/pinned_apps.xml \
+  >/dev/null 2>&1 || true
+
 id_line="$("$ADB" -s "$SERIAL" shell "RISH_APPLICATION_ID=$SHIZUKU_PACKAGE sh /data/local/tmp/shizuku/rish -c id" 2>&1 | tr -d '\r')"
 echo "$id_line" | grep -q 'uid=2000(shell)' || fail "rish is not running as uid 2000: $id_line"
 
@@ -125,39 +130,17 @@ logs="$("$ADB" -s "$SERIAL" logcat -d -v brief | grep -E 'HistoryParser:|Checkin
 echo "$logs" | grep -q 'HistoryParser: entries=' || fail "history parser did not log a result"
 echo "$logs" | grep -q 'CheckinParser: apps=' || fail "checkin parser did not log a result"
 
-# Timeline: the chart is a vertically scrolling page item, the axis uses
-# global clock time, and the draggable cursor has a textual readout.
-#
-# A report captured right after `dumpsys batterystats --reset` can have
-# history but no completed discharge intervals, so try the visible saved
-# reports and only require the intervals card when one has it. This keeps the
-# check meaningful without making it depend on the reset state of the device.
-intervals_found=0
-for candidate in "${saved_reports[@]}"; do
-  if [[ "$candidate" != "${saved_reports[0]}" ]]; then
-    open_report "$candidate"
-  fi
-  open_timeline
-  if wait_for_pattern '"resource-id":"discharge_intervals"' 3 >/dev/null; then
-    report_name="$candidate"
-    intervals_found=1
-    break
-  fi
-  if [[ "$candidate" != "${saved_reports[-1]}" ]]; then
-    "$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_back' >/dev/null 2>&1 || true
-    wait_for_pattern '"resource-id":"reports_home"' 10 >/dev/null \
-      || fail "did not return to reports home between reports"
-  fi
-done
-if [[ "$intervals_found" -eq 0 ]]; then
-  echo "note: no visible saved report has discharge intervals; skipping that card check"
-fi
-
+# Timeline: one named row per metric, data-change arrows and a sticky readout.
+open_timeline
 layout="$(wait_for_pattern '"resource-id":"timeline_cursor_readout"' 10)" || fail "timeline cursor readout missing"
-echo "$layout" | grep -q 'Selected' || fail "timeline cursor time missing"
-echo "$layout" | grep -q 'Drag across the chart to inspect a moment.' || fail "timeline hint missing"
+echo "$layout" | grep -q '"resource-id":"timeline_prev_change"' || fail "previous data-change arrow missing"
+echo "$layout" | grep -q '"resource-id":"timeline_next_change"' || fail "next data-change arrow missing"
+echo "$layout" | grep -q '"resource-id":"btn_timeline_filter"' || fail "timeline metric filter missing"
 if echo "$layout" | grep -q 'timeline_zoom_in'; then
   fail "manual zoom controls should be removed"
+fi
+if echo "$layout" | grep -q 'discharge_intervals'; then
+  fail "discharge intervals list should be removed"
 fi
 
 # System: capacity lives here, and parser internals are collapsed by default.
@@ -167,11 +150,40 @@ echo "$layout" | grep -q 'Capacity' || fail "battery capacity missing"
 "$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_report_details' >/dev/null 2>&1 || fail "could not expand report details"
 layout="$(wait_for_pattern 'Checkin version' 10)" || fail "report details did not expand"
 
-# Apps: rows are power-first and capacity is not repeated here.
+# Apps: searchable rows, pinning, and capacity is not repeated here.
 "$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_apps' >/dev/null 2>&1 || fail "could not open Apps tab"
-layout="$(wait_for_pattern 'Apps by power' 10)" || fail "app list missing"
+layout="$(wait_for_pattern '"resource-id":"app_search"' 10)" || fail "app search missing"
+echo "$layout" | grep -q '"resource-id":"app_list"' || fail "app list missing"
+if echo "$layout" | grep -q 'Apps by power'; then
+  fail "redundant Apps by power header is still visible"
+fi
 if echo "$layout" | grep -q 'Capacity'; then
   fail "battery capacity is repeated on the Apps tab"
+fi
+"$ANDROID_CLI" input --device="$SERIAL" tap 'id=app_row_0' >/dev/null 2>&1 \
+  || fail "could not open the first app"
+wait_for_app_windows 2 10 || fail "app detail sheet did not open"
+wait_for_pattern 'Pin app' 10 >/dev/null || fail "app detail pin action missing"
+"$ANDROID_CLI" input --device="$SERIAL" tap 'desc=Pin app' >/dev/null 2>&1 \
+  || fail "could not pin the first app"
+"$ADB" -s "$SERIAL" shell input keyevent 4 >/dev/null 2>&1 || true
+wait_for_app_windows 1 10 || fail "app detail sheet did not close"
+wait_for_pattern '"resource-id":"pinned_apps_header"' 10 >/dev/null \
+  || fail "pinned apps section missing"
+wait_for_pattern '"resource-id":"pinned_separator"' 10 >/dev/null \
+  || fail "pinned apps separator missing"
+"$ANDROID_CLI" input --device="$SERIAL" tap 'id=app_row_0' >/dev/null 2>&1 \
+  || fail "could not reopen the pinned app"
+wait_for_app_windows 2 10 || fail "pinned app detail sheet did not open"
+wait_for_pattern 'Unpin app' 10 >/dev/null || fail "app detail unpin action missing"
+"$ANDROID_CLI" input --device="$SERIAL" tap 'desc=Unpin app' >/dev/null 2>&1 \
+  || fail "could not unpin the first app"
+"$ADB" -s "$SERIAL" shell input keyevent 4 >/dev/null 2>&1 || true
+wait_for_app_windows 1 10 || fail "pinned app detail sheet did not close"
+sleep 1
+if "$ANDROID_CLI" layout --device="$SERIAL" --flat --full 2>/dev/null \
+  | grep -q '"resource-id":"pinned_apps_header"'; then
+  fail "pinned apps section did not disappear after unpinning"
 fi
 
 # Back to the reports home. The viewer tab bar must not follow us there.

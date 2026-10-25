@@ -12,7 +12,7 @@ Status values: `todo`, `in progress`, `ported`, `adapted`, `skipped`.
 | `sliceparse` | `core.checkin.sliceparse` | ported | colon-delimited slices |
 | `checkinutil` | `core.checkin.checkinutil` | ported | counters, report parser |
 | `parseutils` | `core.history.parseutils` | ported (vertical slice; backlog) | history state machine; largest port |
-| `checkinparse` | `core.checkin.checkinparse` | ported (vertical slice; backlog) | version 11–21 plus modern adapter |
+| `checkinparse` | `core.checkin.checkinparse` | ported (vertical slice; backlog) | version 11–36, including `fgs`/`awl`/`jbc`/`jbd`/`ctf`/`gcf`/`wmc`/`wmct` and v36 `wl`/`st` fields |
 | `aggregated` | `core.analytics` | todo | system stats |
 | `presenter` | `core.analytics` | todo | data only, no HTML |
 | `activity` | `core.logs` | later | event/system/last logcat |

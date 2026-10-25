@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Battery reports list background and system packages too, so resolving
+         their labels and icons needs visibility beyond the launcher apps. -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+
     <queries>
         <package android:name="moe.shizuku.privileged.api" />
     </queries>

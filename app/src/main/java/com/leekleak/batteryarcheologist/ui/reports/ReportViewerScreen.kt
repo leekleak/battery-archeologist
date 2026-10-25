@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
+import com.leekleak.batteryarcheologist.ui.apps.AppLabelResolver
 import com.leekleak.batteryarcheologist.ui.apps.AppsScreen
 import com.leekleak.batteryarcheologist.ui.components.AppScaffold
 import com.leekleak.batteryarcheologist.ui.components.BottomBar
@@ -39,6 +40,8 @@ import com.leekleak.batteryarcheologist.ui.timeline.TimelineTab
 fun ReportViewerScreen(
     state: AppUiState,
     onSelectTab: (ContentTab) -> Unit,
+    onTogglePin: (String) -> Unit,
+    appLabelResolver: AppLabelResolver,
     onBack: () -> Unit,
     onRetry: () -> Unit,
 ) {
@@ -72,7 +75,13 @@ fun ReportViewerScreen(
                 ContentTab.OVERVIEW -> OverviewScreen(report, contentPadding)
                 ContentTab.TIMELINE -> TimelineTab(report, contentPadding)
                 ContentTab.SYSTEM -> SystemScreen(report, contentPadding)
-                ContentTab.APPS -> AppsScreen(report, contentPadding)
+                ContentTab.APPS -> AppsScreen(
+                    report = report,
+                    contentPadding = contentPadding,
+                    pinnedApps = state.pinnedApps,
+                    onTogglePin = onTogglePin,
+                    appLabelResolver = appLabelResolver,
+                )
             }
         }
     }

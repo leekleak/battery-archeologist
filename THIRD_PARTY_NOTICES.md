@@ -14,6 +14,13 @@
 - The full source is vendored in `third_party/battery-historian/` for reference
   and for the development-only golden oracle. Its LICENSE file is included.
 
+## Coil
+
+- Source: https://github.com/coil-kt/coil
+- Copyright Coil contributors.
+- Licensed under the Apache License, Version 2.0.
+- Used to load per-app icons asynchronously from `PackageManager`.
+
 ## Shizuku
 
 - Source: https://github.com/RikkaApps/Shizuku

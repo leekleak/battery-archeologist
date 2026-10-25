@@ -21,17 +21,12 @@
 //   * report version 18 added battery capacity to `bt`;
 //   * report version 19 added current/max durations to `wl`;
 //   * report version 21 added total durations to `wl`;
-//   * current AOSP (report version 36 in this fixture) adds a fourth wakelock group
-//     lettered `bp` and a seventh `st` value. There are no matching proto fields, so both
-//     are reported as "new fields" warnings, like upstream.
+//   * report version 36 added the `bp` wakelock group, the seventh `st` value, `fgs`,
+//     `awl`, `jbc`, `jbd`, `ctf`, `gcf`, `wmc`, `wmct`, and extra `bt`/`dc`/`blem` fields.
 //
-// Fields that newer devices print but this 2017-era proto cannot represent are deliberately
-// left unsupported and reported through warnings rather than dropped silently:
-//   * pwi names cpu/camera/audio/video/sensors/gnss/memory/ambi;
-//   * the wl `bp` group, the seventh st value, and extra bt/dc fields;
-//   * data connection enum values 17+. The entries and values are retained, but the
-//     generated enum has no constant for them, so the name is left unset;
-//   * sections awl, ctf, fgs, gcf, jbc, rpm and wmct.
+// Those newer fields are represented in the proto in this port, so modern captures parse
+// without per-row warnings. Truly unknown sections or fields still produce warnings (and
+// repeated warnings are collapsed by the caller).
 
 package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
@@ -39,6 +34,7 @@ import com.leekleak.batteryarcheologist.core.checkin.sliceparse.SliceParseExcept
 import com.leekleak.batteryarcheologist.core.checkin.sliceparse.SliceReader
 import com.leekleak.batteryarcheologist.core.historianutils.HistorianUtils
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App as BatteryApp
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.AggregatedWakelock as BatteryAppAggregatedWakelock
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Apk as BatteryAppApk
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Apk.Service as BatteryAppService
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Audio as BatteryAppAudio
@@ -46,8 +42,11 @@ import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Blue
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Camera as BatteryAppCamera
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Child as BatteryAppChild
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Cpu as BatteryAppCpu
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.CpuTimesAtFreq as BatteryAppCpuTimesAtFreq
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Flashlight as BatteryAppFlashlight
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Foreground as BatteryAppForeground
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.ForegroundService as BatteryAppForegroundService
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.JobsDeferred as BatteryAppJobsDeferred
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Network as BatteryAppNetwork
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.PowerUseItem as BatteryAppPowerUseItem
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Process as BatteryAppProcess
@@ -61,6 +60,7 @@ import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Vide
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.WakeupAlarm as BatteryAppWakeupAlarm
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Wakelock as BatteryAppWakelock
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.Wifi as BatteryAppWifi
+import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.App.WifiMulticast as BatteryAppWifiMulticast
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.ControllerActivity as BatteryController
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.ControllerActivity.TxLevel as BatteryTxLevel
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats.System as BatterySystem
@@ -87,10 +87,16 @@ internal object SectionNames {
     const val SENSOR = "sr"
     const val VIBRATOR = "vib"
     const val FOREGROUND = "fg"
+    const val FOREGROUND_SERVICE = "fgs"
     const val STATE_TIME = "st"
     const val WAKELOCK = "wl"
+    const val AGGREGATED_WAKELOCK = "awl"
     const val SYNC = "sy"
     const val JOB = "jb"
+    const val JOB_COMPLETION = "jbc"
+    const val JOBS_DEFERRED = "jbd"
+    const val CPU_TIMES_AT_FREQ = "ctf"
+    const val GLOBAL_CPU_FREQ = "gcf"
     const val KERNEL_WAKELOCK = "kwl"
     const val WAKEUP_REASON = "wr"
     const val NETWORK = "nt"
@@ -125,6 +131,9 @@ internal object SectionNames {
     const val BLUETOOTH_STATE_COUNT = "bsc"
     const val POWER_USE_SUMMARY = "pws"
     const val POWER_USE_ITEM = "pwi"
+    const val WIFI_MULTICAST_TOTAL = "wmct"
+    const val WIFI_MULTICAST = "wmc"
+    const val RESOURCE_POWER_MANAGER = "rpm"
     const val DISCHARGE_STEP = "dsd"
     const val CHARGE_STEP = "csd"
     const val DISCHARGE_TIME_REMAINING = "dtr"
@@ -149,6 +158,14 @@ private val powerUseItemNameMap: Map<String, BatterySystem.PowerUseItem.Name> = 
     "over" to BatterySystem.PowerUseItem.Name.OVERCOUNTED,
     "???" to BatterySystem.PowerUseItem.Name.DEFAULT,
     "flashlight" to BatterySystem.PowerUseItem.Name.FLASHLIGHT,
+    "cpu" to BatterySystem.PowerUseItem.Name.CPU,
+    "camera" to BatterySystem.PowerUseItem.Name.CAMERA,
+    "audio" to BatterySystem.PowerUseItem.Name.AUDIO,
+    "video" to BatterySystem.PowerUseItem.Name.VIDEO,
+    "sensors" to BatterySystem.PowerUseItem.Name.SENSORS,
+    "gnss" to BatterySystem.PowerUseItem.Name.GNSS,
+    "memory" to BatterySystem.PowerUseItem.Name.MEMORY,
+    "ambi" to BatterySystem.PowerUseItem.Name.AMBIENT_DISPLAY,
 )
 
 /** Data collected while parsing a `csd` or `dsd` row. */
@@ -246,6 +263,10 @@ internal fun parseSection(
         SectionNames.FOREGROUND -> result(
             parseAppSingleton(section, record, app, AppSingleton.FOREGROUND),
         )
+        SectionNames.FOREGROUND_SERVICE -> result(
+            parseAppSingleton(section, record, app, AppSingleton.FOREGROUND_SERVICE),
+        )
+        SectionNames.AGGREGATED_WAKELOCK -> result(parseAppAggregatedWakelock(record, app))
         SectionNames.GLOBAL_BLUETOOTH_CONTROLLER -> {
             if (reportVersion < 17) {
                 val b = BatterySystem.GlobalBluetooth.Builder()
@@ -273,7 +294,11 @@ internal fun parseSection(
             result(null)
         }
         SectionNames.GLOBAL_WIFI -> result(globalWifi(record, state.system))
+        SectionNames.GLOBAL_CPU_FREQ -> result(systemGlobalCpuFreq(record, state.system))
+        SectionNames.CPU_TIMES_AT_FREQ -> result(parseAppCpuTimesAtFreq(record, app))
         SectionNames.JOB -> result(parseAppScheduledJob(record, app))
+        SectionNames.JOB_COMPLETION -> result(parseAppJobCompletion(record, app))
+        SectionNames.JOBS_DEFERRED -> result(parseAppJobsDeferred(record, app))
         SectionNames.KERNEL_WAKELOCK -> result(systemKernelWakelock(record, state.system))
         SectionNames.MISC -> result(systemMisc(reportVersion, record, state.system, state.counter))
         SectionNames.MODEM_CONTROLLER -> result(
@@ -310,6 +335,11 @@ internal fun parseSection(
             parseAppController(section, record, app, AppController.WIFI),
         )
         SectionNames.WIFI -> result(parseAppWifi(record, app))
+        SectionNames.WIFI_MULTICAST -> result(parseAppWifiMulticast(record, app))
+        SectionNames.WIFI_MULTICAST_TOTAL -> result(systemWifiMulticast(record, state.system))
+        SectionNames.RESOURCE_POWER_MANAGER -> result(
+            systemResourcePowerManager(record, state.system),
+        )
         else -> {
             if (isTimeCountSection(section)) {
                 result(parseSystemTimeCountPair(section, record, state.system, state.counter))
@@ -336,6 +366,7 @@ private enum class AppSingleton {
     CPU,
     FLASHLIGHT,
     FOREGROUND,
+    FOREGROUND_SERVICE,
     VIBRATOR,
     VIDEO,
 }
@@ -380,6 +411,17 @@ private fun parseAppSingleton(
         val target = app.foreground?.newBuilder() ?: BatteryAppForeground.Builder()
         val warning = parseAndAccumulate(section, record, target, BATTERY_APP_FOREGROUND_SPEC)
         app.foreground = target.build()
+        warning
+    }
+    AppSingleton.FOREGROUND_SERVICE -> {
+        val target = app.foreground_service?.newBuilder() ?: BatteryAppForegroundService.Builder()
+        val warning = parseAndAccumulate(
+            section,
+            record,
+            target,
+            BATTERY_APP_FOREGROUND_SERVICE_SPEC,
+        )
+        app.foreground_service = target.build()
         warning
     }
     AppSingleton.VIBRATOR -> {
@@ -542,6 +584,122 @@ private fun parseAppScheduledJob(record: List<String>, app: BatteryApp.Builder):
 }
 
 /**
+ * Parses `jbc`: job name followed by completion counts in the order of
+ * `JobParameters.getJobStopReasonCodes()`.
+ */
+private fun parseAppJobCompletion(record: List<String>, app: BatteryApp.Builder): String? {
+    if (record.isEmpty()) {
+        throw CheckinParseException("jbc line didn't contain a job name")
+    }
+    val name = HistorianUtils.scrubPII(record[0])
+    val counts = record.drop(1).map {
+        it.toIntOrNull()
+            ?: throw CheckinParseException("error parsing jbc: cannot parse int32 from '$it'")
+    }
+    for (i in app.scheduled_job.indices) {
+        if (app.scheduled_job[i].name == name) {
+            val target = app.scheduled_job[i].newBuilder()
+            target.stop_reason_count = addCounts(target.stop_reason_count, counts)
+            app.scheduled_job = app.scheduled_job.toMutableList().also { it[i] = target.build() }
+            return null
+        }
+    }
+    val parsed = BatteryAppScheduledJob.Builder()
+    parsed.name = name
+    parsed.stop_reason_count = counts
+    app.scheduled_job = app.scheduled_job + parsed.build()
+    return null
+}
+
+/**
+ * Parses `jbd`: deferred-job counts, total latency, and five freshness buckets.
+ */
+private fun parseAppJobsDeferred(record: List<String>, app: BatteryApp.Builder): String? {
+    val reader = SliceReader(record)
+    val target = app.jobs_deferred?.newBuilder() ?: BatteryAppJobsDeferred.Builder()
+    target.deferred_event_count = (target.deferred_event_count ?: 0) + reader.readInt32()
+    target.deferred_count = (target.deferred_count ?: 0) + reader.readInt32()
+    target.total_latency_msec = (target.total_latency_msec ?: 0L) + reader.readInt64()
+    val buckets = ArrayList<Int>()
+    while (reader.hasRemaining) {
+        buckets += reader.readInt32()
+    }
+    target.latency_bucket_count = addCounts(target.latency_bucket_count, buckets)
+    app.jobs_deferred = target.build()
+    return null
+}
+
+/**
+ * Parses `ctf`: a process-state label, the frequency count, then that many
+ * screen-on and screen-off durations.
+ */
+private fun parseAppCpuTimesAtFreq(record: List<String>, app: BatteryApp.Builder): String? {
+    val reader = SliceReader(record)
+    val type = reader.readString()
+    val count = reader.readInt32()
+    val timeMs = ArrayList<Long>(count)
+    for (i in 0 until count) {
+        if (!reader.hasRemaining) {
+            throw CheckinParseException("ctf line ended before all frequency times")
+        }
+        timeMs += reader.readInt64()
+    }
+    val screenOffTimeMs = ArrayList<Long>(count)
+    for (i in 0 until count) {
+        if (!reader.hasRemaining) {
+            throw CheckinParseException("ctf line ended before all screen-off frequency times")
+        }
+        screenOffTimeMs += reader.readInt64()
+    }
+    val warning = if (reader.hasRemaining) {
+        "ctf has ${reader.remaining.size} additional field(s) that are not captured."
+    } else {
+        null
+    }
+    val parsed = BatteryAppCpuTimesAtFreq.Builder()
+    parsed.type = type
+    parsed.freq_count = count
+    parsed.time_ms = timeMs
+    parsed.screen_off_time_ms = screenOffTimeMs
+    app.cpu_times_at_freq = app.cpu_times_at_freq + parsed.build()
+    return warning
+}
+
+/**
+ * Parses `awl`: cumulative partial and background-partial wakelock duration.
+ */
+private fun parseAppAggregatedWakelock(
+    record: List<String>,
+    app: BatteryApp.Builder,
+): String? {
+    val target = app.aggregated_wakelock?.newBuilder()
+        ?: BatteryAppAggregatedWakelock.Builder()
+    val warning = parseAndAccumulate(
+        SectionNames.AGGREGATED_WAKELOCK,
+        record,
+        target,
+        BATTERY_APP_AGGREGATED_WAKELOCK_SPEC,
+    )
+    app.aggregated_wakelock = target.build()
+    return warning
+}
+
+/**
+ * Parses `wmc`: Wi-Fi multicast wakelock time and count for this UID.
+ */
+private fun parseAppWifiMulticast(record: List<String>, app: BatteryApp.Builder): String? {
+    val target = app.wifi_multicast?.newBuilder() ?: BatteryAppWifiMulticast.Builder()
+    val warning = parseAndAccumulate(
+        SectionNames.WIFI_MULTICAST,
+        record,
+        target,
+        BATTERY_APP_WIFI_MULTICAST_SPEC,
+    )
+    app.wifi_multicast = target.build()
+    return warning
+}
+
+/**
  * Parses `sy`: sync name, total time, count, background time, background count.
  */
 private fun parseAppSync(record: List<String>, app: BatteryApp.Builder): String? {
@@ -580,14 +738,12 @@ private fun parseAppWakeupAlarm(record: List<String>, app: BatteryApp.Builder): 
 }
 
 /**
- * Parses `ua`: activity counts in order OTHER, BUTTON, TOUCH, ACCESSIBILITY.
- *
- * Newer builds print additional activity types. The count is retained; the name is left
- * unset when the generated enum has no constant for that index.
+ * Parses `ua`: activity counts in the AOSP order OTHER, BUTTON, TOUCH,
+ * ACCESSIBILITY, ATTENTION, FACE_DOWN, DEVICE_STATE.
  */
 private fun parseAppUserActivity(record: List<String>, app: BatteryApp.Builder): String? {
-    val warning = if (record.size > 4) {
-        "user activity now has ${record.size - 4} additional fields"
+    val warning = if (record.size > 7) {
+        "user activity now has ${record.size - 7} additional fields"
     } else {
         null
     }
@@ -613,9 +769,9 @@ private fun parseAppUserActivity(record: List<String>, app: BatteryApp.Builder):
  * Parses `st`.
  *
  * Report version <= 16: foreground time, active time, cached time.
- * Report version >= 17: top, foreground service, top sleeping, foreground, background,
- * cached. AOSP later appended a seventh value; it has no proto field here and is counted
- * in the warning.
+ * Report version >= 17 prints the AOSP process-state order:
+ * top, foreground service, foreground, background, top sleeping[, heavy weight], cached.
+ * The heavy-weight column appeared with report version 36.
  */
 private fun parseAppStateTime(
     reportVersion: Int,
@@ -637,9 +793,10 @@ private fun parseAppStateTime(
     val reader = SliceReader(record)
     val top = reader.readInt64()
     val foregroundService = reader.readInt64()
-    val topSleeping = reader.readInt64()
     val foreground = reader.readFloat32()
     val background = reader.readInt64()
+    val topSleeping = reader.readInt64()
+    val heavyWeight = if (reader.remaining.size >= 2) reader.readInt64() else 0L
     val cached = reader.readFloat32()
     val warning = if (reader.hasRemaining) {
         "${SectionNames.STATE_TIME} has ${reader.remaining.size} new fields"
@@ -651,9 +808,11 @@ private fun parseAppStateTime(
     stateTime.top_time_msec = (stateTime.top_time_msec ?: 0L) + top
     stateTime.foreground_service_time_msec =
         (stateTime.foreground_service_time_msec ?: 0L) + foregroundService
-    stateTime.top_sleeping_time_msec = (stateTime.top_sleeping_time_msec ?: 0L) + topSleeping
     stateTime.foreground_time_msec = (stateTime.foreground_time_msec ?: 0f) + foreground
     stateTime.background_time_msec = (stateTime.background_time_msec ?: 0L) + background
+    stateTime.top_sleeping_time_msec = (stateTime.top_sleeping_time_msec ?: 0L) + topSleeping
+    stateTime.heavy_weight_time_msec =
+        (stateTime.heavy_weight_time_msec ?: 0L) + heavyWeight
     stateTime.cached_time_msec = (stateTime.cached_time_msec ?: 0f) + cached
     app.state_time = stateTime.build()
     return warning
@@ -692,6 +851,12 @@ private fun parseAppWakelock(
     var windowCurrent = 0L
     var windowMax = 0L
     var windowTotal = 0L
+
+    var backgroundPartialTime = 0f
+    var backgroundPartialCount = 0f
+    var backgroundPartialCurrent = 0L
+    var backgroundPartialMax = 0L
+    var backgroundPartialTotal = 0L
 
     val warning: String?
     when {
@@ -780,6 +945,13 @@ private fun parseAppWakelock(
                         partialMax = max
                         partialTotal = total
                     }
+                    "bp" -> {
+                        backgroundPartialTime = time
+                        backgroundPartialCount = count
+                        backgroundPartialCurrent = current
+                        backgroundPartialMax = max
+                        backgroundPartialTotal = total
+                    }
                     "w" -> {
                         windowTime = time
                         windowCount = count
@@ -827,6 +999,18 @@ private fun parseAppWakelock(
             if (windowTotal != -1L) {
                 b.window_total_duration_msec = (b.window_total_duration_msec ?: 0L) + windowTotal
             }
+            b.background_partial_time_msec =
+                (b.background_partial_time_msec ?: 0f) + backgroundPartialTime
+            b.background_partial_count =
+                (b.background_partial_count ?: 0f) + backgroundPartialCount
+            b.background_partial_current_duration_msec =
+                maxOf(b.background_partial_current_duration_msec ?: 0L, backgroundPartialCurrent)
+            b.background_partial_max_duration_msec =
+                maxOf(b.background_partial_max_duration_msec ?: 0L, backgroundPartialMax)
+            if (backgroundPartialTotal != -1L) {
+                b.background_partial_total_duration_msec =
+                    (b.background_partial_total_duration_msec ?: 0L) + backgroundPartialTotal
+            }
             app.wakelock = app.wakelock.toMutableList().also { it[i] = b.build() }
             return warning
         }
@@ -849,6 +1033,11 @@ private fun parseAppWakelock(
     b.window_current_duration_msec = windowCurrent
     b.window_max_duration_msec = windowMax
     b.window_total_duration_msec = windowTotal
+    b.background_partial_time_msec = backgroundPartialTime
+    b.background_partial_count = backgroundPartialCount
+    b.background_partial_current_duration_msec = backgroundPartialCurrent
+    b.background_partial_max_duration_msec = backgroundPartialMax
+    b.background_partial_total_duration_msec = backgroundPartialTotal
     app.wakelock = app.wakelock + b.build()
     return warning
 }
@@ -856,6 +1045,14 @@ private fun parseAppWakelock(
 private fun remainingWarning(reader: SliceReader): String? {
     val remaining = reader.remaining.size
     return if (remaining > 0) "${SectionNames.WAKELOCK} has $remaining new fields" else null
+}
+
+/** Adds two count vectors element-wise, padding the shorter one with zeros. */
+private fun addCounts(existing: List<Int>, added: List<Int>): List<Int> {
+    val size = maxOf(existing.size, added.size)
+    return List(size) { index ->
+        (existing.getOrNull(index) ?: 0) + (added.getOrNull(index) ?: 0)
+    }
 }
 
 /**
@@ -963,6 +1160,49 @@ private fun systemBatteryDischarge(record: List<String>, system: BatterySystem.B
         BATTERY_SYSTEM_BATTERY_DISCHARGE_SPEC,
     )
     system.battery_discharge = parsed.build()
+    return warning
+}
+
+/** Parses `gcf`: the global CPU frequency table. */
+private fun systemGlobalCpuFreq(record: List<String>, system: BatterySystem.Builder): String? {
+    val freqs = record.map {
+        it.toLongOrNull()
+            ?: throw CheckinParseException("error parsing gcf: cannot parse int64 from '$it'")
+    }
+    val parsed = BatterySystem.GlobalCpuFreq.Builder()
+    parsed.freq_khz = freqs
+    system.global_cpu_freq = parsed.build()
+    return null
+}
+
+/** Parses `wmct`: system-wide Wi-Fi multicast wakelock time and count. */
+private fun systemWifiMulticast(record: List<String>, system: BatterySystem.Builder): String? {
+    val target = system.global_wifi_multicast?.newBuilder()
+        ?: BatterySystem.WifiMulticast.Builder()
+    val warning = parseAndAccumulate(
+        SectionNames.WIFI_MULTICAST_TOTAL,
+        record,
+        target,
+        BATTERY_SYSTEM_WIFI_MULTICAST_SPEC,
+    )
+    system.global_wifi_multicast = target.build()
+    return warning
+}
+
+/** Parses `rpm`: resource power manager state name, time/count, and screen-off time/count. */
+private fun systemResourcePowerManager(
+    record: List<String>,
+    system: BatterySystem.Builder,
+): String? {
+    val parsed = BatterySystem.ResourcePowerManager.Builder()
+    val warning = parseLine(
+        SectionNames.RESOURCE_POWER_MANAGER,
+        record,
+        parsed,
+        BATTERY_SYSTEM_RESOURCE_POWER_MANAGER_SPEC,
+    )
+    parsed.name = HistorianUtils.scrubPII(parsed.name.orEmpty())
+    system.resource_power_manager = system.resource_power_manager + parsed.build()
     return warning
 }
 
@@ -1166,7 +1406,7 @@ private fun parseSystemScreenBrightness(
 /** Categorizes the paired time/count sections. */
 private enum class TimeCountKind(val expectedLen: Int) {
     SIGNAL_STRENGTH(5),
-    DATA_CONNECTION(17),
+    DATA_CONNECTION(23),
     WIFI_STATE(8),
     BLUETOOTH_STATE(4),
     WIFI_SUPPLICANT_STATE(13),

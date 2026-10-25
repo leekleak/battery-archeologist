@@ -92,6 +92,10 @@ class HistoryFixtureTest {
         // No crash, and the report version is detected.
         assertEquals(36, result.reportVersion)
         assertTrue(result.timestampsAltered)
+        // Android 16 state flags/events are modeled rather than reported as unknown keys.
+        // The low-power SubsystemPowerState payload is still on the backlog.
+        assertEquals(setOf("SubsystemPowerState"), result.unsupportedKeys.keys)
+        assertFalse(result.errors.any { it.contains("unknown key") })
         assertEquals(4, result.summaries.size)
         assertEquals(
             listOf("RESET", "LEVEL", "LEVEL", "END"),

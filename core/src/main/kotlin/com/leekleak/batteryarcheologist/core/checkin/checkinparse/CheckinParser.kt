@@ -58,9 +58,6 @@ object CheckinParser {
         CheckinParserImpl(CheckinUtil.createBatteryReport(raw), packages).parse()
 }
 
-/** The last report version the upstream 2017 parser knew about. */
-private const val MAX_UPSTREAM_REPORT_VERSION = 21
-
 /** Oldest report version the upstream parser accepts. */
 private const val MIN_PARSE_REPORT_VERSION = 11
 
@@ -74,21 +71,21 @@ private class CheckinParserImpl(
 
     fun parse(): CheckinResult {
         if (!parsePackageManager()) {
-            return CheckinResult(null, state.warnings.toList(), state.errors.toList())
+            return CheckinResult(null, state.finalizedWarnings(), state.errors.toList())
         }
 
         try {
             parseRows()
         } catch (e: CheckinParseException) {
             state.errors += e.message ?: e.toString()
-            return CheckinResult(null, state.warnings.toList(), state.errors.toList())
+            return CheckinResult(null, state.finalizedWarnings(), state.errors.toList())
         } catch (e: Exception) {
             state.errors += e.message ?: e.toString()
-            return CheckinResult(null, state.warnings.toList(), state.errors.toList())
+            return CheckinResult(null, state.finalizedWarnings(), state.errors.toList())
         }
 
         val stats = buildStats()
-        return CheckinResult(stats, state.warnings.toList(), state.errors.toList())
+        return CheckinResult(stats, state.finalizedWarnings(), state.errors.toList())
     }
 
     /**
@@ -214,11 +211,14 @@ private class CheckinParserImpl(
                     app.child = app.child + childFrom(guessed)
                     state.apps[uid] = app
                 } else {
-                    if (!knownUids.containsKey(uid)) {
+                    // `pwi` rows are power-attribution records. A quick capture has no
+                    // package metadata for many of their UIDs, so warning for every system
+                    // UID would drown out real problems.
+                    if (!knownUids.containsKey(uid) && section != SectionNames.POWER_USE_ITEM) {
                         if (isSandboxedProcess(uid)) {
-                            state.warnings += "found sandboxed uid for section \"$section\""
+                            state.addWarning("found sandboxed uid for section \"$section\"")
                         } else {
-                            state.warnings += "found unexpected uid $uid for section \"$section\""
+                            state.addWarning("found unexpected uid $uid for section \"$section\"")
                         }
                     }
                     app = BatteryApp.Builder()
@@ -236,10 +236,10 @@ private class CheckinParserImpl(
                 app = app,
             )
             if (parsed.warning != null) {
-                state.warnings += parsed.warning
+                state.addWarning(parsed.warning)
             }
             if (!parsed.parsed) {
-                state.warnings += "unknown data category $section"
+                state.addWarning("unknown data category $section")
             }
         }
 
@@ -247,14 +247,11 @@ private class CheckinParserImpl(
             state.errors += "no report version found"
         } else if (reportVersion < MIN_PARSE_REPORT_VERSION) {
             state.errors += "old report version $reportVersion"
-        } else if (reportVersion > MAX_UPSTREAM_REPORT_VERSION) {
-            // Kept for parity with upstream. The section parsers still understand the
-            // newer layouts up to MAX_SUPPORTED_REPORT_VERSION; this is informational.
-            state.warnings += "newer report version $reportVersion found"
-        }
-        if (reportVersion > MAX_SUPPORTED_REPORT_VERSION) {
-            state.warnings += "report version $reportVersion is newer than supported version " +
-                "$MAX_SUPPORTED_REPORT_VERSION; some fields may be missing"
+        } else if (reportVersion > MAX_SUPPORTED_REPORT_VERSION) {
+            state.addWarning(
+                "report version $reportVersion is newer than supported version " +
+                    "$MAX_SUPPORTED_REPORT_VERSION; some fields may be missing",
+            )
         }
     }
 

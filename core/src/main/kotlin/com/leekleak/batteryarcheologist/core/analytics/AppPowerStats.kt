@@ -11,8 +11,9 @@ import java.util.Locale
  * - CPU power: `100 * (app.cpu.power_ma_ms / 3_600_000) / capacity_mah`
  *
  * The raw percentages are kept as floats; formatting happens at the UI
- * boundary. Battery Historian displays two decimals; this app uses three so
- * small emulator/short-session estimates remain visible.
+ * boundary. Battery Historian displays two decimals; this app keeps up to
+ * three and drops trailing zeros so small estimates stay visible without
+ * value noise.
  */
 data class AppPowerStat(
     val name: String,
@@ -80,8 +81,19 @@ object AppPowerStats {
         )
     }
 
-    /** Formats a percentage with three decimal places, e.g. `0.001%`. */
-    fun formatPercent(pct: Float): String = String.format(Locale.US, "%.3f%%", pct)
+    /**
+     * Formats a percentage with at most three decimal places, dropping trailing
+     * zeros: `1.000%` becomes `1%` while `0.614%` is unchanged.
+     *
+     * A non-zero value too small to round at this precision is shown as
+     * `<0.001%` so it stays distinguishable from an exact zero.
+     */
+    fun formatPercent(pct: Float): String {
+        if (pct == 0f) return "0%"
+        val formatted = String.format(Locale.US, "%.3f", pct)
+        val trimmed = formatted.trimEnd('0').trimEnd('.')
+        return if (trimmed == "0" || trimmed == "-0") "<0.001%" else "$trimmed%"
+    }
 
     private const val MA_MS_PER_MAH = 3_600_000f
 }

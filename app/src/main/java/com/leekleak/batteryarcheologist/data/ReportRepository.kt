@@ -205,10 +205,11 @@ class AndroidReportRepository(
 
         history.getOrNull()?.let { parsed ->
             Timber.i(
-                "HistoryParser: entries=%d summaries=%d errors=%d",
+                "HistoryParser: entries=%d summaries=%d errors=%d unsupported=%d",
                 parsed.entries.size,
                 parsed.summaries.size,
                 parsed.errors.size,
+                parsed.unsupportedKeys.size,
             )
         } ?: Timber.w(history.exceptionOrNull(), "HistoryParser failed")
         checkin.getOrNull()?.let { parsed ->

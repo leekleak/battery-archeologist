@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -129,6 +130,12 @@ private fun ReportDetailsCard(report: ReportData) {
         (report.history?.errors?.size ?: 0) +
         (if (report.checkinFailure != null) 1 else 0) +
         (if (report.historyFailure != null) 1 else 0)
+    val unsupported = report.history?.unsupportedKeys.orEmpty()
+    val unsupportedOccurrences = unsupported.values.sum()
+    val warningMessages = buildList {
+        addAll(report.history?.warnings.orEmpty())
+        addAll(report.checkin?.warnings.orEmpty())
+    }
     val checkinVersion = snapshot.checkinVersion
         ?: report.checkin?.stats?.report_version
 
@@ -180,6 +187,28 @@ private fun ReportDetailsCard(report: ReportData) {
                     SummaryRow(stringResource(R.string.system_saved_as), it)
                 }
                 SummaryRow(
+                    stringResource(R.string.system_unsupported_fields),
+                    if (unsupported.isEmpty()) {
+                        stringResource(R.string.system_unsupported_none)
+                    } else {
+                        stringResource(
+                            R.string.system_unsupported_fields_value,
+                            unsupported.size,
+                            unsupportedOccurrences,
+                        )
+                    },
+                )
+                if (unsupported.isNotEmpty()) {
+                    Text(
+                        text = unsupported.entries
+                            .sortedByDescending { it.value }
+                            .take(5)
+                            .joinToString(" · ") { "${it.key} ×${it.value}" },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                SummaryRow(
                     stringResource(R.string.system_parser_warnings),
                     warnings.toString(),
                 )
@@ -187,6 +216,19 @@ private fun ReportDetailsCard(report: ReportData) {
                     stringResource(R.string.system_parser_errors),
                     errors.toString(),
                 )
+                if (warningMessages.isNotEmpty()) {
+                    Text(
+                        text = stringResource(R.string.system_warning_details),
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                    warningMessages.take(3).forEach { message ->
+                        Text(
+                            text = "• $message",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         }
     }

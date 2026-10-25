@@ -271,6 +271,10 @@ object TimelineMath {
         DateTimeFormatter.ofPattern("HH:mm:ss", Locale.getDefault())
     private val CLOCK_DATE_TIME: DateTimeFormatter =
         DateTimeFormatter.ofPattern("MMM d HH:mm", Locale.getDefault())
+    private val CLOCK_DATE_TIME_SECONDS: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("MMM d HH:mm:ss", Locale.getDefault())
+    private val CLOCK_DATE: DateTimeFormatter =
+        DateTimeFormatter.ofPattern("MMM d", Locale.getDefault())
 
     /**
      * Formats an epoch timestamp as a global wall-clock time.
@@ -291,11 +295,23 @@ object TimelineMath {
         return formatter.withZone(zoneId).format(Instant.ofEpochMilli(timeMs))
     }
 
-    /** Full global timestamp used by the cursor readout. */
+    /** Date part of the cursor timestamp, for example `Nov 14`. */
+    fun formatClockDate(
+        timeMs: Long,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+    ): String = CLOCK_DATE.withZone(zoneId).format(Instant.ofEpochMilli(timeMs))
+
+    /** Time part of the cursor timestamp, including seconds. */
+    fun formatClockTimeSeconds(
+        timeMs: Long,
+        zoneId: ZoneId = ZoneId.systemDefault(),
+    ): String = CLOCK_TIME_SECONDS.withZone(zoneId).format(Instant.ofEpochMilli(timeMs))
+
+    /** Full global timestamp with seconds, used by tests and diagnostics. */
     fun formatClockDateTime(
         timeMs: Long,
         zoneId: ZoneId = ZoneId.systemDefault(),
-    ): String = CLOCK_DATE_TIME.withZone(zoneId).format(Instant.ofEpochMilli(timeMs))
+    ): String = CLOCK_DATE_TIME_SECONDS.withZone(zoneId).format(Instant.ofEpochMilli(timeMs))
 
     /** Start of the local day containing [timeMs], used to align clock ticks. */
     fun localDayStart(

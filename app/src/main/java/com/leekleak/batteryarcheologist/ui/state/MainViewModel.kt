@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.leekleak.batteryarcheologist.core.model.ShizukuState
+import com.leekleak.batteryarcheologist.data.PinnedAppsStore
 import com.leekleak.batteryarcheologist.data.ReportRepository
 import com.leekleak.batteryarcheologist.data.SavedReport
 import com.leekleak.batteryarcheologist.ui.navigation.ContentTab
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -35,12 +37,14 @@ class MainViewModel(
     private val requestShizukuPermission: () -> Unit,
     private val openShizuku: () -> Unit,
     private val refreshShizuku: () -> Unit,
+    private val pinnedAppsStore: PinnedAppsStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
         AppUiState(
             shizukuState = shizukuState.value,
             shizukuInstalled = installedOr(false),
+            pinnedApps = pinnedAppsStore.load(),
         ),
     )
     val state: StateFlow<AppUiState> = _state.asStateFlow()
@@ -81,6 +85,25 @@ class MainViewModel(
     /** Selects the tab shown by the report viewer. */
     fun selectTab(tab: ContentTab) {
         _state.update { it.copy(selectedTab = tab) }
+    }
+
+    /**
+     * Pins or unpins [packageName] across every report.
+     *
+     * The pin set is global rather than per report so the same apps stay at the
+     * top when the user switches recordings and compares their power values.
+     */
+    fun togglePinnedApp(packageName: String) {
+        if (packageName.isBlank()) return
+        val pinned = _state.updateAndGet { state ->
+            val pins = if (packageName in state.pinnedApps) {
+                state.pinnedApps - packageName
+            } else {
+                state.pinnedApps + packageName
+            }
+            state.copy(pinnedApps = pins)
+        }.pinnedApps
+        pinnedAppsStore.save(pinned)
     }
 
     /**
