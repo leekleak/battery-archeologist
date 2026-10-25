@@ -41,6 +41,24 @@ wait_for_app_windows() {
   return 1
 }
 
+# First saved report card in the current layout JSON.
+first_saved_report_name() {
+  local layout="$1" tag
+  tag="$(echo "$layout" | grep -o '"resource-id":"saved_report_[^"]*"' | head -1 || true)"
+  tag="${tag#\"resource-id\":\"saved_report_}"
+  tag="${tag%\"}"
+  printf '%s' "$tag"
+}
+
+# All saved report cards visible in the current layout JSON.
+saved_report_names() {
+  local layout="$1"
+  echo "$layout" \
+    | grep -o '"resource-id":"saved_report_[^"]*"' \
+    | sed 's/^"resource-id":"saved_report_//; s/"$//' \
+    | sort -u
+}
+
 "$ADB" -s "$SERIAL" get-state >/dev/null 2>&1 || fail "emulator $SERIAL is not running"
 require_emulator
 [[ "$("$ADB" -s "$SERIAL" shell getprop sys.boot_completed | tr -d '\r')" == "1" ]] || fail "boot not complete"
@@ -52,20 +70,50 @@ require_emulator
 id_line="$("$ADB" -s "$SERIAL" shell "RISH_APPLICATION_ID=$SHIZUKU_PACKAGE sh /data/local/tmp/shizuku/rish -c id" 2>&1 | tr -d '\r')"
 echo "$id_line" | grep -q 'uid=2000(shell)' || fail "rish is not running as uid 2000: $id_line"
 
-# Restart the app. The ViewModel loads the newest saved report on launch; it
-# must never capture automatically.
+# Restart the app. Navigation 3 lands on the reports home; capture is an
+# explicit action there and must never run automatically.
 "$ADB" -s "$SERIAL" logcat -c
 "$ADB" -s "$SERIAL" shell am force-stop "$APP_PACKAGE"
 "$ADB" -s "$SERIAL" shell am start -W -n "$APP_PACKAGE/.MainActivity" >/dev/null
 
-layout="$(wait_for_pattern '"resource-id":"tab_overview"' 20)" || fail "main screen did not appear"
-"$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_overview' >/dev/null 2>&1 || true
+layout="$(wait_for_pattern '"resource-id":"reports_home"' 20)" || fail "reports home did not appear"
+layout="$(wait_for_pattern '"resource-id":"saved_report_' 10)" || fail "no saved report found on reports home"
 
+for tag in btn_capture btn_import_report btn_reset_battery_stats saved_reports_header; do
+  echo "$layout" | grep -q "\"resource-id\":\"$tag\"" || fail "$tag missing from reports home"
+done
+
+if echo "$layout" | grep -q '"resource-id":"tab_overview"'; then
+  fail "reports home should not show the viewer tab bar"
+fi
+
+mapfile -t saved_reports < <(saved_report_names "$layout")
+[[ ${#saved_reports[@]} -gt 0 ]] || fail "no saved report found on reports home"
+
+open_report() {
+  local name="$1"
+  "$ANDROID_CLI" input --device="$SERIAL" tap "id=saved_report_$name" >/dev/null 2>&1 \
+    || fail "could not open saved report $name"
+  wait_for_pattern '"resource-id":"content_screen"' 20 >/dev/null \
+    || fail "report viewer did not open"
+  wait_for_pattern '"resource-id":"capture_summary"' 30 >/dev/null \
+    || fail "saved report did not load"
+}
+
+open_timeline() {
+  "$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_timeline' >/dev/null 2>&1 \
+    || fail "could not open Timeline tab"
+  wait_for_pattern '"resource-id":"timeline_screen"' 15 >/dev/null \
+    || fail "timeline screen missing"
+}
+
+report_name="${saved_reports[0]}"
+open_report "$report_name"
 layout="$(wait_for_pattern '"resource-id":"capture_summary"' 30)" || fail "saved report did not load"
 
 echo "$layout" | grep -q 'Report' || fail "report summary missing"
 echo "$layout" | grep -q 'Captured' || fail "captured timestamp missing"
-echo "$layout" | grep -q 'tab_timeline' || fail "bottom navigation missing"
+echo "$layout" | grep -q 'tab_timeline' || fail "viewer bottom navigation missing"
 
 for legacy in 'Current capture' 'Ready to capture' 'Capture validated' 'Capture parsed' 'Live data from dumpsys batterystats'; do
   if echo "$layout" | grep -q "$legacy"; then
@@ -79,15 +127,38 @@ echo "$logs" | grep -q 'CheckinParser: apps=' || fail "checkin parser did not lo
 
 # Timeline: the chart is a vertically scrolling page item, the axis uses
 # global clock time, and the draggable cursor has a textual readout.
-"$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_timeline' >/dev/null 2>&1 || fail "could not open Timeline tab"
-layout="$(wait_for_pattern '"resource-id":"timeline_screen"' 15)" || fail "timeline screen missing"
+#
+# A report captured right after `dumpsys batterystats --reset` can have
+# history but no completed discharge intervals, so try the visible saved
+# reports and only require the intervals card when one has it. This keeps the
+# check meaningful without making it depend on the reset state of the device.
+intervals_found=0
+for candidate in "${saved_reports[@]}"; do
+  if [[ "$candidate" != "${saved_reports[0]}" ]]; then
+    open_report "$candidate"
+  fi
+  open_timeline
+  if wait_for_pattern '"resource-id":"discharge_intervals"' 3 >/dev/null; then
+    report_name="$candidate"
+    intervals_found=1
+    break
+  fi
+  if [[ "$candidate" != "${saved_reports[-1]}" ]]; then
+    "$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_back' >/dev/null 2>&1 || true
+    wait_for_pattern '"resource-id":"reports_home"' 10 >/dev/null \
+      || fail "did not return to reports home between reports"
+  fi
+done
+if [[ "$intervals_found" -eq 0 ]]; then
+  echo "note: no visible saved report has discharge intervals; skipping that card check"
+fi
+
 layout="$(wait_for_pattern '"resource-id":"timeline_cursor_readout"' 10)" || fail "timeline cursor readout missing"
 echo "$layout" | grep -q 'Selected' || fail "timeline cursor time missing"
 echo "$layout" | grep -q 'Drag across the chart to inspect a moment.' || fail "timeline hint missing"
 if echo "$layout" | grep -q 'timeline_zoom_in'; then
   fail "manual zoom controls should be removed"
 fi
-layout="$(wait_for_pattern '"resource-id":"discharge_intervals"' 10)" || fail "discharge intervals card missing"
 
 # System: capacity lives here, and parser internals are collapsed by default.
 "$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_system' >/dev/null 2>&1 || fail "could not open System tab"
@@ -103,15 +174,42 @@ if echo "$layout" | grep -q 'Capacity'; then
   fail "battery capacity is repeated on the Apps tab"
 fi
 
-# Reports: current report plus saved list; raw text opens in a sheet.
-"$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_reports' >/dev/null 2>&1 || fail "could not open Reports tab"
-layout="$(wait_for_pattern 'Saved reports' 10)" || fail "saved reports list missing"
-echo "$layout" | grep -q '"resource-id":"btn_view_raw"' || fail "raw report button missing"
-"$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_view_raw' >/dev/null 2>&1 || fail "could not open raw report"
+# Back to the reports home. The viewer tab bar must not follow us there.
+"$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_back' >/dev/null 2>&1 \
+  || "$ADB" -s "$SERIAL" shell input keyevent 4 >/dev/null 2>&1 || true
+layout="$(wait_for_pattern '"resource-id":"reports_home"' 10)" || fail "did not return to reports home"
+for _ in $(seq 1 5); do
+  if ! echo "$layout" | grep -q '"resource-id":"tab_overview"'; then
+    break
+  fi
+  sleep 1
+  layout="$("$ANDROID_CLI" layout --device="$SERIAL" --flat --full 2>/dev/null || true)"
+done
+if echo "$layout" | grep -q '"resource-id":"tab_overview"'; then
+  fail "viewer tab bar should not be visible on reports home"
+fi
+
+# Raw report: the home exposes the raw sheet for every saved report.
+report_name="$(first_saved_report_name "$layout")"
+[[ -n "$report_name" ]] || fail "no saved report found after returning home"
+"$ANDROID_CLI" input --device="$SERIAL" tap "id=btn_view_raw_$report_name" >/dev/null 2>&1 \
+  || fail "could not open raw report $report_name"
 wait_for_app_windows 2 10 || fail "raw report sheet did not open"
 "$ANDROID_CLI" input --device="$SERIAL" tap "txt=Raw capture" >/dev/null 2>&1 \
   || fail "raw report sheet content missing"
 "$ADB" -s "$SERIAL" shell input keyevent 4 >/dev/null 2>&1 || true
 wait_for_app_windows 1 10 || fail "raw report sheet did not close"
 
-echo "OK: saved report load, navbar, timeline cursor, system details, apps, reports, raw sheet"
+# Reset: open the confirmation dialog and cancel it. Never confirm the
+# destructive `dumpsys batterystats --reset`.
+"$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_reset_battery_stats' >/dev/null 2>&1 \
+  || fail "could not open reset confirmation"
+wait_for_app_windows 2 10 || fail "reset confirmation dialog did not open"
+"$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_reset_cancel' >/dev/null 2>&1 \
+  || "$ANDROID_CLI" input --device="$SERIAL" tap 'txt=Cancel' >/dev/null 2>&1 \
+  || fail "could not cancel reset confirmation"
+wait_for_app_windows 1 10 || fail "reset confirmation dialog did not close"
+layout="$(wait_for_pattern '"resource-id":"btn_reset_battery_stats"' 10)" \
+  || fail "reset action missing after cancel"
+
+echo "OK: reports home, viewer tabs, timeline cursor, system details, apps, back, raw sheet, reset cancel"

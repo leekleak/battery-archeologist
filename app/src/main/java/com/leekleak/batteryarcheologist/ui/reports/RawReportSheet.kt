@@ -26,12 +26,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.leekleak.batteryarcheologist.R
-import com.leekleak.batteryarcheologist.data.ReportData
 import com.leekleak.batteryarcheologist.ui.components.formatBytes
-import com.leekleak.batteryarcheologist.ui.components.reportOriginLabel
+import com.leekleak.batteryarcheologist.ui.components.reportSourceLabel
 
 /**
- * Full raw text of the report currently open in the app.
+ * Full raw text of one report, either a saved file or the latest unsaved
+ * capture.
  *
  * Unlike the old fixed-height preview card this sheet keeps the whole capture
  * and lets the text scroll vertically, so large bugreports remain inspectable.
@@ -41,7 +41,10 @@ import com.leekleak.batteryarcheologist.ui.components.reportOriginLabel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun RawReportSheet(
-    report: ReportData,
+    rawText: String,
+    savedName: String?,
+    sizeBytes: Long,
+    source: String?,
     onShare: (() -> Unit)?,
     onDismiss: () -> Unit,
 ) {
@@ -73,7 +76,11 @@ internal fun RawReportSheet(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = subtitle(report),
+                        text = subtitle(
+                            savedName = savedName,
+                            sizeBytes = sizeBytes,
+                            source = source,
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -99,7 +106,7 @@ internal fun RawReportSheet(
             ) {
                 SelectionContainer {
                     Text(
-                        text = report.raw.ifBlank {
+                        text = rawText.ifBlank {
                             stringResource(R.string.reports_raw_empty)
                         },
                         modifier = Modifier.testTag("raw_preview"),
@@ -114,9 +121,13 @@ internal fun RawReportSheet(
 }
 
 @Composable
-private fun subtitle(report: ReportData): String = stringResource(
+private fun subtitle(
+    savedName: String?,
+    sizeBytes: Long,
+    source: String?,
+): String = stringResource(
     R.string.reports_raw_subtitle,
-    reportOriginLabel(report.origin),
-    formatBytes(report.sizeBytes.toLong()),
-    report.savedName ?: stringResource(R.string.reports_raw_not_saved),
+    reportSourceLabel(source),
+    formatBytes(sizeBytes),
+    savedName ?: stringResource(R.string.reports_raw_not_saved),
 )

@@ -1,34 +1,32 @@
 package com.leekleak.batteryarcheologist.ui.state
 
 import android.net.Uri
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.leekleak.batteryarcheologist.core.model.ShizukuState
-import com.leekleak.batteryarcheologist.data.ReportData
 import com.leekleak.batteryarcheologist.data.ReportRepository
 import com.leekleak.batteryarcheologist.data.SavedReport
 import com.leekleak.batteryarcheologist.ui.navigation.ContentTab
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
- * Owns the main screen's data and actions.
+ * Owns the app's data and actions.
  *
- * Reports are never captured automatically. On launch the most recent saved
- * report is loaded once, after Shizuku becomes ready; capture and import are
- * always explicit user actions.
+ * The reports home is the navigation root and needs no privileged access.
+ * Capture and import are explicit actions that stay on the home screen; the
+ * view model only loads report contents when Navigation 3 opens the viewer
+ * destination via [ensureReport].
  */
 class MainViewModel(
     private val repository: ReportRepository,
@@ -37,14 +35,12 @@ class MainViewModel(
     private val requestShizukuPermission: () -> Unit,
     private val openShizuku: () -> Unit,
     private val refreshShizuku: () -> Unit,
-    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
         AppUiState(
             shizukuState = shizukuState.value,
-            shizukuInstalled = runCatching(shizukuInstalled).getOrDefault(false),
-            selectedTab = restoredTab(),
+            shizukuInstalled = installedOr(false),
         ),
     )
     val state: StateFlow<AppUiState> = _state.asStateFlow()
@@ -52,7 +48,8 @@ class MainViewModel(
     private val _effects = Channel<UiEffect>(Channel.BUFFERED)
     val effects: Flow<UiEffect> = _effects.receiveAsFlow()
 
-    private var initialLoadStarted = false
+    private var loadJob: Job? = null
+    private var loadingName: String? = null
 
     init {
         viewModelScope.launch { refreshSavedReports() }
@@ -61,46 +58,245 @@ class MainViewModel(
                 _state.update {
                     it.copy(
                         shizukuState = current,
-                        shizukuInstalled = runCatching(shizukuInstalled)
-                            .getOrDefault(it.shizukuInstalled),
+                        shizukuInstalled = installedOr(it.shizukuInstalled),
                     )
                 }
-                if (current is ShizukuState.Ready &&
-                    !initialLoadStarted &&
-                    _state.value.report == null
-                ) {
-                    initialLoadStarted = true
-                    loadInitialReportInternal()
+                if (current is ShizukuState.Ready) {
+                    // The host ignores this when the permission destination is
+                    // not on top of the back stack.
+                    emitEffect(UiEffect.ClosePermission)
+                    val pending = _state
+                        .getAndUpdate { it.copy(pendingAction = null) }
+                        .pendingAction
+                    when (pending) {
+                        PrivilegedAction.CAPTURE -> runCapture()
+                        PrivilegedAction.RESET -> runReset()
+                        null -> Unit
+                    }
                 }
             }
         }
     }
 
-    /**
-     * Loads the last opened report, or the newest saved report when there is no
-     * persisted name. Does nothing when the device has no saved reports and
-     * never captures on its own.
-     */
-    fun loadInitialReport() {
-        viewModelScope.launch { loadInitialReportInternal() }
-    }
-
+    /** Selects the tab shown by the report viewer. */
     fun selectTab(tab: ContentTab) {
         _state.update { it.copy(selectedTab = tab) }
-        rememberSelectedTab(tab)
     }
 
-    fun capture() {
-        if (_state.value.captureStatus is CaptureStatus.Running || _state.value.reportLoading) return
-        _state.update { it.copy(captureStatus = CaptureStatus.Running) }
+    /**
+     * Loads the saved report [name] for the viewer destination.
+     *
+     * Re-entering the same destination is a no-op while its report is already
+     * loaded (or loading), so navigation recomposition does not re-parse.
+     */
+    fun ensureReport(name: String) {
+        val current = _state.value
+        val alreadyLoaded = current.report?.savedName == name &&
+            current.reportError == null &&
+            !(current.reportLoading && loadingName != name)
+        if (alreadyLoaded) return
+        if (current.reportLoading && loadingName == name) return
+
+        loadJob?.cancel()
+        loadingName = name
+        _state.update {
+            it.copy(
+                report = null,
+                reportLoading = true,
+                reportError = null,
+                rawSheet = null,
+            )
+        }
+        loadJob = viewModelScope.launch {
+            val result = repository.load(name)
+            loadingName = null
+            val report = result.getOrNull()
+            if (report != null) {
+                _state.update {
+                    it.copy(
+                        report = report,
+                        reportLoading = false,
+                        selectedTab = ContentTab.OVERVIEW,
+                    )
+                }
+            } else {
+                val error = result.exceptionOrNull()
+                val message = error?.message?.takeIf { it.isNotBlank() }
+                    ?: "Could not open report $name"
+                Timber.w(error, "Unable to open report %s", name)
+                _state.update { it.copy(reportLoading = false, reportError = message) }
+                emitEffect(UiEffect.Message(message))
+            }
+        }
+    }
+
+    /**
+     * Finishes the viewer destination.
+     *
+     * The parsed report is deliberately kept: the pop transition still renders
+     * the outgoing viewer for a frame, and re-opening the same report should be
+     * instant. [ensureReport] replaces it when a different report is opened.
+     */
+    fun closeReport() {
+        loadJob?.cancel()
+        loadJob = null
+        loadingName = null
+        _state.update {
+            it.copy(
+                reportLoading = false,
+                reportError = null,
+                rawSheet = null,
+                selectedTab = ContentTab.OVERVIEW,
+            )
+        }
+    }
+
+    /** Captures a new report, or asks for Shizuku first when it is not ready. */
+    fun requestNewReport() {
+        if (_state.value.isBusy) return
+        if (_state.value.shizukuState is ShizukuState.Ready) {
+            runCapture()
+        } else {
+            _state.update { it.copy(pendingAction = PrivilegedAction.CAPTURE) }
+            emitEffect(UiEffect.OpenPermission)
+        }
+    }
+
+    /** Resets the system battery stats, or asks for Shizuku first. */
+    fun requestReset() {
+        if (_state.value.isBusy) return
+        if (_state.value.shizukuState is ShizukuState.Ready) {
+            runReset()
+        } else {
+            _state.update { it.copy(pendingAction = PrivilegedAction.RESET) }
+            emitEffect(UiEffect.OpenPermission)
+        }
+    }
+
+    /** Opens the permission destination without a deferred action. */
+    fun requestPermissionScreen() {
+        _state.update { it.copy(pendingAction = null) }
+        emitEffect(UiEffect.OpenPermission)
+    }
+
+    /** Drops a deferred privileged action when the permission screen is left. */
+    fun cancelPermission() {
+        _state.update { it.copy(pendingAction = null) }
+    }
+
+    fun importReport(uri: Uri) {
+        runImport(uri)
+    }
+
+    /** Loads the raw checkin for the sheet; `null` means the unsaved latest report. */
+    fun requestRaw(name: String?) {
+        if (name == null) {
+            val report = _state.value.report ?: return
+            _state.update {
+                it.copy(
+                    rawSheet = RawSheetState(
+                        raw = report.raw,
+                        name = null,
+                        sizeBytes = report.sizeBytes.toLong(),
+                        source = null,
+                    ),
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            val result = repository.raw(name)
+            val raw = result.getOrNull()
+            if (raw == null) {
+                val error = result.exceptionOrNull()
+                val message = error?.message?.takeIf { it.isNotBlank() }
+                    ?: "Could not read saved report $name"
+                Timber.w(error, "Unable to read raw report %s", name)
+                emitEffect(UiEffect.Message(message))
+                return@launch
+            }
+
+            val saved = _state.value.savedReports.firstOrNull { it.name == name }
+            _state.update {
+                it.copy(
+                    rawSheet = RawSheetState(
+                        raw = raw,
+                        name = name,
+                        sizeBytes = saved?.sizeBytes
+                            ?: raw.toByteArray(Charsets.UTF_8).size.toLong(),
+                        source = saved?.source,
+                    ),
+                )
+            }
+        }
+    }
+
+    fun dismissRawSheet() {
+        _state.update { it.copy(rawSheet = null) }
+    }
+
+    fun deleteReport(name: String) {
+        viewModelScope.launch {
+            val deleted = repository.delete(name)
+            if (!deleted) {
+                Timber.w("Unable to delete report %s", name)
+                emitEffect(UiEffect.Message("Could not delete report $name"))
+            } else if (_state.value.report?.savedName == name) {
+                _state.update { it.copy(report = null) }
+            }
+            refreshSavedReports()
+        }
+    }
+
+    fun shareReport(name: String) {
+        emitEffect(UiEffect.ShareReport(name))
+    }
+
+    fun requestShizukuPermission() {
+        requestShizukuPermission.invoke()
+    }
+
+    fun openShizuku() {
+        openShizuku.invoke()
+    }
+
+    /**
+     * Re-reads Shizuku availability as well as its state, so installing or
+     * starting Shizuku outside the app updates the banner even when the
+     * gateway's flow stays on the same value.
+     */
+    fun refreshShizuku() {
+        refreshShizuku.invoke()
+        _state.update {
+            it.copy(shizukuInstalled = installedOr(it.shizukuInstalled))
+        }
+    }
+
+    private fun runCapture() {
+        if (_state.value.isBusy) return
+        _state.update {
+            it.copy(captureStatus = CaptureStatus.Running(importing = false))
+        }
         viewModelScope.launch {
             val result = repository.capture()
             val report = result.getOrNull()
             if (report != null) {
-                _state.update {
-                    it.copy(report = report, captureStatus = CaptureStatus.Idle)
+                if (report.savedName != null) {
+                    _state.update {
+                        it.copy(report = null, captureStatus = CaptureStatus.Idle)
+                    }
+                    emitEffect(UiEffect.Message("Report captured"))
+                } else {
+                    // Keep the parsed raw text available even when the copy on
+                    // disk failed, so the home can still show it.
+                    _state.update {
+                        it.copy(report = report, captureStatus = CaptureStatus.Idle)
+                    }
+                    emitEffect(
+                        UiEffect.Message("Report captured but could not be saved"),
+                    )
                 }
-                rememberReport(report)
                 refreshSavedReports()
             } else {
                 val error = result.exceptionOrNull()
@@ -113,140 +309,58 @@ class MainViewModel(
         }
     }
 
-    fun openReport(name: String) {
-        if (_state.value.reportLoading || _state.value.captureStatus is CaptureStatus.Running) return
-        _state.update { it.copy(reportLoading = true) }
-        viewModelScope.launch {
-            val result = repository.load(name)
-            val report = result.getOrNull()
-            if (report != null) {
-                _state.update {
-                    it.copy(
-                        report = report,
-                        reportLoading = false,
-                        selectedTab = ContentTab.OVERVIEW,
-                    )
-                }
-                rememberSelectedTab(ContentTab.OVERVIEW)
-                rememberReport(report)
-                refreshSavedReports()
-            } else {
-                val error = result.exceptionOrNull()
-                Timber.w(error, "Unable to open report %s", name)
-                _state.update { it.copy(reportLoading = false) }
-                emitEffect(
-                    UiEffect.Message(
-                        error?.message?.takeIf { it.isNotBlank() }
-                            ?: "Could not open report $name",
-                    ),
-                )
-            }
+    private fun runImport(uri: Uri) {
+        if (_state.value.isBusy) return
+        _state.update {
+            it.copy(captureStatus = CaptureStatus.Running(importing = true))
         }
-    }
-
-    fun importReport(uri: Uri) {
-        if (_state.value.captureStatus is CaptureStatus.Running || _state.value.reportLoading) return
-        _state.update { it.copy(captureStatus = CaptureStatus.Running) }
         viewModelScope.launch {
             val result = repository.`import`(uri)
             val report = result.getOrNull()
             if (report != null) {
-                _state.update {
-                    it.copy(
-                        report = report,
-                        captureStatus = CaptureStatus.Idle,
-                        selectedTab = ContentTab.OVERVIEW,
+                if (report.savedName != null) {
+                    _state.update {
+                        it.copy(report = null, captureStatus = CaptureStatus.Idle)
+                    }
+                    emitEffect(UiEffect.Message("Report imported"))
+                } else {
+                    _state.update {
+                        it.copy(report = report, captureStatus = CaptureStatus.Idle)
+                    }
+                    emitEffect(
+                        UiEffect.Message("Report imported but could not be saved"),
                     )
                 }
-                rememberSelectedTab(ContentTab.OVERVIEW)
-                rememberReport(report)
                 refreshSavedReports()
             } else {
                 val error = result.exceptionOrNull()
-                val detail = error?.message?.takeIf { it.isNotBlank() }
-                    ?: "The selected file could not be imported"
+                val message = error?.message?.takeIf { it.isNotBlank() }
+                    ?: "Import failed"
                 Timber.w(error, "Import failed")
-                _state.update {
-                    it.copy(captureStatus = CaptureStatus.Failed("Import failed: $detail"))
-                }
-                emitEffect(UiEffect.Message("Import failed: $detail"))
+                _state.update { it.copy(captureStatus = CaptureStatus.Failed(message)) }
+                emitEffect(UiEffect.Message(message))
             }
         }
     }
 
-    fun dismissCaptureError() {
-        _state.update { current ->
-            if (current.captureStatus is CaptureStatus.Failed) {
-                current.copy(captureStatus = CaptureStatus.Idle)
-            } else {
-                current
-            }
-        }
-    }
-
-    fun deleteReport(name: String) {
+    private fun runReset() {
+        if (_state.value.isBusy) return
+        _state.update { it.copy(resetStatus = ResetStatus.Running) }
         viewModelScope.launch {
-            val deleted = runCatching { repository.delete(name) }
-                .onFailure { Timber.w(it, "Unable to delete report %s", name) }
-                .getOrDefault(false)
-            if (deleted) {
-                if (_state.value.report?.savedName == name) {
-                    _state.update { it.copy(report = null) }
-                    savedStateHandle.remove<String>(KEY_LAST_REPORT)
-                }
-            } else {
-                emitEffect(UiEffect.Message("Could not delete report $name"))
-            }
-            refreshSavedReports()
-        }
-    }
-
-    fun shareReport(name: String) {
-        emitEffect(UiEffect.ShareReport(name))
-    }
-
-    fun refreshReports() {
-        viewModelScope.launch { refreshSavedReports() }
-    }
-
-    fun requestShizukuPermission() {
-        requestShizukuPermission.invoke()
-    }
-
-    fun openShizuku() {
-        openShizuku.invoke()
-    }
-
-    fun refreshShizuku() {
-        refreshShizuku.invoke()
-    }
-
-    private suspend fun loadInitialReportInternal() {
-        _state.update { it.copy(reportLoading = true) }
-        val persistedName = savedStateHandle.get<String>(KEY_LAST_REPORT)
-        val targetName = persistedName
-            ?: repository.listReports().firstOrNull()?.name
-
-        if (targetName == null) {
-            _state.update { it.copy(reportLoading = false) }
-            return
-        }
-
-        val result = repository.load(targetName)
-        val report = result.getOrNull()
-        if (report != null) {
-            _state.update { it.copy(report = report, reportLoading = false) }
-            rememberReport(report)
-        } else {
+            val result = repository.resetBatteryStats()
             val error = result.exceptionOrNull()
-            Timber.w(error, "Unable to load initial report %s", targetName)
-            _state.update { it.copy(reportLoading = false) }
-            emitEffect(
-                UiEffect.Message(
-                    error?.message?.takeIf { it.isNotBlank() }
-                        ?: "Could not load report $targetName",
-                ),
-            )
+            if (error == null) {
+                _state.update { it.copy(resetStatus = ResetStatus.Idle) }
+                emitEffect(UiEffect.Message("System battery stats reset."))
+            } else {
+                val message = error.message?.takeIf { it.isNotBlank() }
+                    ?: "Reset failed"
+                Timber.w(error, "Battery stats reset failed")
+                _state.update { it.copy(resetStatus = ResetStatus.Failed(message)) }
+                emitEffect(
+                    UiEffect.Message("Could not reset system battery stats: $message"),
+                )
+            }
         }
     }
 
@@ -255,52 +369,10 @@ class MainViewModel(
         _state.update { it.copy(savedReports = reports) }
     }
 
-    private fun rememberReport(report: ReportData) {
-        val savedName = report.savedName
-        if (savedName != null) {
-            savedStateHandle[KEY_LAST_REPORT] = savedName
-        } else {
-            savedStateHandle.remove<String>(KEY_LAST_REPORT)
-        }
-    }
-
-    private fun rememberSelectedTab(tab: ContentTab) {
-        savedStateHandle[KEY_SELECTED_TAB] = tab.name
-    }
-
-    private fun restoredTab(): ContentTab {
-        val savedName = savedStateHandle.get<String>(KEY_SELECTED_TAB) ?: return ContentTab.OVERVIEW
-        return ContentTab.entries.firstOrNull { it.name == savedName } ?: ContentTab.OVERVIEW
-    }
+    private fun installedOr(fallback: Boolean): Boolean =
+        runCatching(shizukuInstalled).getOrDefault(fallback)
 
     private fun emitEffect(effect: UiEffect) {
         _effects.trySend(effect)
-    }
-
-    companion object {
-        private const val KEY_LAST_REPORT = "last_report_name"
-        private const val KEY_SELECTED_TAB = "selected_tab"
-
-        fun factory(
-            repository: ReportRepository,
-            shizukuState: StateFlow<ShizukuState>,
-            shizukuInstalled: () -> Boolean,
-            requestShizukuPermission: () -> Unit,
-            openShizuku: () -> Unit,
-            refreshShizuku: () -> Unit,
-            savedStateHandle: SavedStateHandle,
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                MainViewModel(
-                    repository = repository,
-                    shizukuState = shizukuState,
-                    shizukuInstalled = shizukuInstalled,
-                    requestShizukuPermission = requestShizukuPermission,
-                    openShizuku = openShizuku,
-                    refreshShizuku = refreshShizuku,
-                    savedStateHandle = savedStateHandle,
-                )
-            }
-        }
     }
 }

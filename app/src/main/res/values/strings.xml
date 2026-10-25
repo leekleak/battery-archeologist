@@ -7,7 +7,6 @@
     <string name="tab_timeline">Timeline</string>
     <string name="tab_system">System</string>
     <string name="tab_apps">Apps</string>
-    <string name="tab_reports">Reports</string>
 
     <!-- Actions -->
     <string name="action_capture">Capture</string>
@@ -19,32 +18,31 @@
     <string name="action_open">Open</string>
     <string name="action_delete">Delete</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_continue">Continue</string>
     <string name="action_import">Import</string>
     <string name="action_import_report">Import report</string>
     <string name="action_show_details">Show details</string>
     <string name="action_hide_details">Hide details</string>
     <string name="action_open_shizuku">Open Shizuku</string>
     <string name="action_refresh_status">Refresh status</string>
-    <string name="action_grant_shizuku_access">Grant Shizuku access</string>
-    <string name="action_open_shizuku_and_start">Open Shizuku and start the service</string>
     <string name="action_install_shizuku">Install Shizuku</string>
 
     <!-- Permission -->
-    <string name="permission_subtitle">Battery Historian on your phone. Shizuku is required to read privileged battery stats.</string>
-    <string name="permission_adb_only">ADB mode only. No root required.</string>
+    <string name="help">Help</string>
+    <string name="grant">Grant</string>
+    <string name="no_browser_found">No browser found</string>
     <string name="permission_checking_title">Checking Shizuku…</string>
     <string name="permission_checking_detail">Looking for the Shizuku binder.</string>
     <string name="permission_not_running_title">Shizuku is not running</string>
-    <string name="permission_not_running_detail">Open Shizuku and start it via ADB or wireless debugging.</string>
+    <string name="permission_not_running_detail">Start Shizuku, then return here.</string>
     <string name="permission_not_installed_title">Shizuku is not installed</string>
-    <string name="permission_not_installed_detail">Install Shizuku, start it, then come back here.</string>
+    <string name="permission_not_installed_detail">Install Shizuku, then start it.</string>
     <string name="permission_permission_required_title">Permission required</string>
     <string name="permission_permission_required_detail">Shizuku is running. Grant this app access.</string>
     <string name="permission_connected_title">Connected</string>
     <string name="permission_connected_detail">uid %1$d · %2$s</string>
     <string name="permission_mode_adb">ADB</string>
     <string name="permission_mode_root">root</string>
-    <string name="permission_waiting">Waiting for Shizuku…</string>
 
     <!-- Overview -->
     <string name="overview_report_title">Report</string>
@@ -127,11 +125,27 @@
     <string name="report_origin_captured">Captured</string>
     <string name="report_origin_saved">Saved</string>
     <string name="report_origin_imported">Imported</string>
+    <string name="reports_home_title">Reports</string>
+    <string name="action_new_report">New report</string>
+    <string name="action_importing">Importing…</string>
+    <string name="action_setup_shizuku">Set up Shizuku</string>
+    <string name="action_reset_battery_stats">Reset system battery stats</string>
+    <string name="action_resetting">Resetting…</string>
+    <string name="action_reset_stats">Reset stats</string>
+    <string name="action_retry">Retry</string>
+    <string name="reports_shizuku_title">Shizuku</string>
+    <string name="reports_shizuku_checking">Checking Shizuku…</string>
+    <string name="reports_shizuku_not_running">Shizuku is not running. Start it to capture reports.</string>
+    <string name="reports_shizuku_not_installed">Shizuku is not installed. Install it to capture reports.</string>
+    <string name="reports_shizuku_permission">Shizuku permission is required to capture reports.</string>
+    <string name="reports_system_stats_title">System battery stats</string>
+    <string name="reports_system_stats_body">Clear this device\'s current battery counters and history before a new test. Reports saved in Battery Archeologist are kept.</string>
+    <string name="reports_reset_dialog_title">Reset system battery stats?</string>
+    <string name="reports_reset_dialog_body">This clears this device\'s current battery stats and history. It cannot be undone and affects other apps and system battery screens. Reports saved in Battery Archeologist are not deleted.</string>
+    <string name="reports_latest_capture_title">Latest capture</string>
+    <string name="reports_latest_capture_body">This capture could not be saved to disk. You can still inspect its raw text.</string>
+    <string name="reports_load_failed_title">Could not open report</string>
     <string name="reports_import_support">Open a bugreport or checkin file saved on this device.</string>
-    <string name="reports_current_title">Current report</string>
-    <string name="reports_current_subtitle">%1$s · %2$s</string>
-    <string name="reports_saved_file">Saved file</string>
-    <string name="reports_size">Size</string>
     <string name="reports_saved_title">Saved reports</string>
     <string name="reports_nothing_saved">Nothing saved on this device yet.</string>
     <string name="reports_summary">%1$s · %2$s on this device</string>
@@ -173,8 +187,6 @@
     <string name="timeline_group_other">Other</string>
 
     <!-- Common -->
-    <string name="empty_report_title">No report loaded</string>
-    <string name="empty_report_body">Capture battery stats or open a saved report to see this tab.</string>
     <string name="label_unknown">Unknown</string>
     <string name="label_unknown_time">Unknown time</string>
     <string name="label_na">n/a</string>

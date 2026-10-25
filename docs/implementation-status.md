@@ -4,10 +4,17 @@
 
 - Headless `battery_api36` AVD (API 36.1, Google APIs, swangle).
 - Shizuku 13.6.0 ADB-mode server with a Shizuku user-service runner.
-- Permission gate → tabbed content screen (Overview, Timeline, System, Apps,
-  Reports), with saved-report loading.
+- Navigation 3 host with the reports home as the root (`ReportsKey`): capture,
+  import, saved reports, raw/share/delete, and a system battery-stats reset all
+  live there. Opening a saved report pushes the four-tab viewer
+  (`ReportViewerKey`) with Overview, Timeline, System, and Apps.
+- On-demand Shizuku permission screen (`PermissionKey`); reports stay viewable
+  without Shizuku, and capture/reset request access only when needed.
 - Privileged `dumpsys batterystats -c` capture, structural validation, raw
-  preview, and on-device report storage.
+  preview, and on-device report storage. Capture and import stay on the reports
+  home and add a saved report instead of opening the viewer.
+- Destructive `dumpsys batterystats --reset` action behind an explicit
+  confirmation dialog; saved reports are kept.
 - API 36 history parsing: 400+ timeline entries, discharge intervals, and a
   vertically scrolling Timeline tab with global clock times and a draggable
   inspection cursor that spells out every row's value.
@@ -36,10 +43,10 @@
 1. **System power breakdown** (pws/pwi totals and power-use items) and a
    dedicated Power screen.
 2. **M3 Expressive UI shell** — see `docs/ui-expressive.md` and
-   `docs/session-handoff.md`. The Haze top-bar blur is a hard requirement and
-   must be restored following Traffic Light's `HazeScaffold`/`PageTitle`
-   implementation. Still open: expressive cards/hero shapes, animations, and a
-   contrast audit. Colors and typography stay stock Material.
+   `docs/session-handoff.md`. The Haze top-bar blur is a hard requirement and is
+   implemented following Traffic Light's `HazeScaffold`/`PageTitle` pattern.
+   Still open: expressive cards, animations, and a contrast audit. The
+   permission Sunny hero is done. Colors and typography stay stock Material.
 3. `parseutils`: low-power/RPM state machines and pretty-print helpers
    (connectivity and doze are now ported).
 4. `checkinparse`: v36 `wl` `bp` group and `st` 7th field, enum values 17–22,

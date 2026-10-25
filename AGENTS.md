@@ -22,7 +22,8 @@ source scripts/env.sh
 adb shell am start -W -n com.leekleak.batteryarcheologist/.MainActivity
 ```
 
-`./scripts/ready.sh` runs the whole sequence.
+`./scripts/ready.sh` runs the whole sequence, captures once if there is no saved
+report, and waits for the reports home.
 
 # Agentic UI
 
@@ -30,12 +31,13 @@ Use the Android CLI first:
 
 ```bash
 android layout --device=emulator-5554 --flat --pretty
-android input --device=emulator-5554 tap "txt=Capture battery stats"
-android input --device=emulator-5554 text "hello" "txt=Search"
+android input --device=emulator-5554 tap "id=btn_capture"
+android input --device=emulator-5554 tap "id=saved_report_<name>"
+android input --device=emulator-5554 tap "id=btn_back"
 android screen capture --device=emulator-5554 --output=artifacts/screen.png
 # For scrollable Compose content, prefer the accessibility scroll command:
 android input --device=emulator-5554 scroll --match first --dir=down \
-  --until="txt=System stats" "clz=android.widget.ScrollView"
+  --until="txt=Saved reports" "clz=android.widget.ScrollView"
 ```
 
 Screenshots are large; downscale them before reading:
@@ -44,8 +46,14 @@ Screenshots are large; downscale them before reading:
 magick artifacts/screen.png -resize 720x -quality 80 artifacts/screen.jpg
 ```
 
+The app opens on the Navigation 3 reports home (`reports_home`). Capture and
+import stay there. A saved report opens the viewer (`content_screen`) with four
+tabs (`tab_overview`, `tab_timeline`, `tab_system`, `tab_apps`) and a back
+action (`btn_back`); the home has no tab bar.
+
 The app exposes Compose test tags as resource IDs (`btn_grant`, `btn_capture`,
-`capture_summary`, `raw_preview`, etc.).
+`btn_import_report`, `btn_reset_battery_stats`, `saved_report_<name>`,
+`content_screen`, `btn_back`, `raw_preview`, etc.).
 
 # Shizuku
 

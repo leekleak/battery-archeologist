@@ -33,6 +33,8 @@ interface ReportRepository {
     suspend fun `import`(uri: Uri): Result<ReportData>
     suspend fun listReports(): List<SavedReport>
     suspend fun delete(name: String): Boolean
+    suspend fun resetBatteryStats(): Result<Unit>
+    suspend fun raw(name: String): Result<String>
     fun file(name: String): File?
 }
 
@@ -150,6 +152,31 @@ class AndroidReportRepository(
         runCatching { store.delete(name) }
             .onFailure { Timber.w(it, "Unable to delete report %s", name) }
             .getOrDefault(false)
+    }
+
+    override suspend fun resetBatteryStats(): Result<Unit> = resultOf {
+        val result = gateway.resetBatteryStats()
+        batteryStatsResetError(
+            exitCode = result.exitCode,
+            stdout = result.stdout,
+            stderr = result.stderr,
+        )?.let { message -> error(message) }
+
+        Timber.i(
+            "Battery stats reset: exit=%d duration=%dms",
+            result.exitCode,
+            result.durationMs,
+        )
+    }
+
+    override suspend fun raw(name: String): Result<String> = resultOf {
+        val raw = withContext(Dispatchers.IO) {
+            runCatching { store.read(name) }
+                .getOrElse { cause ->
+                    error("Could not read saved report $name: ${cause.message ?: "unknown error"}")
+                }
+        }
+        raw ?: error("Could not read saved report $name")
     }
 
     override fun file(name: String): File? = store.file(name)

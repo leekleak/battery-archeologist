@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,12 +31,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.ui.navigation.ContentTab
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
 import com.leekleak.batteryarcheologist.ui.theme.LocalBlurEnabled
@@ -68,6 +74,10 @@ private val CONTENT_BOTTOM_GAP = 8.dp
  * intrinsically scrollable box): the [content] lambda then receives the full
  * [PaddingValues] to apply itself, and the scaffold adds no spacers or
  * horizontal padding.
+ *
+ * When [onBack] is non-null a back button is shown before the title. When
+ * [bottomBar] is null no bottom bar is rendered and no toolbar padding is
+ * reserved below the content.
  */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -76,14 +86,16 @@ fun AppScaffold(
     modifier: Modifier = Modifier,
     scrollState: ScrollState? = rememberScrollState(),
     hazeState: HazeState? = rememberHazeState(),
+    onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
-    bottomBar: @Composable () -> Unit = {},
+    bottomBar: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(PaddingValues) -> Unit,
 ) {
     val statusBarTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navigationBarBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
     val contentTop = statusBarTop + TOP_BAR_HEIGHT + CONTENT_TOP_GAP
-    val contentBottom = navigationBarBottom + CONTENT_BOTTOM_GAP + NAVBAR_PADDING
+    val toolbarPadding = if (bottomBar != null) NAVBAR_PADDING else 0.dp
+    val contentBottom = navigationBarBottom + CONTENT_BOTTOM_GAP + toolbarPadding
 
     val contentPadding = if (scrollState != null) {
         PaddingValues()
@@ -131,15 +143,18 @@ fun AppScaffold(
             AppTitleBar(
                 title = title,
                 hazeState = hazeState,
+                onBack = onBack,
                 actions = actions,
             )
 
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth(),
-            ) {
-                bottomBar()
+            if (bottomBar != null) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth(),
+                ) {
+                    bottomBar()
+                }
             }
         }
     }
@@ -155,6 +170,7 @@ fun AppScaffold(
 private fun AppTitleBar(
     title: String,
     hazeState: HazeState?,
+    onBack: (() -> Unit)?,
     actions: @Composable RowScope.() -> Unit,
 ) {
     val blurEnabled = LocalBlurEnabled.current
@@ -188,6 +204,17 @@ private fun AppTitleBar(
                 .height(TOP_BAR_HEIGHT),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (onBack != null) {
+                IconButton(
+                    onClick = onBack,
+                    modifier = Modifier.testTag("btn_back"),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.arrow_back),
+                        contentDescription = stringResource(R.string.action_back),
+                    )
+                }
+            }
             Text(
                 text = title,
                 modifier = Modifier.weight(1f),

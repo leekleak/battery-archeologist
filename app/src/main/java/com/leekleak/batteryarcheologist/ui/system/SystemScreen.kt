@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.data.ReportData
-import com.leekleak.batteryarcheologist.ui.components.EmptyReportState
 import com.leekleak.batteryarcheologist.ui.components.ParserNoticeCard
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 import com.leekleak.batteryarcheologist.ui.components.SummaryRow
@@ -32,9 +31,8 @@ import com.leekleak.batteryarcheologist.ui.components.formatBytes
  */
 @Composable
 fun SystemScreen(
-    report: ReportData?,
+    report: ReportData,
     contentPadding: PaddingValues,
-    onCapture: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -43,33 +41,29 @@ fun SystemScreen(
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (report == null) {
-            item { EmptyReportState(onCapture = onCapture) }
-        } else {
-            item { BatteryCard(report) }
+        item { BatteryCard(report) }
 
-            val hasFailures =
-                report.historyFailure != null || report.checkinFailure != null
-            if (hasFailures) {
-                item {
-                    val failures = listOfNotNull(
-                        report.historyFailure?.let {
-                            stringResource(R.string.system_history_failure, it)
-                        },
-                        report.checkinFailure?.let {
-                            stringResource(R.string.system_checkin_failure, it)
-                        },
-                    )
-                    ParserNoticeCard(
-                        title = stringResource(R.string.system_parsing_failed),
-                        message = failures.joinToString("\n"),
-                        isError = true,
-                    )
-                }
+        val hasFailures =
+            report.historyFailure != null || report.checkinFailure != null
+        if (hasFailures) {
+            item {
+                val failures = listOfNotNull(
+                    report.historyFailure?.let {
+                        stringResource(R.string.system_history_failure, it)
+                    },
+                    report.checkinFailure?.let {
+                        stringResource(R.string.system_checkin_failure, it)
+                    },
+                )
+                ParserNoticeCard(
+                    title = stringResource(R.string.system_parsing_failed),
+                    message = failures.joinToString("\n"),
+                    isError = true,
+                )
             }
-
-            item { ReportDetailsCard(report) }
         }
+
+        item { ReportDetailsCard(report) }
     }
 }
 

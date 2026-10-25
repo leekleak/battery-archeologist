@@ -2,17 +2,23 @@ package com.leekleak.batteryarcheologist.ui.reports
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -23,144 +29,277 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
-import com.leekleak.batteryarcheologist.data.ReportData
+import com.leekleak.batteryarcheologist.core.model.ShizukuState
 import com.leekleak.batteryarcheologist.data.SavedReport
+import com.leekleak.batteryarcheologist.ui.components.AppScaffold
 import com.leekleak.batteryarcheologist.ui.components.EmptyState
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
-import com.leekleak.batteryarcheologist.ui.components.SummaryRow
 import com.leekleak.batteryarcheologist.ui.components.formatBytes
 import com.leekleak.batteryarcheologist.ui.components.formatTimestamp
-import com.leekleak.batteryarcheologist.ui.components.reportOriginLabel
 import com.leekleak.batteryarcheologist.ui.components.reportSourceLabel
+import com.leekleak.batteryarcheologist.ui.state.AppUiState
+import com.leekleak.batteryarcheologist.ui.state.CaptureStatus
+import com.leekleak.batteryarcheologist.ui.state.ResetStatus
 
 /**
- * Reports tab: import action, the report currently open in the app and every
- * report saved on the device.
+ * Reports home: the navigation root.
  *
- * The screen never requires a current report: imports and saved reports stay
- * reachable before the first capture. The host title bar already names the tab,
- * so the sections here are only "Import" and "Saved reports".
+ * Capture, import, system-stats reset and every saved report live here, so the
+ * screen is usable before a report has been loaded and without Shizuku. The
+ * report viewer is a separate destination pushed on top of this one.
  */
 @Composable
-fun ReportsScreen(
-    report: ReportData?,
-    savedReports: List<SavedReport>,
-    contentPadding: PaddingValues,
+fun ReportsHomeScreen(
+    state: AppUiState,
+    onNewReport: () -> Unit,
     onImport: () -> Unit,
-    onOpen: (String) -> Unit,
+    onSetupShizuku: () -> Unit,
+    onOpenReport: (String) -> Unit,
+    onViewRaw: (String?) -> Unit,
     onShare: (String) -> Unit,
     onDelete: (String) -> Unit,
+    onReset: () -> Unit,
+    onDismissRaw: () -> Unit,
 ) {
     var pendingDelete by remember { mutableStateOf<SavedReport?>(null) }
-    var showRawSheet by remember { mutableStateOf(false) }
+    var showResetDialog by remember { mutableStateOf(false) }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .testTag("saved_reports"),
-        contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        item(key = "import") {
-            ImportCard(onImport = onImport)
-        }
+    AppScaffold(
+        title = stringResource(R.string.reports_home_title),
+        scrollState = null,
+        bottomBar = null,
+    ) { contentPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag("reports_home"),
+            contentPadding = contentPadding,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            if (state.shizukuState !is ShizukuState.Ready) {
+                item(key = "shizuku_banner") {
+                    ShizukuBanner(
+                        state = state.shizukuState,
+                        installed = state.shizukuInstalled,
+                        onSetupShizuku = onSetupShizuku,
+                    )
+                }
+            }
 
-        if (report != null) {
-            item(key = "current_report") {
-                CurrentReportCard(
-                    report = report,
-                    onShare = report.savedName?.let { name -> { onShare(name) } },
-                    onViewRaw = { showRawSheet = true },
+            item(key = "actions") {
+                ReportActions(
+                    captureStatus = state.captureStatus,
+                    enabled = !state.isBusy,
+                    onNewReport = onNewReport,
+                    onImport = onImport,
                 )
+            }
+
+            item(key = "system_stats") {
+                SystemStatsCard(
+                    resetStatus = state.resetStatus,
+                    enabled = !state.isBusy,
+                    onReset = { showResetDialog = true },
+                )
+            }
+
+            item(key = "saved_reports_header") {
+                SavedReportsHeader(reports = state.savedReports)
+            }
+
+            if (state.savedReports.isEmpty()) {
+                item(key = "saved_reports_empty") {
+                    EmptyState(
+                        title = stringResource(R.string.reports_no_saved_title),
+                        body = stringResource(R.string.reports_no_saved_body),
+                    )
+                }
+            } else {
+                items(
+                    items = state.savedReports,
+                    key = { it.name },
+                ) { saved ->
+                    SavedReportCard(
+                        saved = saved,
+                        onOpen = { onOpenReport(saved.name) },
+                        onViewRaw = { onViewRaw(saved.name) },
+                        onShare = { onShare(saved.name) },
+                        onDelete = { pendingDelete = saved },
+                    )
+                }
+            }
+
+            val latest = state.report
+            if (latest != null && latest.savedName == null) {
+                item(key = "latest_capture") {
+                    LatestCaptureCard(onViewRaw = { onViewRaw(null) })
+                }
             }
         }
 
-        item(key = "saved_reports_header") {
-            SavedReportsHeader(reports = savedReports)
+        state.rawSheet?.let { sheet ->
+            RawReportSheet(
+                rawText = sheet.raw,
+                savedName = sheet.name,
+                sizeBytes = sheet.sizeBytes,
+                source = sheet.source,
+                onShare = sheet.name?.let { name -> { onShare(name) } },
+                onDismiss = onDismissRaw,
+            )
         }
 
-        if (savedReports.isEmpty()) {
-            item(key = "saved_reports_empty") {
-                EmptyState(
-                    title = stringResource(R.string.reports_no_saved_title),
-                    body = stringResource(R.string.reports_no_saved_body),
-                )
-            }
-        } else {
-            items(
-                items = savedReports,
-                key = { it.name },
-            ) { saved ->
-                SavedReportCard(
-                    saved = saved,
-                    onOpen = { onOpen(saved.name) },
-                    onShare = { onShare(saved.name) },
-                    onDelete = { pendingDelete = saved },
-                )
-            }
+        if (showResetDialog) {
+            AlertDialog(
+                onDismissRequest = { showResetDialog = false },
+                modifier = Modifier.testTag("reset_dialog"),
+                title = { Text(stringResource(R.string.reports_reset_dialog_title)) },
+                text = { Text(stringResource(R.string.reports_reset_dialog_body)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showResetDialog = false
+                            onReset()
+                        },
+                        modifier = Modifier.testTag("btn_reset_confirm"),
+                    ) {
+                        Text(stringResource(R.string.action_reset_stats))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showResetDialog = false },
+                        modifier = Modifier.testTag("btn_reset_cancel"),
+                    ) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
         }
-    }
 
-    pendingDelete?.let { saved ->
-        AlertDialog(
-            onDismissRequest = { pendingDelete = null },
-            title = { Text(stringResource(R.string.reports_delete_title)) },
-            text = {
-                Text(
-                    stringResource(
-                        R.string.reports_delete_body,
-                        saved.originalName ?: saved.name,
-                    ),
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pendingDelete = null
-                        onDelete(saved.name)
-                    },
-                ) {
-                    Text(stringResource(R.string.action_delete))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingDelete = null }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
-        )
-    }
-
-    if (showRawSheet && report != null) {
-        RawReportSheet(
-            report = report,
-            onShare = report.savedName?.let { name ->
-                {
-                    showRawSheet = false
-                    onShare(name)
-                }
-            },
-            onDismiss = { showRawSheet = false },
-        )
+        pendingDelete?.let { saved ->
+            AlertDialog(
+                onDismissRequest = { pendingDelete = null },
+                title = { Text(stringResource(R.string.reports_delete_title)) },
+                text = {
+                    Text(
+                        stringResource(
+                            R.string.reports_delete_body,
+                            saved.originalName ?: saved.name,
+                        ),
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            pendingDelete = null
+                            onDelete(saved.name)
+                        },
+                        modifier = Modifier.testTag("btn_delete_confirm"),
+                    ) {
+                        Text(stringResource(R.string.action_delete))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { pendingDelete = null },
+                        modifier = Modifier.testTag("btn_delete_cancel"),
+                    ) {
+                        Text(stringResource(R.string.action_cancel))
+                    }
+                },
+            )
+        }
     }
 }
 
-/** Full-width import entry point with a short explanation of accepted files. */
+/** Shizuku status banner with the single setup action for every non-ready state. */
 @Composable
-private fun ImportCard(onImport: () -> Unit) {
-    SectionCard(title = stringResource(R.string.action_import)) {
+private fun ShizukuBanner(
+    state: ShizukuState,
+    installed: Boolean,
+    onSetupShizuku: () -> Unit,
+) {
+    SectionCard(
+        modifier = Modifier.testTag("shizuku_banner"),
+        title = stringResource(R.string.reports_shizuku_title),
+    ) {
+        Text(
+            text = stringResource(
+                when {
+                    state is ShizukuState.Unknown -> R.string.reports_shizuku_checking
+                    state is ShizukuState.PermissionDenied -> R.string.reports_shizuku_permission
+                    installed -> R.string.reports_shizuku_not_running
+                    else -> R.string.reports_shizuku_not_installed
+                },
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        FilledTonalButton(
+            onClick = onSetupShizuku,
+            modifier = Modifier.testTag("btn_setup_shizuku"),
+        ) {
+            Text(stringResource(R.string.action_setup_shizuku))
+        }
+    }
+}
+
+/** Capture and import entry points, disabled while any privileged work runs. */
+@Composable
+private fun ReportActions(
+    captureStatus: CaptureStatus,
+    enabled: Boolean,
+    onNewReport: () -> Unit,
+    onImport: () -> Unit,
+) {
+    val running = captureStatus as? CaptureStatus.Running
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(
+            onClick = onNewReport,
+            enabled = enabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("btn_capture"),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.add),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(
+                    if (running != null && !running.importing) {
+                        R.string.action_capturing
+                    } else {
+                        R.string.action_new_report
+                    },
+                ),
+            )
+        }
+        FilledTonalButton(
             onClick = onImport,
+            enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("btn_import_report"),
         ) {
-            Text(stringResource(R.string.action_import_report))
+            Text(
+                stringResource(
+                    if (running?.importing == true) {
+                        R.string.action_importing
+                    } else {
+                        R.string.action_import_report
+                    },
+                ),
+            )
         }
         Text(
             text = stringResource(R.string.reports_import_support),
@@ -170,51 +309,41 @@ private fun ImportCard(onImport: () -> Unit) {
     }
 }
 
-/** Summary of the report currently parsed by the app, with raw-text actions. */
+/** Destructive device maintenance, separated from report capture. */
 @Composable
-private fun CurrentReportCard(
-    report: ReportData,
-    onShare: (() -> Unit)?,
-    onViewRaw: () -> Unit,
+private fun SystemStatsCard(
+    resetStatus: ResetStatus,
+    enabled: Boolean,
+    onReset: () -> Unit,
 ) {
-    SectionCard(
-        modifier = Modifier.testTag("current_report"),
-        title = stringResource(R.string.reports_current_title),
-        subtitle = stringResource(
-            R.string.reports_current_subtitle,
-            reportOriginLabel(report.origin),
-            formatTimestamp(
-                report.capturedAt,
-                stringResource(R.string.label_unknown_time),
-            ),
-        ),
-    ) {
-        report.savedName?.let {
-            SummaryRow(stringResource(R.string.reports_saved_file), it)
-        }
-        SummaryRow(
-            stringResource(R.string.reports_size),
-            formatBytes(report.sizeBytes.toLong()),
+    SectionCard(title = stringResource(R.string.reports_system_stats_title)) {
+        Text(
+            text = stringResource(R.string.reports_system_stats_body),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            verticalAlignment = Alignment.CenterVertically,
+        OutlinedButton(
+            onClick = onReset,
+            enabled = enabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("btn_reset_battery_stats"),
         ) {
-            if (onShare != null) {
-                FilledTonalButton(
-                    onClick = onShare,
-                    modifier = Modifier.testTag("btn_share_raw"),
-                ) {
-                    Text(stringResource(R.string.action_share_raw))
-                }
-            }
-            Button(
-                onClick = onViewRaw,
-                modifier = Modifier.testTag("btn_view_raw"),
-            ) {
-                Text(stringResource(R.string.action_view_raw))
-            }
+            Icon(
+                painter = painterResource(R.drawable.reset_wrench),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                stringResource(
+                    if (resetStatus is ResetStatus.Running) {
+                        R.string.action_resetting
+                    } else {
+                        R.string.action_reset_battery_stats
+                    },
+                ),
+            )
         }
     }
 }
@@ -256,34 +385,98 @@ private fun SavedReportsHeader(reports: List<SavedReport>) {
     }
 }
 
-/** One report stored on the device, with open/share/delete actions. */
+/** One report stored on the device; tapping the card opens the viewer. */
 @Composable
 private fun SavedReportCard(
     saved: SavedReport,
     onOpen: () -> Unit,
+    onViewRaw: () -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit,
 ) {
-    SectionCard(
-        modifier = Modifier.testTag("saved_report_${saved.name}"),
-        title = saved.originalName ?: saved.name,
-        subtitle = stringResource(
-            R.string.reports_saved_subtitle,
-            formatTimestamp(
-                saved.capturedAt,
-                stringResource(R.string.label_unknown_time),
-            ),
-            reportSourceLabel(saved.source),
-            formatBytes(saved.sizeBytes),
+    Card(
+        onClick = onOpen,
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("saved_report_${saved.name}"),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            TextButton(onClick = onOpen) { Text(stringResource(R.string.action_open)) }
-            TextButton(onClick = onShare) { Text(stringResource(R.string.action_share)) }
-            TextButton(onClick = onDelete) { Text(stringResource(R.string.action_delete)) }
+            Text(
+                text = saved.originalName ?: saved.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = stringResource(
+                    R.string.reports_saved_subtitle,
+                    formatTimestamp(
+                        saved.capturedAt,
+                        stringResource(R.string.label_unknown_time),
+                    ),
+                    reportSourceLabel(saved.source),
+                    formatBytes(saved.sizeBytes),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                TextButton(
+                    onClick = onOpen,
+                    modifier = Modifier.testTag("btn_open_${saved.name}"),
+                ) {
+                    Text(stringResource(R.string.action_open))
+                }
+                TextButton(
+                    onClick = onViewRaw,
+                    modifier = Modifier.testTag("btn_view_raw_${saved.name}"),
+                ) {
+                    Text(stringResource(R.string.action_view_raw))
+                }
+                TextButton(
+                    onClick = onShare,
+                    modifier = Modifier.testTag("btn_share_${saved.name}"),
+                ) {
+                    Text(stringResource(R.string.action_share))
+                }
+                TextButton(
+                    onClick = onDelete,
+                    modifier = Modifier.testTag("btn_delete_${saved.name}"),
+                ) {
+                    Text(stringResource(R.string.action_delete))
+                }
+            }
+        }
+    }
+}
+
+/** Explains why the newest capture is not in the saved list but keeps it inspectable. */
+@Composable
+private fun LatestCaptureCard(onViewRaw: () -> Unit) {
+    SectionCard(
+        modifier = Modifier.testTag("latest_capture"),
+        title = stringResource(R.string.reports_latest_capture_title),
+    ) {
+        Text(
+            text = stringResource(R.string.reports_latest_capture_body),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Button(
+            onClick = onViewRaw,
+            modifier = Modifier.testTag("btn_view_raw_latest"),
+        ) {
+            Text(stringResource(R.string.action_view_raw))
         }
     }
 }

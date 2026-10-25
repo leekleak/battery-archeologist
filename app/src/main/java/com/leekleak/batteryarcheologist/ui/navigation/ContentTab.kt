@@ -18,7 +18,6 @@ enum class ContentTab(
     TIMELINE(R.string.tab_timeline, R.drawable.ic_timeline),
     SYSTEM(R.string.tab_system, R.drawable.ic_system),
     APPS(R.string.tab_apps, R.drawable.ic_apps),
-    REPORTS(R.string.tab_reports, R.drawable.ic_reports),
     ;
 
     val testTag: String get() = "tab_${name.lowercase()}"

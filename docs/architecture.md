@@ -52,8 +52,20 @@ The parser must warn and degrade rather than crash on unknown sections.
 
 ## UI
 
-- Permission gate -> content host.
-- Content: Overview, Timeline, System, Apps, Reports tabs.
+- Navigation 3 host. `ReportsKey` renders `ReportsHomeScreen` as the root;
+  `ReportViewerKey(name)` pushes the report viewer; `PermissionKey` is the
+  on-demand Shizuku setup screen.
+- Reports home: capture and import (both stay on the home), saved report cards
+  with open/raw/share/delete, and a destructive system battery-stats reset
+  behind a confirmation dialog. It has no bottom navigation bar and is usable
+  without Shizuku.
+- Report viewer: four tabs (Overview, Timeline, System, Apps), a back action,
+  and the `content_screen` host. It has no capture action; report contents load
+  only when the viewer destination opens.
+- Capture or reset without Shizuku opens `PermissionKey`; once the state is
+  Ready the deferred action runs and the app returns to the home.
+- Raw reports open in a modal sheet from the home (`raw_capture`), for saved
+  reports and the latest unsaved capture.
 - Reports can be reopened and re-parsed; text/zip bugreports and raw checkin
   files can be imported through the system file picker.
 - Timeline: Compose Canvas with synchronized pan/zoom, battery-level overlay,

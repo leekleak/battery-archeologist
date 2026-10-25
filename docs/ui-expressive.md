@@ -5,18 +5,28 @@ surfaces, large shapes, expressive type, and a floating toolbar — while using
 **stock Material colors**. There is no custom brand palette and no dynamic
 Material You color; Haze is used only to blur the content behind the top bar.
 
+The Navigation 3 host puts the reports home at the root and pushes the four-tab
+report viewer on top. Capture, import, saved reports, and reset live on the
+home; the viewer owns the tab bar.
+
 Traffic Light (`~/Documents/GitHub/traffic-light`, GPL-3.0, same author) is the
 reference for the expressive shell and, in particular, for the Haze top bar.
 Reusing and adapting that code is allowed with attribution.
 
 ## Done
 
-- [x] Bottom `HorizontalFloatingToolbar` navigation with icon + selected label.
-- [x] Custom vector icons for Overview, Timeline, System, Apps, Reports.
+- [x] Navigation 3 host: reports home root, report viewer pushed on top, and
+      the permission screen on demand.
+- [x] Bottom `HorizontalFloatingToolbar` navigation in the viewer with icon +
+      selected label across the four tabs.
+- [x] Custom vector icons for Overview, Timeline, System, Apps.
 - [x] Tonal surface cards and a bottom-sheet app detail treatment.
 - [x] Test tags on all toolbar tabs for `android input`/UIAutomator.
-- [x] Screens split into Overview, Timeline, System, Apps, Reports with their
-      own ViewModel state.
+- [x] Report viewer split into Overview, Timeline, System, Apps with their own
+      ViewModel state; the reports home owns capture, import, saved reports,
+      raw/share, and reset.
+- [x] Permission illustration: a `MaterialShapes.Sunny` hero with a
+      state-specific icon.
 - [x] Stock Material `lightColorScheme()`/`darkColorScheme()`, default
       `Typography()` and `Shapes()`; the custom palette was removed.
 
@@ -34,12 +44,11 @@ Reusing and adapting that code is allowed with attribution.
 ## Next
 
 - [ ] Use `MaterialShapes` for hero cards and the capture action.
-- [ ] Animate tab selection, card expansion, and capture progress.
-- [ ] Reconsider the permission illustration now that the gradient hero was
-      removed with the custom palette.
+- [ ] Animate tab selection, card expansion, capture progress, and home/viewer
+      navigation.
 - [ ] Audit contrast in light and dark themes after each change.
-- [ ] Take 1280×720 screenshots of every tab and compare against Traffic Light
-      spacing/typography.
+- [ ] Take 1280×720 screenshots of the reports home and every viewer tab and
+      compare against Traffic Light spacing/typography.
 
 ## Constraints
 

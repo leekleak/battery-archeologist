@@ -4,38 +4,41 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.data.ReportStore
-import com.leekleak.batteryarcheologist.ui.apps.AppsScreen
-import com.leekleak.batteryarcheologist.ui.components.AppScaffold
-import com.leekleak.batteryarcheologist.ui.components.BottomBar
 import com.leekleak.batteryarcheologist.ui.components.NAVBAR_PADDING
-import com.leekleak.batteryarcheologist.ui.overview.OverviewScreen
-import com.leekleak.batteryarcheologist.ui.reports.ReportsScreen
+import com.leekleak.batteryarcheologist.ui.permission.PermissionScreen
+import com.leekleak.batteryarcheologist.ui.reports.ReportViewerScreen
+import com.leekleak.batteryarcheologist.ui.reports.ReportsHomeScreen
 import com.leekleak.batteryarcheologist.ui.state.AppUiState
-import com.leekleak.batteryarcheologist.ui.state.CaptureStatus
 import com.leekleak.batteryarcheologist.ui.state.MainViewModel
 import com.leekleak.batteryarcheologist.ui.state.UiEffect
-import com.leekleak.batteryarcheologist.ui.system.SystemScreen
-import com.leekleak.batteryarcheologist.ui.timeline.TimelineTab
 import kotlinx.coroutines.flow.collect
 
 private val REPORT_MIME_TYPES = arrayOf(
@@ -46,8 +49,12 @@ private val REPORT_MIME_TYPES = arrayOf(
 )
 
 /**
- * Main host once Shizuku is ready: floating scaffold, five tabs, capture action
- * and one-shot effects (snackbars and report sharing).
+ * Navigation 3 host: the reports home is the root, the report viewer and the
+ * Shizuku permission screen are pushed on top of it.
+ *
+ * The host owns the shared snackbar, the document picker used by the home's
+ * import action, and the one-shot effect handling that turns view-model events
+ * into navigation or snackbars.
  */
 @Composable
 fun MainScreen(
@@ -56,6 +63,13 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+    val navigator = rememberAppNavigator()
+
+    // NavDisplay remembers entries per back stack, so entry content must read
+    // the latest state through a State instead of capturing this composition's
+    // value.
+    val currentState = rememberUpdatedState(state)
+
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
     ) { uri ->
@@ -73,74 +87,94 @@ fun MainScreen(
                         )
                     }
                 }
+
+                UiEffect.OpenPermission -> navigator.goTo(PermissionKey)
+                UiEffect.ClosePermission -> {
+                    if (navigator.current == PermissionKey) {
+                        navigator.goBack()
+                    }
+                }
             }
         }
     }
 
-    val capturing = state.captureStatus is CaptureStatus.Running
-
     Box(Modifier.fillMaxSize()) {
-        AppScaffold(
-            title = stringResource(state.selectedTab.titleRes),
-            modifier = Modifier.testTag("content_screen"),
-            scrollState = null,
-            actions = {
-                TextButton(
-                    onClick = viewModel::capture,
-                    enabled = !capturing && !state.reportLoading,
-                    modifier = Modifier.testTag("btn_capture_top"),
-                ) {
-                    Text(
-                        stringResource(
-                            if (capturing) R.string.action_capturing else R.string.action_capture,
-                        ),
+        NavDisplay(
+            backStack = navigator.backStack,
+            onBack = {
+                when (navigator.current) {
+                    is ReportViewerKey -> viewModel.closeReport()
+                    PermissionKey -> viewModel.cancelPermission()
+                    else -> Unit
+                }
+                navigator.goBack()
+            },
+            entryProvider = entryProvider<NavKey> {
+                entry<ReportsKey> {
+                    ReportsHomeScreen(
+                        state = currentState.value,
+                        onNewReport = viewModel::requestNewReport,
+                        onImport = { importLauncher.launch(REPORT_MIME_TYPES) },
+                        onSetupShizuku = viewModel::requestPermissionScreen,
+                        onOpenReport = { navigator.goTo(ReportViewerKey(it)) },
+                        onViewRaw = viewModel::requestRaw,
+                        onShare = viewModel::shareReport,
+                        onDelete = viewModel::deleteReport,
+                        onReset = viewModel::requestReset,
+                        onDismissRaw = viewModel::dismissRawSheet,
+                    )
+                }
+
+                entry<ReportViewerKey> { key ->
+                    LaunchedEffect(key.reportName) {
+                        viewModel.ensureReport(key.reportName)
+                    }
+                    ReportViewerScreen(
+                        state = currentState.value,
+                        onSelectTab = viewModel::selectTab,
+                        onBack = {
+                            viewModel.closeReport()
+                            navigator.goBack()
+                        },
+                        onRetry = { viewModel.ensureReport(key.reportName) },
+                    )
+                }
+
+                entry<PermissionKey> {
+                    PermissionScreen(
+                        state = currentState.value.shizukuState,
+                        installed = currentState.value.shizukuInstalled,
+                        onRequestPermission = viewModel::requestShizukuPermission,
+                        onOpenShizuku = viewModel::openShizuku,
+                        onRefresh = viewModel::refreshShizuku,
+                        onBack = {
+                            viewModel.cancelPermission()
+                            navigator.goBack()
+                        },
                     )
                 }
             },
-            bottomBar = {
-                BottomBar(
-                    selected = state.selectedTab,
-                    onSelect = viewModel::selectTab,
-                )
+            transitionSpec = {
+                if (navigator.backStack.size == 1) {
+                    fadeIn(tween()) togetherWith fadeOut(tween())
+                } else {
+                    slideInHorizontally { it } togetherWith
+                        (slideOutHorizontally { -it / 2 } + scaleOut(targetScale = 0.7f) + fadeOut())
+                }
             },
-        ) { contentPadding ->
-            when (state.selectedTab) {
-                ContentTab.OVERVIEW -> OverviewScreen(
-                    report = state.report,
-                    loading = state.reportLoading,
-                    contentPadding = contentPadding,
-                    onCapture = viewModel::capture,
-                )
-
-                ContentTab.TIMELINE -> TimelineTab(
-                    report = state.report,
-                    contentPadding = contentPadding,
-                    onCapture = viewModel::capture,
-                )
-
-                ContentTab.SYSTEM -> SystemScreen(
-                    report = state.report,
-                    contentPadding = contentPadding,
-                    onCapture = viewModel::capture,
-                )
-
-                ContentTab.APPS -> AppsScreen(
-                    report = state.report,
-                    contentPadding = contentPadding,
-                    onCapture = viewModel::capture,
-                )
-
-                ContentTab.REPORTS -> ReportsScreen(
-                    report = state.report,
-                    savedReports = state.savedReports,
-                    contentPadding = contentPadding,
-                    onImport = { importLauncher.launch(REPORT_MIME_TYPES) },
-                    onOpen = viewModel::openReport,
-                    onShare = viewModel::shareReport,
-                    onDelete = viewModel::deleteReport,
-                )
-            }
-        }
+            popTransitionSpec = {
+                slideInHorizontally { -it / 2 } +
+                    scaleIn(initialScale = 0.7f) +
+                    fadeIn(tween()) togetherWith
+                    slideOutHorizontally { it }
+            },
+            predictivePopTransitionSpec = {
+                slideInHorizontally { -it / 2 } +
+                    scaleIn(initialScale = 0.7f) +
+                    fadeIn(tween()) togetherWith
+                    slideOutHorizontally { it }
+            },
+        )
 
         SnackbarHost(
             hostState = snackbarHostState,
@@ -148,7 +182,13 @@ fun MainScreen(
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
                 .padding(horizontal = 16.dp)
-                .padding(bottom = NAVBAR_PADDING + 8.dp),
+                .padding(
+                    bottom = if (navigator.current is ReportViewerKey) {
+                        NAVBAR_PADDING + 8.dp
+                    } else {
+                        8.dp
+                    },
+                ),
         )
     }
 }

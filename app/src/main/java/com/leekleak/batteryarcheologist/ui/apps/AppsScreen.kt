@@ -35,7 +35,6 @@ import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.core.analytics.AppPowerStats
 import com.leekleak.batteryarcheologist.data.AppUsage
 import com.leekleak.batteryarcheologist.data.ReportData
-import com.leekleak.batteryarcheologist.ui.components.EmptyReportState
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
 
@@ -49,23 +48,9 @@ import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppsScreen(
-    report: ReportData?,
+    report: ReportData,
     contentPadding: PaddingValues,
-    onCapture: () -> Unit,
 ) {
-    if (report == null) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .testTag("app_list"),
-            contentPadding = contentPadding,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            item { EmptyReportState(onCapture = onCapture) }
-        }
-        return
-    }
-
     var selectedApp by remember(report) { mutableStateOf<AppUsage?>(null) }
 
     LazyColumn(

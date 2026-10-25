@@ -154,6 +154,8 @@ class ShizukuGateway(
 
     suspend fun captureCheckin(): ShellResult = runShell(CHECKIN_COMMAND, timeoutSeconds = 180)
 
+    suspend fun resetBatteryStats(): ShellResult = runShell(RESET_COMMAND, timeoutSeconds = 60)
+
     suspend fun runShell(
         command: String,
         timeoutSeconds: Long = 60,
@@ -281,5 +283,6 @@ class ShizukuGateway(
         private const val SERVICE_BIND_TIMEOUT_MS = 15_000L
         private const val MAX_STDERR_CHARS = 1_000_000
         private const val CHECKIN_COMMAND = "dumpsys batterystats -c"
+        private const val RESET_COMMAND = "dumpsys batterystats --reset"
     }
 }

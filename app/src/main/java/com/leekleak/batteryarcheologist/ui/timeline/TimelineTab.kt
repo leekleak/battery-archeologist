@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.core.history.parseutils.ActivitySummary
 import com.leekleak.batteryarcheologist.data.ReportData
-import com.leekleak.batteryarcheologist.ui.components.EmptyReportState
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 
 /**
@@ -33,20 +32,9 @@ import com.leekleak.batteryarcheologist.ui.components.SectionCard
  */
 @Composable
 fun TimelineTab(
-    report: ReportData?,
+    report: ReportData,
     contentPadding: PaddingValues,
-    onCapture: () -> Unit,
 ) {
-    if (report == null) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = contentPadding,
-        ) {
-            item { EmptyReportState(onCapture = onCapture) }
-        }
-        return
-    }
-
     val history = report.history
     if (history == null) {
         LazyColumn(

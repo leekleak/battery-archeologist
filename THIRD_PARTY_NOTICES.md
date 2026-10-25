@@ -28,5 +28,7 @@
 - Licensed under GPL-3.0.
 - Same author and same project license as Battery Archeologist. Code and design
   may be reused freely, with attribution preserved in the repository history.
+- The Shizuku permission screen layout and vector icons are adapted from Traffic
+  Light's `UsagePermissionRequest.kt`.
 - The bundled `google_sans_flex.ttf` font comes from Traffic Light; use is
   covered by the same GPL-3.0 project and font terms.

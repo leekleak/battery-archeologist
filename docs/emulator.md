@@ -60,14 +60,15 @@ Shizuku config entry with `flags: 2`, and restarts the server.
 ```
 
 This boots the emulator, installs/starts Shizuku, builds/installs the app, seeds
-permission, launches the app, and waits for the capture summary.
+permission, launches the app, and waits for the reports home with at least one
+saved report.
 
 ## Agent UI
 
 ```bash
 ./scripts/agent-ui.sh layout          # compact UI tree
-./scripts/agent-ui.sh tap 'txt=Capture battery stats'
-./scripts/agent-ui.sh scroll 'txt=System stats'
+./scripts/agent-ui.sh tap 'id=btn_capture'
+./scripts/agent-ui.sh scroll 'txt=Saved reports'
 ./scripts/agent-ui.sh shot            # small JPEG
 ./scripts/agent-ui.sh logs
 ```
