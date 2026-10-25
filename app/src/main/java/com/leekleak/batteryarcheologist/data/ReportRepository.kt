@@ -8,7 +8,6 @@ import com.leekleak.batteryarcheologist.core.bugreport.BugreportUtils
 import com.leekleak.batteryarcheologist.core.checkin.checkinparse.CheckinParser
 import com.leekleak.batteryarcheologist.core.checkin.checkinparse.CheckinResult
 import com.leekleak.batteryarcheologist.core.history.parseutils.HistoryParser
-import com.leekleak.batteryarcheologist.core.history.parseutils.HistoryResult
 import com.leekleak.batteryarcheologist.core.history.parseutils.HistorySummaryFormat
 import com.leekleak.batteryarcheologist.core.model.CheckinSnapshot
 import com.leekleak.batteryarcheologist.core.parse.CheckinInspector

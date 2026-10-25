@@ -138,8 +138,6 @@ private class TimelineRender(
     val batteryLabel: TextLayoutResult,
     val battery: BatteryPaths?,
 ) {
-    fun xFor(timeMs: Long): Float =
-        plotLeft + viewport.fraction(timeMs) * plotWidth
 }
 
 /**

@@ -26,11 +26,6 @@ data class TimelineRange(
 
     val spanMs: Long get() = (endMs - startMs).coerceAtLeast(1L)
 
-    /** Position of [timeMs] in this range, where 0 is the start and 1 is the end. */
-    fun fraction(timeMs: Long): Float =
-        ((timeMs - startMs).toDouble() / spanMs.toDouble()).toFloat()
-
-    fun clamp(timeMs: Long): Long = timeMs.coerceIn(startMs, endMs)
 }
 
 /** The portion of a [TimelineRange] that is currently visible. */
@@ -139,10 +134,9 @@ object TimelineMath {
         val span = end - start
 
         if (span < minimum) {
-            val target = minimum
             val center = start + span / 2L
-            start = center - target / 2L
-            end = start + target
+            start = center - minimum / 2L
+            end = start + minimum
         } else {
             val padding = (span / 50L).coerceAtLeast(1_000L)
             start -= padding
@@ -349,12 +343,6 @@ object TimelineMath {
             }
         }
     }
-
-    /** Maps a viewport to a clamped fraction, useful for gesture bookkeeping. */
-    fun viewportFraction(viewport: TimelineViewport, timeMs: Long): Float =
-        ((timeMs - viewport.startMs).toDouble() / viewport.spanMs.toDouble())
-            .toFloat()
-            .coerceIn(0f, 1f)
 
     /** Number of ticks that comfortably fits into [widthPx] at [minSpacingPx]. */
     fun tickCountForWidth(widthPx: Float, minSpacingPx: Float): Int {

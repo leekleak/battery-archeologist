@@ -18,6 +18,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import rikka.shizuku.Shizuku
 import timber.log.Timber
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Single entry point for Shizuku state and privileged shell execution.
@@ -37,7 +38,6 @@ class ShizukuGateway(
     val state: StateFlow<ShizukuState> = _state.asStateFlow()
 
     private val _serviceConnected = MutableStateFlow(false)
-    val serviceConnected: StateFlow<Boolean> = _serviceConnected.asStateFlow()
 
     private val userServiceArgs = Shizuku.UserServiceArgs(
         ComponentName(appContext.packageName, BatteryArcheologistService::class.java.name),
@@ -224,7 +224,7 @@ class ShizukuGateway(
             )
         }
 
-        val exitCode = withTimeoutOrNull(TimeUnit.SECONDS.toMillis(timeoutSeconds)) {
+        val exitCode = withTimeoutOrNull(TimeUnit.SECONDS.toMillis(timeoutSeconds).milliseconds) {
             completion.await()
         }
         if (exitCode == null) {
@@ -266,21 +266,10 @@ class ShizukuGateway(
         return withTimeoutOrNull(SERVICE_BIND_TIMEOUT_MS) { serviceDeferred.await() }
     }
 
-    fun close() {
-        closed = true
-        runCatching { Shizuku.removeBinderReceivedListener(binderReceivedListener) }
-        runCatching { Shizuku.removeBinderDeadListener(binderDeadListener) }
-        runCatching { Shizuku.removeRequestPermissionResultListener(permissionListener) }
-        runCatching { Shizuku.unbindUserService(userServiceArgs, connection, true) }
-        runCatching { service?.destroy() }
-        service = null
-        _serviceConnected.value = false
-    }
-
     companion object {
         const val SHIZUKU_PACKAGE = "moe.shizuku.privileged.api"
         private const val PERMISSION_REQUEST_CODE = 42117
-        private const val SERVICE_BIND_TIMEOUT_MS = 15_000L
+        private val SERVICE_BIND_TIMEOUT_MS = 15_000L.milliseconds
         private const val MAX_STDERR_CHARS = 1_000_000
         private const val CHECKIN_COMMAND = "dumpsys batterystats -c"
         private const val RESET_COMMAND = "dumpsys batterystats --reset"

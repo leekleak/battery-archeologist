@@ -8,10 +8,8 @@
     <string name="tab_other">Other</string>
 
     <!-- Actions -->
-    <string name="action_capture">Capture</string>
     <string name="action_capturing">Capturing…</string>
     <string name="action_share">Share</string>
-    <string name="action_share_raw">Share raw</string>
     <string name="action_share_report">Share report</string>
     <string name="action_view_raw">View raw</string>
     <string name="action_open">Open</string>
@@ -19,7 +17,6 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_close">Close</string>
     <string name="action_continue">Continue</string>
-    <string name="action_import">Import</string>
     <string name="action_import_report">Import report</string>
     <string name="action_open_shizuku">Open Shizuku</string>
     <string name="action_refresh_status">Refresh status</string>
@@ -184,7 +181,6 @@
     <string name="label_unknown_time">Unknown time</string>
     <string name="label_na">n/a</string>
     <string name="label_unavailable">unavailable</string>
-    <string name="common_and">and</string>
 
     <!-- Errors -->
     <string name="error_share_failed">Could not share %1$s</string>

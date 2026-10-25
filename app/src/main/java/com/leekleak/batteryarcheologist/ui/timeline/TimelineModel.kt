@@ -566,7 +566,6 @@ data class TimelineData(
     /** Sorted unique timestamps at which any visible row starts, ends, or changes. */
     val changeTimesMs: LongArray = LongArray(0),
 ) {
-    val eventCount: Int get() = rows.sumOf { it.series.size } + batteryPoints.size
 
     val isEmpty: Boolean get() = rows.isEmpty() && batteryPoints.isEmpty()
 

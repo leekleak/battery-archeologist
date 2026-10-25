@@ -3,9 +3,6 @@ package com.leekleak.batteryarcheologist.core.model
 import java.time.Instant
 
 enum class CaptureSource {
-    QUICK_CHECKIN,
-    FULL_BUGREPORT,
-    IMPORTED_FILE,
 }
 
 data class ReportMeta(
@@ -23,16 +20,6 @@ data class ReportDiagnostics(
     val errors: List<String> = emptyList(),
 )
 
-data class RawCapture(
-    val meta: ReportMeta,
-    val checkin: String,
-    val packageList: String = "",
-    val batteryDump: String = "",
-    val systemProperties: Map<String, String> = emptyMap(),
-) {
-    val sizeBytes: Int get() = checkin.toByteArray(Charsets.UTF_8).size
-}
-
 data class CheckinSnapshot(
     val checkinVersion: Int?,
     val totalLines: Int,
@@ -43,9 +30,3 @@ data class CheckinSnapshot(
     val previewLines: List<String>,
 )
 
-data class BatteryReport(
-    val meta: ReportMeta,
-    val snapshot: CheckinSnapshot,
-    val diagnostics: ReportDiagnostics = ReportDiagnostics(),
-    val packages: Map<Int, String> = emptyMap(),
-)

@@ -20,7 +20,6 @@ package com.leekleak.batteryarcheologist.core.checkin.checkinparse
 
 import com.leekleak.batteryarcheologist.core.checkin.checkinutil.BatteryReport
 import com.leekleak.batteryarcheologist.core.checkin.checkinutil.CheckinUtil
-import com.leekleak.batteryarcheologist.core.checkin.checkinutil.IntCounter
 import com.leekleak.batteryarcheologist.core.checkin.sliceparse.SliceReader
 import com.leekleak.batteryarcheologist.core.model.PackageInfoModel
 import com.leekleak.batteryarcheologist.core.packageinfo.appId

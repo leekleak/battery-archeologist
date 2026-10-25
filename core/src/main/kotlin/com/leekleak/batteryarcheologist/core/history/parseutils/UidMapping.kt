@@ -21,7 +21,6 @@
 
 package com.leekleak.batteryarcheologist.core.history.parseutils
 
-import com.leekleak.batteryarcheologist.core.historianutils.HistorianUtils
 import com.leekleak.batteryarcheologist.core.model.PackageInfoModel
 import com.leekleak.batteryarcheologist.core.packageinfo.appId
 import com.leekleak.batteryarcheologist.core.packageinfo.appIdFromString

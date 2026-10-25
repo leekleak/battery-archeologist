@@ -41,9 +41,6 @@ enum class HistorySummaryFormat(val wireName: String) {
     ;
 
     companion object {
-        /** Returns the format for a Go wire name, or `null` when it is unknown. */
-        fun fromWireName(name: String): HistorySummaryFormat? =
-            entries.firstOrNull { it.wireName == name }
     }
 }
 
@@ -483,9 +480,6 @@ class ActivitySummary(
         source.mapValues { (_, dist) -> dist.copy() }
 
     companion object {
-        /** Returns a new summary with `active = true` and `initialBatteryLevel = -1`. */
-        fun newSummary(format: HistorySummaryFormat): ActivitySummary =
-            ActivitySummary(format)
     }
 }
 

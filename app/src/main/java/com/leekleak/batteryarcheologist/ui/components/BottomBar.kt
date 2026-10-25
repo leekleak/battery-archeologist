@@ -42,7 +42,6 @@ val NAVBAR_PADDING: Dp =
  * horizontally centered floating toolbar where only the selected tab shows its
  * label.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BottomBar(
     selected: ContentTab,

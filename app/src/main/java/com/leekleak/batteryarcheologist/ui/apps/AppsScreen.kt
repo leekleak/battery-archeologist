@@ -20,7 +20,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,7 +54,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.core.analytics.AppPowerStats
-import com.leekleak.batteryarcheologist.data.AppUsage
 import com.leekleak.batteryarcheologist.data.ReportData
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
@@ -80,7 +78,6 @@ private val SEARCH_HEADER_HEIGHT = 64.dp
  * The title and search field share one blur band; the list scrolls beneath
  * both and is sampled by the band's Haze source.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppsScreen(
     report: ReportData,
@@ -94,7 +91,7 @@ fun AppsScreen(
         mutableStateOf("")
     }
     val labelsByPackage by produceState(
-        initialValue = emptyMap<String, String>(),
+        initialValue = emptyMap(),
         appLabelResolver,
         report,
     ) {

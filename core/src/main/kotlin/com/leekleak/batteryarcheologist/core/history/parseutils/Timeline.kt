@@ -27,9 +27,6 @@ package com.leekleak.batteryarcheologist.core.history.parseutils
  * trimmed lines, mirroring `historianutils.SubexpNames`.
  */
 internal object HistoryRegex {
-    const val BATTERY_STATS_CHECKIN_VERSION = "9"
-    const val HISTORY_STRING_POOL = "hsp"
-    const val HISTORY_DATA = "h"
 
     val reset = Regex("""^9,h,(\d+):RESET:TIME:(\d+)""")
     val shutdown = Regex("""^9,h,(\d+):SHUTDOWN""")

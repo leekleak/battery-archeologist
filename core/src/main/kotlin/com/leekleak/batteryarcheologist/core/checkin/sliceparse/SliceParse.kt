@@ -34,10 +34,6 @@ class SliceParseException(message: String) : IllegalArgumentException(message)
 class SliceReader(private val input: List<String>) {
     private var index = 0
 
-    /** Number of elements consumed so far. */
-    val position: Int
-        get() = index
-
     /** Elements that have not been consumed yet. */
     val remaining: List<String>
         get() = if (index >= input.size) emptyList() else input.subList(index, input.size)

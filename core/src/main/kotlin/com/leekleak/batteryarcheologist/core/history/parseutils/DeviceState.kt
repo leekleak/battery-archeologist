@@ -257,8 +257,6 @@ internal class DeviceState {
     var wifiSuppl: TsString = TsString()
     var phoneSignalStrength: TsString = TsString()
     var wifiSignalStrength: TsString = TsString()
-    var userRunning: TsString = TsString()
-    var userForeground: TsString = TsString()
     var idleMode: TsString = TsString()
 
     var cpuRunning: TsBool = TsBool()
@@ -308,13 +306,6 @@ internal class DeviceState {
 
     var dpstStats: DPST = DPST()
     var dcpuStats: DCPU = DCPU()
-
-    /**
-     * The low power state summary is printed as an aggregate since boot, so
-     * this tracks the cumulative values in order to split it per discharge.
-     */
-    val cumulativePowerState: MutableMap<String, PowerState> = LinkedHashMap()
-    val initialPowerState: MutableMap<String, PowerState> = LinkedHashMap()
 
     /**
      * Re-bases all active states when the device transitions from charging to

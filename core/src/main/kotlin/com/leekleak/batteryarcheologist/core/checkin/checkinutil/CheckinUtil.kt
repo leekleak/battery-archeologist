@@ -22,14 +22,6 @@
 
 package com.leekleak.batteryarcheologist.core.checkin.checkinutil
 
-/** Linkage information for an application child. */
-data class ChildInfo(
-    /** Predefined parent name (for example GOOGLE_SERVICES for gms and gsf). */
-    val parent: String = "",
-    /** True if the app is a HeadChild. */
-    val head: Boolean = false,
-)
-
 /**
  * Lightweight representation of an Android checkin report.
  *

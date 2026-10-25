@@ -15,6 +15,5 @@ sealed interface ShizukuState {
     /** The server is alive and this app is authorized. UID 2000 is ADB mode. */
     data class Ready(val uid: Int) : ShizukuState {
         val isAdb: Boolean get() = uid == 2000
-        val isRoot: Boolean get() = uid == 0
     }
 }

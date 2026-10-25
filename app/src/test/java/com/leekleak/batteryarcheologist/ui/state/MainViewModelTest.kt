@@ -15,7 +15,6 @@ import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -572,7 +571,7 @@ class MainViewModelTest {
      */
     @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
     private class FakeUri : Uri() {
-        override fun buildUpon(): Uri.Builder? = null
+        override fun buildUpon(): Builder? = null
         override fun getAuthority(): String? = null
         override fun getEncodedAuthority(): String? = null
         override fun getEncodedFragment(): String? = null
@@ -582,12 +581,12 @@ class MainViewModelTest {
         override fun getEncodedUserInfo(): String? = null
         override fun getFragment(): String? = null
         override fun getHost(): String? = null
-        override fun getLastPathSegment(): String? = "imported.txt"
+        override fun getLastPathSegment(): String = "imported.txt"
         override fun getPath(): String? = null
         override fun getPathSegments(): MutableList<String>? = null
         override fun getPort(): Int = 0
         override fun getQuery(): String? = null
-        override fun getScheme(): String? = "content"
+        override fun getScheme(): String = "content"
         override fun getSchemeSpecificPart(): String? = null
         override fun getUserInfo(): String? = null
         override fun isHierarchical(): Boolean = true

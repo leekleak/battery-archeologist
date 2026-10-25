@@ -23,5 +23,4 @@ object CheckinSections {
         }
         .toList()
 
-    fun historyBlock(raw: String): String = historyLines(raw).joinToString("\n")
 }

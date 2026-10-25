@@ -66,7 +66,6 @@ private data class PermissionPrimary(
  * (always) plus the primary action for the current state. The back affordance
  * is overlaid in the top-left corner.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun PermissionScreen(
     state: ShizukuState,

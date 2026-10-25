@@ -1287,7 +1287,7 @@ private class HistoryAnalyzer(
                 val networkType = connectivityConstants[suid.uid] ?: "UNKNOWN"
                 val active = state.connectivityMap
                 val summaryMap = summary.connectivitySummary
-                var ts = networkType
+                var ts: String
 
                 fun addConnectivityEntry(service: String, at: Long) {
                     csvState.addEntry(
@@ -1593,8 +1593,6 @@ private class HistoryAnalyzer(
                 }
                 return null
             }
-
-            "b" -> return "sample: bluetooth line = $transition$key$value"
 
             "Dcpu" -> return updateDcpu(value)
 

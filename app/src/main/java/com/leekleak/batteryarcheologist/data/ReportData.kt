@@ -45,6 +45,5 @@ data class ReportData(
     val power: AppPowerReport?,
     val apps: List<AppUsage>,
 ) {
-    val capacityMah: Float get() = power?.capacityMah ?: 0f
     val capacityEstimated: Boolean get() = power?.capacityEstimated == true
 }

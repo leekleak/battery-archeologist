@@ -498,8 +498,7 @@ object BugreportUtils {
     }
 
     private fun startsWith(bytes: ByteArray, prefix: IntArray): Boolean {
-        if (bytes.size < prefix.size) return false
-        return prefix.indices.all { (bytes[it].toInt() and 0xFF) == prefix[it] }
+        return bytes.size >= prefix.size && prefix.indices.all { (bytes[it].toInt() and 0xFF) == prefix[it] }
     }
 
     /**

@@ -3,7 +3,6 @@ package com.leekleak.batteryarcheologist.ui.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.leekleak.batteryarcheologist.R
-import com.leekleak.batteryarcheologist.data.ReportOrigin
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -44,21 +43,6 @@ fun formatByteCount(bytes: Float): String = formatByteValue(bytes.toDouble())
 
 /** Convenience overload for file lengths and report sizes. */
 fun formatBytes(bytes: Long): String = formatByteValue(bytes.toDouble())
-
-/** Formats a capture duration, omitting zero-length saved-report durations. */
-fun formatDurationMs(durationMs: Long): String = when {
-    durationMs <= 0L -> "—"
-    durationMs < 1_000L -> "$durationMs ms"
-    else -> "%.1f s".format(durationMs / 1_000.0)
-}
-
-/** Label for a report origin stored by [com.leekleak.batteryarcheologist.data.ReportStore]. */
-@Composable
-fun reportOriginLabel(origin: ReportOrigin): String = when (origin) {
-    ReportOrigin.CAPTURE -> stringResource(R.string.report_origin_captured)
-    ReportOrigin.SAVED -> stringResource(R.string.report_origin_saved)
-    ReportOrigin.IMPORT -> stringResource(R.string.report_origin_imported)
-}
 
 /** Label for a saved report's metadata source. */
 @Composable

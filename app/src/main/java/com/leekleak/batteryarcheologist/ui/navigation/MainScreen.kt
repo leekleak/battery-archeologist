@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.leekleak.batteryarcheologist.R
@@ -40,7 +39,6 @@ import com.leekleak.batteryarcheologist.ui.reports.ReportsHomeScreen
 import com.leekleak.batteryarcheologist.ui.state.AppUiState
 import com.leekleak.batteryarcheologist.ui.state.MainViewModel
 import com.leekleak.batteryarcheologist.ui.state.UiEffect
-import kotlinx.coroutines.flow.collect
 
 private val REPORT_MIME_TYPES = arrayOf(
     "text/plain",
@@ -113,7 +111,7 @@ fun MainScreen(
                 }
                 navigator.goBack()
             },
-            entryProvider = entryProvider<NavKey> {
+            entryProvider = entryProvider {
                 entry<ReportsKey> {
                     ReportsHomeScreen(
                         state = currentState.value,
