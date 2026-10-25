@@ -44,6 +44,7 @@
 
     <!-- Report viewer -->
     <string name="viewer_loading">Loading report…</string>
+    <string name="viewer_loading_detail">Parsing history and checkin data.</string>
 
     <!-- Other -->
     <string name="system_battery">Battery</string>

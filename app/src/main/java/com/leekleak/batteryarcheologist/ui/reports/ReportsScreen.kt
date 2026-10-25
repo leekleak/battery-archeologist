@@ -186,7 +186,7 @@ fun ReportsHomeScreen(
             FancyDialog(
                 onDismissRequest = { pendingDelete = null },
                 title = stringResource(R.string.reports_delete_title),
-                icon = painterResource(R.drawable.ic_delete),
+                icon = painterResource(R.drawable.delete),
                 dismissLabel = stringResource(R.string.action_cancel),
                 dismissModifier = Modifier.testTag("btn_delete_cancel"),
                 actionButton = {

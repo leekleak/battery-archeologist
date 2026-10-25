@@ -14,9 +14,9 @@ enum class ContentTab(
     @StringRes val titleRes: Int,
     @DrawableRes val iconRes: Int,
 ) {
-    TIMELINE(R.string.tab_timeline, R.drawable.ic_timeline),
-    APPS(R.string.tab_apps, R.drawable.ic_apps),
-    OTHER(R.string.tab_other, R.drawable.ic_system),
+    TIMELINE(R.string.tab_timeline, R.drawable.timeline),
+    APPS(R.string.tab_apps, R.drawable.apps),
+    OTHER(R.string.tab_other, R.drawable.info),
     ;
 
     val testTag: String get() = "tab_${name.lowercase()}"

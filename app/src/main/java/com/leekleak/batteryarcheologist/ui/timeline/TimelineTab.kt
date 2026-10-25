@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -41,7 +42,10 @@ import com.leekleak.batteryarcheologist.ui.components.SectionCard
  * claims horizontal drags for its inspection cursor, so vertical drags scroll
  * the page instead of fighting the chart. The cursor readout is an overlay
  * above the navigation bar, so its values stay visible while the (very tall,
- * all-metrics) chart scrolls behind it.
+ * all-metrics) chart scrolls behind it. The chart viewport ends at the
+ * readout's bottom edge and shares its rounded bottom corners, so rows cannot
+ * reappear in the gap below the card or around the floating toolbar; other
+ * tabs deliberately keep scrolling content visible there.
  */
 @Composable
 fun TimelineTab(
@@ -98,15 +102,24 @@ fun TimelineTab(
     val readoutBottomGap = navigationInset + NAVBAR_PADDING + 16.dp
     val readoutHeight = with(LocalDensity.current) { readoutHeightPx.toDp() }
     val chartPadding = PaddingValues(
-        start = horizontalStart,
+        // Horizontal insets live on the list itself so its clipped bottom
+        // corners follow the readout card instead of the screen edges.
         top = contentPadding.calculateTopPadding(),
-        end = horizontalEnd,
-        bottom = readoutBottomGap + readoutHeight + 8.dp,
+        // The list itself stops at the readout's bottom edge, so only the
+        // readout's own height still has to be reserved here.
+        bottom = readoutHeight + 8.dp,
     )
 
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = horizontalStart,
+                    end = horizontalEnd,
+                    bottom = readoutBottomGap,
+                )
+                .clip(MaterialTheme.shapes.medium),
             contentPadding = chartPadding,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {

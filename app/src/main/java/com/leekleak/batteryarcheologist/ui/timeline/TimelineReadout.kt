@@ -95,7 +95,6 @@ internal fun TimelineReadout(
         shape = MaterialTheme.shapes.medium,
         color = cardColor,
         border = FloatingSurfaceDefaults.border(),
-        shadowElevation = 3.dp,
     ) {
         Box {
             Column(

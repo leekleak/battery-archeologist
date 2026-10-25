@@ -63,7 +63,7 @@ internal fun TimelineFilterSheet(
                 subtitle = stringResource(R.string.timeline_filter_description),
                 leading = {
                     Icon(
-                        painter = painterResource(R.drawable.ic_filter),
+                        painter = painterResource(R.drawable.filter_list),
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
                     )

@@ -177,20 +177,14 @@ private fun AppDetailHeader(
                 Icon(
                     painter = painterResource(
                         if (pinned) {
-                            R.drawable.ic_push_pin_filled
+                            R.drawable.keep_off
                         } else {
-                            R.drawable.ic_push_pin
+                            R.drawable.keep
                         },
                     ),
                     contentDescription = stringResource(
                         if (pinned) R.string.apps_unpin else R.string.apps_pin,
                     ),
-                    modifier = Modifier.size(20.dp),
-                    tint = if (pinned) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
                 )
             }
         }

@@ -26,7 +26,7 @@ internal fun TimelineFilterButton(
         modifier = Modifier.testTag("btn_timeline_filter"),
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_filter),
+            painter = painterResource(R.drawable.filter_list),
             contentDescription = stringResource(
                 if (active) {
                     R.string.timeline_filter_icon_active

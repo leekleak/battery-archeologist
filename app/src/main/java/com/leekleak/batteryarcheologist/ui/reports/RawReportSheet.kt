@@ -68,7 +68,7 @@ internal fun RawReportSheet(
                 ),
                 leading = {
                     Icon(
-                        painter = painterResource(R.drawable.ic_description),
+                        painter = painterResource(R.drawable.description),
                         contentDescription = null,
                         modifier = Modifier.size(32.dp),
                     )

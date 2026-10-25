@@ -337,7 +337,7 @@ private fun PinnedSectionHeader() {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            painter = painterResource(R.drawable.ic_push_pin_filled),
+            painter = painterResource(R.drawable.keep),
             contentDescription = null,
             modifier = Modifier.size(16.dp),
             tint = MaterialTheme.colorScheme.primary,
