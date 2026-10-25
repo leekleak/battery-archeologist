@@ -139,7 +139,7 @@ class MainViewModel(
                     it.copy(
                         report = report,
                         reportLoading = false,
-                        selectedTab = ContentTab.OVERVIEW,
+                        selectedTab = ContentTab.TIMELINE,
                     )
                 }
             } else {
@@ -169,7 +169,7 @@ class MainViewModel(
                 reportLoading = false,
                 reportError = null,
                 rawSheet = null,
-                selectedTab = ContentTab.OVERVIEW,
+                selectedTab = ContentTab.TIMELINE,
             )
         }
     }

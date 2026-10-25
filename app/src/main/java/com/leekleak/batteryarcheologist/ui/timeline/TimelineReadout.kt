@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,7 +41,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
+import com.leekleak.batteryarcheologist.ui.theme.LocalBlurEnabled
+import dev.chrisbanes.haze.HazeInput
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.blur.hazeBlur
+import dev.chrisbanes.haze.blur.materials.HazeMaterials
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import kotlinx.coroutines.launch
+
+/** Height of the pinned readout header, matching its [IconButton] row. */
+private val READOUT_HEADER_HEIGHT = 58.dp
+
+/** Height the value list may use before it starts scrolling internally. */
+private val READOUT_VALUES_MAX_HEIGHT = 180.dp
 
 /**
  * Sticky cursor readout for the timeline.
@@ -53,9 +68,7 @@ internal fun TimelineReadout(
     data: TimelineData,
     cursorMs: Long,
     palette: TimelinePalette,
-    filterActive: Boolean,
     onCursorMsChange: (Long) -> Unit,
-    onFilterClick: () -> Unit,
     onHeightChanged: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -66,6 +79,11 @@ internal fun TimelineReadout(
     val hasValue = battery != null || rows.isNotEmpty()
     val canPrevious = data.previousChange(cursorMs) != null
     val canNext = data.nextChange(cursorMs) != null
+    val rowCount = rows.size + if (battery != null) 1 else 0
+    val scrollState = rememberScrollState()
+    val scrollValues = rowCount > 7
+    val blurEnabled = LocalBlurEnabled.current
+    val hazeState = rememberHazeState()
 
     Surface(
         modifier = modifier
@@ -73,104 +91,42 @@ internal fun TimelineReadout(
             .onSizeChanged { onHeightChanged(it.height) }
             .testTag("timeline_cursor_readout"),
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 3.dp,
-        shadowElevation = 6.dp,
+        shadowElevation = 3.dp,
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(
-                    onClick = {
-                        data.previousChange(cursorMs)?.let(onCursorMsChange)
-                    },
-                    enabled = canPrevious,
-                    modifier = Modifier.testTag("timeline_prev_change"),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.arrow_back),
-                        contentDescription = stringResource(R.string.timeline_previous_change),
-                    )
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = TimelineMath.formatClockDate(cursorMs),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = TimelineMath.formatClockTimeSeconds(cursorMs),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                    )
-                }
-                IconButton(
-                    onClick = onFilterClick,
-                    modifier = Modifier.testTag("btn_timeline_filter"),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_filter),
-                        contentDescription = stringResource(
-                            if (filterActive) {
-                                R.string.timeline_filter_icon_active
-                            } else {
-                                R.string.timeline_filter_icon
-                            },
-                        ),
-                        tint = if (filterActive) {
-                            MaterialTheme.colorScheme.primary
+        Box {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .hazeSource(hazeState)
+                    .then(
+                        if (scrollValues) {
+                            Modifier
+                                .heightIn(
+                                    max = READOUT_VALUES_MAX_HEIGHT + READOUT_HEADER_HEIGHT,
+                                )
+                                .verticalScroll(scrollState)
                         } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                            Modifier
                         },
                     )
-                }
-                IconButton(
-                    onClick = {
-                        data.nextChange(cursorMs)?.let(onCursorMsChange)
-                    },
-                    enabled = canNext,
-                    modifier = Modifier.testTag("timeline_next_change"),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.arrow_forward),
-                        contentDescription = stringResource(R.string.timeline_next_change),
+                    .padding(
+                        start = 8.dp,
+                        top = READOUT_HEADER_HEIGHT,
+                        end = 8.dp,
+                        bottom = 6.dp,
+                    ),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                if (!hasValue) {
+                    Text(
+                        text = stringResource(R.string.timeline_cursor_empty),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     )
-                }
-            }
-
-            if (!hasValue) {
-                Text(
-                    text = stringResource(R.string.timeline_cursor_empty),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                )
-            } else {
-                val rowCount = rows.size + if (battery != null) 1 else 0
-                val scrollState = rememberScrollState()
-                Column(
-                    modifier = if (rowCount > 7) {
-                        Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 180.dp)
-                            .verticalScroll(scrollState)
-                    } else {
-                        Modifier.fillMaxWidth()
-                    },
-                ) {
+                } else {
                     if (battery != null) {
                         CursorValueRow(
                             color = palette.battery,
@@ -187,6 +143,105 @@ internal fun TimelineReadout(
                     }
                 }
             }
+
+            // The header stays pinned while the values scroll beneath it. Like
+            // the page title bars, it is a transparent progressive blur band, so
+            // rows fade out instead of clipping at a hard edge.
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(READOUT_HEADER_HEIGHT)
+                    .background(
+                        if (blurEnabled) {
+                            Color.Transparent
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainer
+                        },
+                    )
+                    .hazeBlur(
+                        input = HazeInput.Sources(hazeState),
+                        style = HazeMaterials.ultraThin(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ).then {
+                            progressive(
+                                HazeProgressive.verticalGradient(
+                                    startIntensity = 1f,
+                                    endIntensity = 0f,
+                                ),
+                            )
+                            blurEnabled(blurEnabled)
+                        },
+                    ),
+            ) {
+                ReadoutHeader(
+                    data = data,
+                    cursorMs = cursorMs,
+                    canPrevious = canPrevious,
+                    canNext = canNext,
+                    onCursorMsChange = onCursorMsChange,
+                )
+            }
+        }
+    }
+}
+
+/** Pinned readout header: previous change, date/time and next change. */
+@Composable
+private fun ReadoutHeader(
+    data: TimelineData,
+    cursorMs: Long,
+    canPrevious: Boolean,
+    canNext: Boolean,
+    onCursorMsChange: (Long) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(
+            onClick = {
+                data.previousChange(cursorMs)?.let(onCursorMsChange)
+            },
+            enabled = canPrevious,
+            modifier = Modifier.testTag("timeline_prev_change"),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.arrow_back),
+                contentDescription = stringResource(R.string.timeline_previous_change),
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = TimelineMath.formatClockDate(cursorMs),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = TimelineMath.formatClockTimeSeconds(cursorMs),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+            )
+        }
+        IconButton(
+            onClick = {
+                data.nextChange(cursorMs)?.let(onCursorMsChange)
+            },
+            enabled = canNext,
+            modifier = Modifier.testTag("timeline_next_change"),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.arrow_forward),
+                contentDescription = stringResource(R.string.timeline_next_change),
+            )
         }
     }
 }

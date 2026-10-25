@@ -64,7 +64,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun ensureReportLoadsReportAndSelectsOverview() = runTest(dispatcher) {
+    fun ensureReportLoadsReportAndSelectsTimeline() = runTest(dispatcher) {
         val repository = loadedRepository()
         val (viewModel, _) = start(repository)
         viewModel.selectTab(ContentTab.APPS)
@@ -78,7 +78,7 @@ class MainViewModelTest {
         val state = viewModel.state.value
         assertEquals("old capture", state.report?.raw)
         assertEquals("old.txt", state.report?.savedName)
-        assertEquals(ContentTab.OVERVIEW, state.selectedTab)
+        assertEquals(ContentTab.TIMELINE, state.selectedTab)
         assertFalse(state.reportLoading)
         assertNull(state.reportError)
         assertEquals(1, repository.loadCalls)
@@ -134,7 +134,7 @@ class MainViewModelTest {
 
         val state = viewModel.state.value
         assertSame(loaded, state.report)
-        assertEquals(ContentTab.OVERVIEW, state.selectedTab)
+        assertEquals(ContentTab.TIMELINE, state.selectedTab)
         assertFalse(state.reportLoading)
         assertNull(state.reportError)
         assertNull(state.rawSheet)
@@ -441,8 +441,8 @@ class MainViewModelTest {
     fun selectTabUpdatesSelectedTab() = runTest(dispatcher) {
         val (viewModel, _) = start(loadedRepository())
 
-        viewModel.selectTab(ContentTab.SYSTEM)
-        assertEquals(ContentTab.SYSTEM, viewModel.state.value.selectedTab)
+        viewModel.selectTab(ContentTab.OTHER)
+        assertEquals(ContentTab.OTHER, viewModel.state.value.selectedTab)
 
         viewModel.selectTab(ContentTab.APPS)
         assertEquals(ContentTab.APPS, viewModel.state.value.selectedTab)

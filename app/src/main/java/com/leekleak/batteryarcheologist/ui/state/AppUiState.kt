@@ -46,7 +46,7 @@ data class AppUiState(
     val resetStatus: ResetStatus = ResetStatus.Idle,
     val savedReports: List<SavedReport> = emptyList(),
     val pinnedApps: Set<String> = emptySet(),
-    val selectedTab: ContentTab = ContentTab.OVERVIEW,
+    val selectedTab: ContentTab = ContentTab.TIMELINE,
     val pendingAction: PrivilegedAction? = null,
     val rawSheet: RawSheetState? = null,
 ) {

@@ -3,10 +3,9 @@
     <string name="app_name">Battery Archeologist</string>
 
     <!-- Navigation -->
-    <string name="tab_overview">Overview</string>
     <string name="tab_timeline">Timeline</string>
-    <string name="tab_system">System</string>
     <string name="tab_apps">Apps</string>
+    <string name="tab_other">Other</string>
 
     <!-- Actions -->
     <string name="action_capture">Capture</string>
@@ -18,11 +17,10 @@
     <string name="action_open">Open</string>
     <string name="action_delete">Delete</string>
     <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
     <string name="action_continue">Continue</string>
     <string name="action_import">Import</string>
     <string name="action_import_report">Import report</string>
-    <string name="action_show_details">Show details</string>
-    <string name="action_hide_details">Hide details</string>
     <string name="action_open_shizuku">Open Shizuku</string>
     <string name="action_refresh_status">Refresh status</string>
     <string name="action_install_shizuku">Install Shizuku</string>
@@ -44,32 +42,10 @@
     <string name="permission_mode_adb">ADB</string>
     <string name="permission_mode_root">root</string>
 
-    <!-- Overview -->
-    <string name="overview_report_title">Report</string>
-    <string name="overview_captured">Captured</string>
-    <string name="overview_capture_duration">Capture duration</string>
-    <string name="overview_saved_as">Saved as</string>
-    <string name="overview_top_apps_by_power">Top apps by power</string>
-    <string name="overview_parser_issues">Parser issues</string>
-    <string name="overview_parser_warnings">Parser warnings</string>
-    <string name="overview_parser_notice">%1$s while parsing. Details are in Report details on the System tab.</string>
-    <string name="overview_parser_unsupported">Newer report fields skipped</string>
-    <string name="overview_parser_unsupported_notice">%1$d newer history fields were skipped. Details are in Report details on the System tab.</string>
-    <string name="overview_discharge">Discharge</string>
-    <string name="overview_intervals">Intervals</string>
-    <string name="overview_last_change">Last change</string>
-    <string name="overview_last_interval">Last interval</string>
-    <string name="overview_loading">Loading report…</string>
-    <plurals name="overview_parser_error_count">
-        <item quantity="one">%1$d error</item>
-        <item quantity="other">%1$d errors</item>
-    </plurals>
-    <plurals name="overview_parser_warning_count">
-        <item quantity="one">%1$d warning</item>
-        <item quantity="other">%1$d warnings</item>
-    </plurals>
+    <!-- Report viewer -->
+    <string name="viewer_loading">Loading report…</string>
 
-    <!-- System -->
+    <!-- Other -->
     <string name="system_battery">Battery</string>
     <string name="system_capacity">Capacity</string>
     <string name="system_battery_realtime">Battery realtime</string>
@@ -115,7 +91,6 @@
     <string name="apps_section_activity">Activity</string>
     <string name="apps_section_network">Network</string>
     <string name="apps_device_power">Device power</string>
-    <string name="apps_cpu_power">CPU power</string>
     <string name="apps_cpu_total">Total</string>
     <string name="apps_cpu_user">User</string>
     <string name="apps_cpu_system">System</string>

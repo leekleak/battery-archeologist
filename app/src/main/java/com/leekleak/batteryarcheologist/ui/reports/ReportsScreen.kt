@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,6 +38,7 @@ import com.leekleak.batteryarcheologist.core.model.ShizukuState
 import com.leekleak.batteryarcheologist.data.SavedReport
 import com.leekleak.batteryarcheologist.ui.components.AppScaffold
 import com.leekleak.batteryarcheologist.ui.components.EmptyState
+import com.leekleak.batteryarcheologist.ui.components.FancyDialog
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 import com.leekleak.batteryarcheologist.ui.components.formatBytes
 import com.leekleak.batteryarcheologist.ui.components.formatTimestamp
@@ -155,13 +155,15 @@ fun ReportsHomeScreen(
         }
 
         if (showResetDialog) {
-            AlertDialog(
+            FancyDialog(
                 onDismissRequest = { showResetDialog = false },
+                title = stringResource(R.string.reports_reset_dialog_title),
+                icon = painterResource(R.drawable.reset_wrench),
                 modifier = Modifier.testTag("reset_dialog"),
-                title = { Text(stringResource(R.string.reports_reset_dialog_title)) },
-                text = { Text(stringResource(R.string.reports_reset_dialog_body)) },
-                confirmButton = {
-                    TextButton(
+                dismissLabel = stringResource(R.string.action_cancel),
+                dismissModifier = Modifier.testTag("btn_reset_cancel"),
+                actionButton = {
+                    Button(
                         onClick = {
                             showResetDialog = false
                             onReset()
@@ -171,30 +173,23 @@ fun ReportsHomeScreen(
                         Text(stringResource(R.string.action_reset_stats))
                     }
                 },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showResetDialog = false },
-                        modifier = Modifier.testTag("btn_reset_cancel"),
-                    ) {
-                        Text(stringResource(R.string.action_cancel))
-                    }
-                },
-            )
+            ) {
+                Text(
+                    text = stringResource(R.string.reports_reset_dialog_body),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
 
         pendingDelete?.let { saved ->
-            AlertDialog(
+            FancyDialog(
                 onDismissRequest = { pendingDelete = null },
-                title = { Text(stringResource(R.string.reports_delete_title)) },
-                text = {
-                    Text(
-                        stringResource(
-                            R.string.reports_delete_body,
-                            saved.originalName ?: saved.name,
-                        ),
-                    )
-                },
-                confirmButton = {
+                title = stringResource(R.string.reports_delete_title),
+                icon = painterResource(R.drawable.ic_delete),
+                dismissLabel = stringResource(R.string.action_cancel),
+                dismissModifier = Modifier.testTag("btn_delete_cancel"),
+                actionButton = {
                     TextButton(
                         onClick = {
                             pendingDelete = null
@@ -202,18 +197,22 @@ fun ReportsHomeScreen(
                         },
                         modifier = Modifier.testTag("btn_delete_confirm"),
                     ) {
-                        Text(stringResource(R.string.action_delete))
+                        Text(
+                            text = stringResource(R.string.action_delete),
+                            color = MaterialTheme.colorScheme.error,
+                        )
                     }
                 },
-                dismissButton = {
-                    TextButton(
-                        onClick = { pendingDelete = null },
-                        modifier = Modifier.testTag("btn_delete_cancel"),
-                    ) {
-                        Text(stringResource(R.string.action_cancel))
-                    }
-                },
-            )
+            ) {
+                Text(
+                    text = stringResource(
+                        R.string.reports_delete_body,
+                        saved.originalName ?: saved.name,
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

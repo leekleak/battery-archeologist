@@ -13,27 +13,35 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
+import com.leekleak.batteryarcheologist.data.SharedPreferencesTimelineFilterStore
 import com.leekleak.batteryarcheologist.ui.apps.AppLabelResolver
 import com.leekleak.batteryarcheologist.ui.apps.AppsScreen
 import com.leekleak.batteryarcheologist.ui.components.AppScaffold
 import com.leekleak.batteryarcheologist.ui.components.BottomBar
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 import com.leekleak.batteryarcheologist.ui.navigation.ContentTab
-import com.leekleak.batteryarcheologist.ui.overview.OverviewScreen
+import com.leekleak.batteryarcheologist.ui.other.OtherScreen
 import com.leekleak.batteryarcheologist.ui.state.AppUiState
-import com.leekleak.batteryarcheologist.ui.system.SystemScreen
+import com.leekleak.batteryarcheologist.ui.timeline.TimelineFilterButton
 import com.leekleak.batteryarcheologist.ui.timeline.TimelineTab
+import dev.chrisbanes.haze.rememberHazeState
 
 /**
  * Report viewer destination.
  *
- * Owns the title bar, the tab bar and the four report-backed tabs. Capture and
+ * Owns the title bar, the tab bar and the three report-backed tabs. Capture and
  * import actions deliberately stay on the reports home behind this screen.
  */
 @Composable
@@ -46,12 +54,43 @@ fun ReportViewerScreen(
     onRetry: () -> Unit,
 ) {
     val report = state.report
+    // Apps owns a combined title + search blur band, so the scaffold must not
+    // stack its usual title blur over the same area.
+    val appsOwnTopBlur = state.selectedTab == ContentTab.APPS && report != null
+    val viewerHazeState = rememberHazeState()
+
+    val context = LocalContext.current
+    val timelineFilterStore = remember(context) {
+        SharedPreferencesTimelineFilterStore(context)
+    }
+    var timelineFilter by remember(timelineFilterStore) {
+        mutableStateOf(timelineFilterStore.load())
+    }
+    var timelineFilterSheetOpen by remember { mutableStateOf(false) }
+    val timelineFilterAvailable = report?.history != null
+
+    // The timeline owns the filter sheet, so close it when its tab leaves.
+    LaunchedEffect(state.selectedTab) {
+        if (state.selectedTab != ContentTab.TIMELINE) {
+            timelineFilterSheetOpen = false
+        }
+    }
 
     AppScaffold(
         title = stringResource(state.selectedTab.titleRes),
         modifier = Modifier.testTag("content_screen"),
         scrollState = null,
+        hazeState = if (appsOwnTopBlur) null else viewerHazeState,
+        titleBlurEnabled = !appsOwnTopBlur,
         onBack = onBack,
+        actions = {
+            if (state.selectedTab == ContentTab.TIMELINE && timelineFilterAvailable) {
+                TimelineFilterButton(
+                    active = timelineFilter.active,
+                    onClick = { timelineFilterSheetOpen = true },
+                )
+            }
+        },
         bottomBar = if (report != null) {
             {
                 BottomBar(
@@ -72,9 +111,18 @@ fun ReportViewerScreen(
             )
         } else {
             when (state.selectedTab) {
-                ContentTab.OVERVIEW -> OverviewScreen(report, contentPadding)
-                ContentTab.TIMELINE -> TimelineTab(report, contentPadding)
-                ContentTab.SYSTEM -> SystemScreen(report, contentPadding)
+                ContentTab.TIMELINE -> TimelineTab(
+                    report = report,
+                    contentPadding = contentPadding,
+                    filter = timelineFilter,
+                    filterSheetOpen = timelineFilterSheetOpen,
+                    onFilterDismiss = { timelineFilterSheetOpen = false },
+                    onFilterApply = { applied ->
+                        timelineFilter = applied
+                        timelineFilterStore.save(applied)
+                        timelineFilterSheetOpen = false
+                    },
+                )
                 ContentTab.APPS -> AppsScreen(
                     report = report,
                     contentPadding = contentPadding,
@@ -82,6 +130,7 @@ fun ReportViewerScreen(
                     onTogglePin = onTogglePin,
                     appLabelResolver = appLabelResolver,
                 )
+                ContentTab.OTHER -> OtherScreen(report, contentPadding)
             }
         }
     }
@@ -125,7 +174,7 @@ private fun ViewerLoading() {
             strokeWidth = 2.dp,
         )
         Text(
-            text = stringResource(R.string.overview_loading),
+            text = stringResource(R.string.viewer_loading),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

@@ -9,7 +9,7 @@ import java.io.File
 
 class AppPowerStatsTest {
     @Test
-    fun `computes device and cpu percentages from capacity`() {
+    fun `computes device percentages from capacity`() {
         val stats = BatteryStats(
             system = BatteryStats.System(
                 power_use_summary = BatteryStats.System.PowerUseSummary(
@@ -23,9 +23,6 @@ class AppPowerStatsTest {
                     power_use_item = BatteryStats.App.PowerUseItem(
                         computed_power_mah = 0.0209f,
                     ),
-                    cpu = BatteryStats.App.Cpu(
-                        power_ma_ms = 3_600_000f,
-                    ),
                 ),
             ),
         )
@@ -36,10 +33,8 @@ class AppPowerStatsTest {
         val app = report.apps.single()
         assertEquals(0.0209f, app.devicePowerMah, 1e-7f)
         assertEquals(0.0006967f, app.devicePowerPct, 1e-6f)
-        assertEquals(1f, app.cpuPowerMah, 1e-6f)
-        assertEquals(0.0333333f, app.cpuPowerPct, 1e-5f)
         assertEquals("0.001%", AppPowerStats.formatPercent(app.devicePowerPct))
-        assertEquals("0.033%", AppPowerStats.formatPercent(app.cpuPowerPct))    }
+    }
 
     @Test
     fun `falls back to estimated battery capacity`() {

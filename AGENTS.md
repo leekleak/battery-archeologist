@@ -47,9 +47,10 @@ magick artifacts/screen.png -resize 720x -quality 80 artifacts/screen.jpg
 ```
 
 The app opens on the Navigation 3 reports home (`reports_home`). Capture and
-import stay there. A saved report opens the viewer (`content_screen`) with four
-tabs (`tab_overview`, `tab_timeline`, `tab_system`, `tab_apps`) and a back
-action (`btn_back`); the home has no tab bar.
+import stay there. A saved report opens the viewer (`content_screen`) with three
+tabs (`tab_timeline`, `tab_apps`, `tab_other`) and a back action (`btn_back`);
+Timeline is the default tab and the home has no tab bar. Report details on Other
+are always expanded.
 
 The app exposes Compose test tags as resource IDs (`btn_grant`, `btn_capture`,
 `btn_import_report`, `btn_reset_battery_stats`, `saved_report_<name>`,

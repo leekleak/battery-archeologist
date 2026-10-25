@@ -4,28 +4,24 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
@@ -33,23 +29,49 @@ import com.leekleak.batteryarcheologist.core.analytics.AppPowerStat
 import com.leekleak.batteryarcheologist.core.analytics.AppPowerStats
 import com.leekleak.batteryarcheologist.data.AppUsage
 import com.leekleak.batteryarcheologist.proto.batterystats.BatteryStats
+import com.leekleak.batteryarcheologist.ui.components.FancyBottomSheet
+import com.leekleak.batteryarcheologist.ui.components.FancySheetHeader
 import com.leekleak.batteryarcheologist.ui.components.SummaryRow
+import com.leekleak.batteryarcheologist.ui.components.fancyCard
 import com.leekleak.batteryarcheologist.ui.components.formatByteCount
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
+import com.leekleak.batteryarcheologist.ui.theme.googleSans
 
 /**
- * Per-app detail shown from [AppsScreen].
+ * Per-app detail shown from [AppsScreen] in a fancy bottom sheet.
  *
- * Sections are separated by [HorizontalDivider]; values use [SummaryRow].
  * Battery capacity belongs to the System tab and is intentionally not repeated
  * here, though per-app mAh estimates are shown next to their percentages.
  */
 @Composable
 fun AppDetailSheet(
+    onDismissRequest: () -> Unit,
     usage: AppUsage,
     displayLabel: String? = null,
     pinned: Boolean = false,
     onTogglePin: (() -> Unit)? = null,
+) {
+    FancyBottomSheet(onDismissRequest = onDismissRequest) {
+        AppDetailContent(
+            usage = usage,
+            displayLabel = displayLabel,
+            pinned = pinned,
+            onTogglePin = onTogglePin,
+        )
+    }
+}
+
+/**
+ * Sheet body without the modal chrome: header with the app icon, title and pin
+ * action, followed by one rounded card per metric group.
+ */
+@Composable
+fun AppDetailContent(
+    usage: AppUsage,
+    displayLabel: String? = null,
+    pinned: Boolean = false,
+    onTogglePin: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
 ) {
     val app = usage.app
     val power = usage.power
@@ -60,78 +82,27 @@ fun AppDetailSheet(
     val wifiBytes = (app.network?.wifi_bytes_rx ?: 0f) +
         (app.network?.wifi_bytes_tx ?: 0f)
     val unknownLabel = stringResource(R.string.label_unknown)
+    val packageName = app.name.orEmpty()
     val title = displayLabel ?: fallbackAppName(app.name).ifBlank { unknownLabel }
-    val subtitle = if (displayLabel == null && app.name.orEmpty().contains('.')) {
+    val subtitle = if (displayLabel == null && packageName.contains('.')) {
         appUidSubtitle(app)
     } else {
         appDetailSubtitle(app)
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .testTag("app_detail")
-            .verticalScroll(rememberScrollState())
-            .navigationBarsPadding()
-            .padding(horizontal = 16.dp)
-            .padding(top = 8.dp, bottom = 24.dp),
+            .testTag("app_detail"),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            AppIcon(
-                packageName = app.name.orEmpty(),
-                label = title,
-                size = 52.dp,
-            )
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (onTogglePin != null) {
-                IconButton(
-                    onClick = onTogglePin,
-                    modifier = Modifier.testTag("app_detail_pin"),
-                ) {
-                    Icon(
-                        painter = painterResource(
-                            if (pinned) {
-                                R.drawable.ic_push_pin_filled
-                            } else {
-                                R.drawable.ic_push_pin
-                            },
-                        ),
-                        contentDescription = stringResource(
-                            if (pinned) R.string.apps_unpin else R.string.apps_pin,
-                        ),
-                        modifier = Modifier.size(20.dp),
-                        tint = if (pinned) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    )
-                }
-            }
-        }
-
-        HorizontalDivider()
+        AppDetailHeader(
+            packageName = packageName,
+            title = title,
+            subtitle = subtitle,
+            pinned = pinned,
+            onTogglePin = onTogglePin,
+        )
 
         AppDetailSection(title = stringResource(R.string.apps_section_power)) {
             if (power != null && power.hasDevicePower) {
@@ -146,21 +117,7 @@ fun AppDetailSheet(
                     value = stringResource(R.string.label_unavailable),
                 )
             }
-            if (power != null && power.hasCpuPower) {
-                SummaryRow(
-                    label = stringResource(R.string.apps_cpu_power),
-                    value = "${AppPowerStats.formatPercent(power.cpuPowerPct)} · " +
-                        formatMah(power.cpuPowerMah),
-                )
-            } else {
-                SummaryRow(
-                    label = stringResource(R.string.apps_cpu_power),
-                    value = stringResource(R.string.label_unavailable),
-                )
-            }
         }
-
-        HorizontalDivider()
 
         AppDetailSection(title = stringResource(R.string.apps_section_cpu)) {
             SummaryRow(
@@ -170,8 +127,6 @@ fun AppDetailSheet(
             SummaryRow(stringResource(R.string.apps_cpu_user), formatSeconds(cpuUser))
             SummaryRow(stringResource(R.string.apps_cpu_system), formatSeconds(cpuSystem))
         }
-
-        HorizontalDivider()
 
         AppDetailSection(title = stringResource(R.string.apps_section_activity)) {
             SummaryRow(
@@ -196,8 +151,6 @@ fun AppDetailSheet(
             )
         }
 
-        HorizontalDivider()
-
         AppDetailSection(title = stringResource(R.string.apps_section_network)) {
             SummaryRow(
                 stringResource(R.string.apps_mobile_traffic),
@@ -211,17 +164,74 @@ fun AppDetailSheet(
     }
 }
 
+/** App icon, name, subtitle and the pin toggle at the top of the sheet. */
+@Composable
+private fun AppDetailHeader(
+    packageName: String,
+    title: String,
+    subtitle: String,
+    pinned: Boolean,
+    onTogglePin: (() -> Unit)?,
+) {
+    val pinAction: (@Composable () -> Unit)? = onTogglePin?.let { toggle ->
+        {
+            IconButton(
+                onClick = toggle,
+                modifier = Modifier.testTag("app_detail_pin"),
+            ) {
+                Icon(
+                    painter = painterResource(
+                        if (pinned) {
+                            R.drawable.ic_push_pin_filled
+                        } else {
+                            R.drawable.ic_push_pin
+                        },
+                    ),
+                    contentDescription = stringResource(
+                        if (pinned) R.string.apps_unpin else R.string.apps_pin,
+                    ),
+                    modifier = Modifier.size(20.dp),
+                    tint = if (pinned) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
+            }
+        }
+    }
+    FancySheetHeader(
+        title = title,
+        subtitle = subtitle,
+        leading = {
+            AppIcon(
+                packageName = packageName,
+                label = title,
+                size = 52.dp,
+            )
+        },
+        trailing = pinAction,
+    )
+}
+
 /** A titled group of [SummaryRow]s inside the app detail sheet. */
 @Composable
 private fun AppDetailSection(
     title: String,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    val titleFont = remember { googleSans(weight = 600f) }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fancyCard()
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
+            fontFamily = titleFont,
             color = MaterialTheme.colorScheme.primary,
         )
         content()
@@ -238,7 +248,6 @@ internal fun previewAppUsage(): AppUsage {
         cpu = BatteryStats.App.Cpu(
             user_time_ms = 324_500f,
             system_time_ms = 48_200f,
-            power_ma_ms = 1_240_000f,
         ),
         foreground = BatteryStats.App.Foreground(
             total_time_msec = 1_845_000f,
@@ -262,10 +271,7 @@ internal fun previewAppUsage(): AppUsage {
             uid = 10123,
             devicePowerMah = 18.42f,
             devicePowerPct = 0.614f,
-            cpuPowerMah = 0.344f,
-            cpuPowerPct = 0.011f,
             hasDevicePower = true,
-            hasCpuPower = true,
         ),
     )
 }
@@ -278,9 +284,12 @@ private fun AppDetailSheetLightPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
         ) {
-            AppDetailSheet(
+            AppDetailContent(
                 usage = previewAppUsage(),
                 displayLabel = "Example Video",
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
             )
         }
     }
@@ -300,9 +309,12 @@ private fun AppDetailSheetDarkPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
         ) {
-            AppDetailSheet(
+            AppDetailContent(
                 usage = previewAppUsage(),
                 displayLabel = "Example Video",
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
             )
         }
     }

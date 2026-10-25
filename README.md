@@ -14,9 +14,9 @@ This repository is at the first working vertical slice:
 - Navigation 3 host with the reports home as the root: capture and import stay
   there, alongside saved reports, raw text, sharing, deletion, and a system
   battery-stats reset.
-- Opening a saved report pushes a four-tab viewer (Overview, Timeline, System,
-  Apps) with its own bottom navigation and a back action. The reports home has
-  no bottom bar.
+- Opening a saved report pushes a three-tab viewer (Timeline, Apps, Other) with
+  its own bottom navigation and a back action. Timeline is the default tab. The
+  reports home has no bottom bar.
 - Reports are viewable without Shizuku; the permission screen opens on demand
   when capture or reset needs privileged access.
 - Destructive `dumpsys batterystats --reset` behind an explicit confirmation
@@ -31,7 +31,7 @@ This repository is at the first working vertical slice:
 - Saved reports can be reopened, shared, and re-parsed; text/zip bugreports
   and raw checkin files can be imported through the system file picker.
 - M3 Expressive first pass: tonal gradient, large shapes, Google Sans Flex,
-  app detail bottom sheet, a Sunny permission hero, and a floating four-tab
+  app detail bottom sheet, a Sunny permission hero, and a floating three-tab
   toolbar in the report viewer.
 - GPL-3.0; Traffic Light code/design reuse is allowed by the same author.
 
@@ -65,7 +65,8 @@ adb shell am start -W -n com.leekleak.batteryarcheologist/.MainActivity
 ```
 
 `ready.sh` waits for the reports home and captures one report if the device has
-none. The app opens on Reports; a saved report opens in the four-tab viewer.
+none. The app opens on Reports; a saved report opens in the three-tab viewer
+with Timeline selected.
 
 ## Agentic controls
 

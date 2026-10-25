@@ -2,6 +2,7 @@ package com.leekleak.batteryarcheologist.ui.apps
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,13 +25,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,6 +41,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -58,6 +59,16 @@ import com.leekleak.batteryarcheologist.data.AppUsage
 import com.leekleak.batteryarcheologist.data.ReportData
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
+import com.leekleak.batteryarcheologist.ui.theme.LocalBlurEnabled
+import dev.chrisbanes.haze.HazeInput
+import dev.chrisbanes.haze.HazeProgressive
+import dev.chrisbanes.haze.blur.hazeBlur
+import dev.chrisbanes.haze.blur.materials.HazeMaterials
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
+
+/** Height reserved for the search field below the page title. */
+private val SEARCH_HEADER_HEIGHT = 64.dp
 
 /**
  * Apps tab: power-ranked apps, pinned apps and a search field.
@@ -65,6 +76,9 @@ import com.leekleak.batteryarcheologist.ui.theme.BatteryArcheologistTheme
  * Power estimates are already paired with each app by the repository, so this
  * screen never recalculates [AppPowerStats]. Battery capacity lives in the
  * System tab and is deliberately absent here.
+ *
+ * The title and search field share one blur band; the list scrolls beneath
+ * both and is sampled by the band's Haze source.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,36 +129,26 @@ fun AppsScreen(
     val layoutDirection = LocalLayoutDirection.current
     val horizontalStart = contentPadding.calculateStartPadding(layoutDirection)
     val horizontalEnd = contentPadding.calculateEndPadding(layoutDirection)
+    val contentTop = contentPadding.calculateTopPadding()
+    val showSearch = report.apps.isNotEmpty()
+    val searchHeight = if (showSearch) SEARCH_HEADER_HEIGHT else 0.dp
+    val listTop = contentTop + searchHeight + if (showSearch) 8.dp else 0.dp
+    val hazeState = rememberHazeState()
+    val blurEnabled = LocalBlurEnabled.current
 
-    Column(Modifier.fillMaxSize()) {
-        if (report.apps.isNotEmpty()) {
-            AppsSearchHeader(
-                query = query,
-                onQueryChange = { query = it },
-                modifier = Modifier.padding(
-                    start = horizontalStart,
-                    top = contentPadding.calculateTopPadding(),
-                    end = horizontalEnd,
-                ),
-            )
-        }
-
+    Box(Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
+                .fillMaxSize()
+                .hazeSource(hazeState)
                 .testTag("app_list"),
             state = listState,
-            contentPadding = if (report.apps.isEmpty()) {
-                contentPadding
-            } else {
-                PaddingValues(
-                    start = horizontalStart,
-                    top = 8.dp,
-                    end = horizontalEnd,
-                    bottom = contentPadding.calculateBottomPadding(),
-                )
-            },
+            contentPadding = PaddingValues(
+                start = horizontalStart,
+                top = listTop,
+                end = horizontalEnd,
+                bottom = contentPadding.calculateBottomPadding(),
+            ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             when {
@@ -200,21 +204,64 @@ fun AppsScreen(
                 }
             }
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(contentTop + searchHeight)
+                .background(
+                    if (blurEnabled) Color.Transparent else MaterialTheme.colorScheme.surface,
+                )
+                .hazeBlur(
+                    input = HazeInput.Sources(hazeState),
+                    style = HazeMaterials.ultraThin().then {
+                        progressive(
+                            if (showSearch) {
+                                HazeProgressive.Brush(
+                                    Brush.verticalGradient(
+                                        colorStops = arrayOf(
+                                            0f to Color.White,
+                                            0.85f to Color.White,
+                                            1f to Color.Transparent,
+                                        ),
+                                    ),
+                                )
+                            } else {
+                                HazeProgressive.verticalGradient(
+                                    startIntensity = 1f,
+                                    endIntensity = 0f,
+                                )
+                            },
+                        )
+                        blurEnabled(blurEnabled)
+                    },
+                ),
+        ) {
+            if (showSearch) {
+                AppsSearchHeader(
+                    query = query,
+                    onQueryChange = { query = it },
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(
+                            start = horizontalStart,
+                            top = contentTop,
+                            end = horizontalEnd,
+                        ),
+                )
+            }
+        }
     }
 
     selectedApp?.let { usage ->
         val packageName = usage.app.name.orEmpty()
-        ModalBottomSheet(
+        AppDetailSheet(
             onDismissRequest = { selectedPackage = null },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        ) {
-            AppDetailSheet(
-                usage = usage,
-                displayLabel = labelsByPackage[packageName],
-                pinned = packageName in pinnedApps,
-                onTogglePin = { onTogglePin(packageName) },
-            )
-        }
+            usage = usage,
+            displayLabel = labelsByPackage[packageName],
+            pinned = packageName in pinnedApps,
+            onTogglePin = { onTogglePin(packageName) },
+        )
     }
 }
 
@@ -225,10 +272,15 @@ private fun AppsSearchHeader(
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
+    val blurEnabled = LocalBlurEnabled.current
+    val fieldColor = if (blurEnabled) {
+        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.8f)
+    } else {
+        MaterialTheme.colorScheme.surfaceContainer
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
             .padding(vertical = 4.dp),
     ) {
         TextField(
@@ -262,8 +314,8 @@ private fun AppsSearchHeader(
             singleLine = true,
             shape = MaterialTheme.shapes.extraLarge,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                focusedContainerColor = fieldColor,
+                unfocusedContainerColor = fieldColor,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,

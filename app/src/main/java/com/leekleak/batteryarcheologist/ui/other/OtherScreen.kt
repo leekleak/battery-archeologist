@@ -1,6 +1,5 @@
-package com.leekleak.batteryarcheologist.ui.system
+package com.leekleak.batteryarcheologist.ui.other
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,12 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -27,18 +21,18 @@ import com.leekleak.batteryarcheologist.ui.components.SummaryRow
 import com.leekleak.batteryarcheologist.ui.components.formatBytes
 
 /**
- * System tab: one battery card plus the parser/file internals most users only
- * need when something looks wrong. Those internals start collapsed.
+ * Other tab: one battery card plus the parser/file internals that do not fit
+ * elsewhere. The report details are always expanded.
  */
 @Composable
-fun SystemScreen(
+fun OtherScreen(
     report: ReportData,
     contentPadding: PaddingValues,
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .testTag("system_screen"),
+            .testTag("other_screen"),
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
@@ -119,10 +113,9 @@ private fun BatteryCard(report: ReportData) {
     }
 }
 
-/** Collapsed-by-default parser and file metadata for the current report. */
+/** Always-expanded parser and file metadata for the current report. */
 @Composable
 private fun ReportDetailsCard(report: ReportData) {
-    var expanded by remember(report.savedName, report.capturedAt) { mutableStateOf(false) }
     val snapshot = report.snapshot
     val warnings = (report.checkin?.warnings?.size ?: 0) +
         (report.history?.warnings?.size ?: 0)
@@ -143,91 +136,75 @@ private fun ReportDetailsCard(report: ReportData) {
         title = stringResource(R.string.system_report_details),
         subtitle = stringResource(R.string.system_report_details_subtitle),
     ) {
-        TextButton(
-            onClick = { expanded = !expanded },
-            modifier = Modifier.testTag("btn_report_details"),
-        ) {
-            Text(
-                stringResource(
-                    if (expanded) {
-                        R.string.action_hide_details
-                    } else {
-                        R.string.action_show_details
-                    },
-                ),
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            SummaryRow(
+                stringResource(R.string.system_checkin_version),
+                checkinVersion?.toString() ?: stringResource(R.string.label_unknown),
             )
-        }
-        AnimatedVisibility(visible = expanded) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SummaryRow(
-                    stringResource(R.string.system_checkin_version),
-                    checkinVersion?.toString() ?: stringResource(R.string.label_unknown),
+            SummaryRow(
+                stringResource(R.string.system_total_lines),
+                "%,d".format(snapshot.totalLines),
+            )
+            SummaryRow(
+                stringResource(R.string.system_history_lines),
+                "%,d".format(snapshot.historyLines),
+            )
+            SummaryRow(
+                stringResource(R.string.system_history_string_pool),
+                "%,d".format(snapshot.historyStringPoolLines),
+            )
+            SummaryRow(
+                stringResource(R.string.system_resets),
+                snapshot.resetEvents.toString(),
+            )
+            SummaryRow(
+                stringResource(R.string.system_size),
+                formatBytes(report.sizeBytes.toLong()),
+            )
+            report.savedName?.let {
+                SummaryRow(stringResource(R.string.system_saved_as), it)
+            }
+            SummaryRow(
+                stringResource(R.string.system_unsupported_fields),
+                if (unsupported.isEmpty()) {
+                    stringResource(R.string.system_unsupported_none)
+                } else {
+                    stringResource(
+                        R.string.system_unsupported_fields_value,
+                        unsupported.size,
+                        unsupportedOccurrences,
+                    )
+                },
+            )
+            if (unsupported.isNotEmpty()) {
+                Text(
+                    text = unsupported.entries
+                        .sortedByDescending { it.value }
+                        .take(5)
+                        .joinToString(" · ") { "${it.key} ×${it.value}" },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                SummaryRow(
-                    stringResource(R.string.system_total_lines),
-                    "%,d".format(snapshot.totalLines),
+            }
+            SummaryRow(
+                stringResource(R.string.system_parser_warnings),
+                warnings.toString(),
+            )
+            SummaryRow(
+                stringResource(R.string.system_parser_errors),
+                errors.toString(),
+            )
+            if (warningMessages.isNotEmpty()) {
+                Text(
+                    text = stringResource(R.string.system_warning_details),
+                    style = MaterialTheme.typography.labelMedium,
                 )
-                SummaryRow(
-                    stringResource(R.string.system_history_lines),
-                    "%,d".format(snapshot.historyLines),
-                )
-                SummaryRow(
-                    stringResource(R.string.system_history_string_pool),
-                    "%,d".format(snapshot.historyStringPoolLines),
-                )
-                SummaryRow(
-                    stringResource(R.string.system_resets),
-                    snapshot.resetEvents.toString(),
-                )
-                SummaryRow(
-                    stringResource(R.string.system_size),
-                    formatBytes(report.sizeBytes.toLong()),
-                )
-                report.savedName?.let {
-                    SummaryRow(stringResource(R.string.system_saved_as), it)
-                }
-                SummaryRow(
-                    stringResource(R.string.system_unsupported_fields),
-                    if (unsupported.isEmpty()) {
-                        stringResource(R.string.system_unsupported_none)
-                    } else {
-                        stringResource(
-                            R.string.system_unsupported_fields_value,
-                            unsupported.size,
-                            unsupportedOccurrences,
-                        )
-                    },
-                )
-                if (unsupported.isNotEmpty()) {
+                warningMessages.take(3).forEach { message ->
                     Text(
-                        text = unsupported.entries
-                            .sortedByDescending { it.value }
-                            .take(5)
-                            .joinToString(" · ") { "${it.key} ×${it.value}" },
+                        text = "• $message",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                }
-                SummaryRow(
-                    stringResource(R.string.system_parser_warnings),
-                    warnings.toString(),
-                )
-                SummaryRow(
-                    stringResource(R.string.system_parser_errors),
-                    errors.toString(),
-                )
-                if (warningMessages.isNotEmpty()) {
-                    Text(
-                        text = stringResource(R.string.system_warning_details),
-                        style = MaterialTheme.typography.labelMedium,
-                    )
-                    warningMessages.take(3).forEach { message ->
-                        Text(
-                            text = "• $message",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
                 }
             }
         }

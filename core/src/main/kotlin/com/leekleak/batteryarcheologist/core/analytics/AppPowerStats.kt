@@ -8,7 +8,10 @@ import java.util.Locale
  *
  * Port of `presenter.parseAppStats`:
  * - device power: `100 * app.power_use_item.computed_power_mah / capacity_mah`
- * - CPU power: `100 * (app.cpu.power_ma_ms / 3_600_000) / capacity_mah`
+ *
+ * Per-app CPU power is intentionally not modelled: Android 8.0+ hard-codes
+ * the checkin CPU power field to 0, and `computed_power_mah` already includes
+ * the CPU attribution for the app.
  *
  * The raw percentages are kept as floats; formatting happens at the UI
  * boundary. Battery Historian displays two decimals; this app keeps up to
@@ -20,10 +23,7 @@ data class AppPowerStat(
     val uid: Int,
     val devicePowerMah: Float,
     val devicePowerPct: Float,
-    val cpuPowerMah: Float,
-    val cpuPowerPct: Float,
     val hasDevicePower: Boolean,
-    val hasCpuPower: Boolean,
 )
 
 data class AppPowerReport(
@@ -50,27 +50,19 @@ object AppPowerStats {
             .filter { !it.name.isNullOrBlank() }
             .map { app ->
                 val powerUseItem = app.power_use_item
-                val cpu = app.cpu
                 val deviceMah = powerUseItem?.computed_power_mah ?: 0f
                 val hasDevice = powerUseItem != null
-                val cpuMah = (cpu?.power_ma_ms ?: 0f) / MA_MS_PER_MAH
-                val hasCpu = cpu?.power_ma_ms != null
                 val devicePct = if (capacity > 0f) 100f * deviceMah / capacity else 0f
-                val cpuPct = if (capacity > 0f) 100f * cpuMah / capacity else 0f
                 AppPowerStat(
                     name = app.name.orEmpty(),
                     uid = app.uid ?: 0,
                     devicePowerMah = deviceMah,
                     devicePowerPct = devicePct,
-                    cpuPowerMah = cpuMah,
-                    cpuPowerPct = cpuPct,
                     hasDevicePower = hasDevice,
-                    hasCpuPower = hasCpu,
                 )
             }
             .sortedWith(
                 compareByDescending<AppPowerStat> { it.devicePowerPct }
-                    .thenByDescending { it.cpuPowerPct }
                     .thenBy { it.name },
             )
 
@@ -94,6 +86,4 @@ object AppPowerStats {
         val trimmed = formatted.trimEnd('0').trimEnd('.')
         return if (trimmed == "0" || trimmed == "-0") "<0.001%" else "$trimmed%"
     }
-
-    private const val MA_MS_PER_MAH = 3_600_000f
 }

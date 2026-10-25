@@ -124,7 +124,7 @@ private fun BottomBarButton(
 @Composable
 private fun BottomBarLightPreview() {
     BatteryArcheologistTheme {
-        BottomBar(selected = ContentTab.OVERVIEW, onSelect = {})
+        BottomBar(selected = ContentTab.OTHER, onSelect = {})
     }
 }
 

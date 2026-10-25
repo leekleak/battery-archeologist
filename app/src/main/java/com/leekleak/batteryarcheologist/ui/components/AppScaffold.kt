@@ -78,6 +78,9 @@ private val CONTENT_BOTTOM_GAP = 8.dp
  * When [onBack] is non-null a back button is shown before the title. When
  * [bottomBar] is null no bottom bar is rendered and no toolbar padding is
  * reserved below the content.
+ *
+ * Set [titleBlurEnabled] to false when the content draws its own taller blur
+ * band that already covers the title area.
  */
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -86,6 +89,7 @@ fun AppScaffold(
     modifier: Modifier = Modifier,
     scrollState: ScrollState? = rememberScrollState(),
     hazeState: HazeState? = rememberHazeState(),
+    titleBlurEnabled: Boolean = true,
     onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     bottomBar: (@Composable () -> Unit)? = null,
@@ -143,6 +147,7 @@ fun AppScaffold(
             AppTitleBar(
                 title = title,
                 hazeState = hazeState,
+                titleBlurEnabled = titleBlurEnabled,
                 onBack = onBack,
                 actions = actions,
             )
@@ -170,6 +175,7 @@ fun AppScaffold(
 private fun AppTitleBar(
     title: String,
     hazeState: HazeState?,
+    titleBlurEnabled: Boolean,
     onBack: (() -> Unit)?,
     actions: @Composable RowScope.() -> Unit,
 ) {
@@ -179,20 +185,24 @@ private fun AppTitleBar(
         modifier = Modifier
             .fillMaxWidth()
             .then(
-                hazeState?.let {
-                    Modifier.hazeBlur(
-                        input = HazeInput.Sources(it),
-                        style = HazeMaterials.ultraThin().then {
-                            progressive(
-                                HazeProgressive.verticalGradient(
-                                    startIntensity = 1f,
-                                    endIntensity = 0f,
-                                ),
-                            )
-                            blurEnabled(blurEnabled)
-                        },
-                    )
-                } ?: Modifier,
+                if (titleBlurEnabled) {
+                    hazeState?.let {
+                        Modifier.hazeBlur(
+                            input = HazeInput.Sources(it),
+                            style = HazeMaterials.ultraThin().then {
+                                progressive(
+                                    HazeProgressive.verticalGradient(
+                                        startIntensity = 1f,
+                                        endIntensity = 0f,
+                                    ),
+                                )
+                                blurEnabled(blurEnabled)
+                            },
+                        )
+                    } ?: Modifier
+                } else {
+                    Modifier
+                },
             ),
     ) {
         Row(
@@ -237,12 +247,12 @@ private fun AppTitleBar(
 private fun AppScaffoldLightPreview() {
     BatteryArcheologistTheme {
         AppScaffold(
-            title = "Overview",
+            title = "Other",
             actions = {
                 TextButton(onClick = {}) { Text("Capture") }
             },
             bottomBar = {
-                BottomBar(selected = ContentTab.OVERVIEW, onSelect = {})
+                BottomBar(selected = ContentTab.OTHER, onSelect = {})
             },
         ) {
             SectionCard(title = "Battery", subtitle = "Pixel 9 · 87%") {

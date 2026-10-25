@@ -3,9 +3,10 @@
 Goal: keep the app's layout language close to Material 3 Expressive — tonal
 surfaces, large shapes, expressive type, and a floating toolbar — while using
 **stock Material colors**. There is no custom brand palette and no dynamic
-Material You color; Haze is used only to blur the content behind the top bar.
+Material You color; Haze blurs the content behind the top bar and behind the
+timeline readout's pinned header.
 
-The Navigation 3 host puts the reports home at the root and pushes the four-tab
+The Navigation 3 host puts the reports home at the root and pushes the three-tab
 report viewer on top. Capture, import, saved reports, and reset live on the
 home; the viewer owns the tab bar.
 
@@ -18,17 +19,24 @@ Reusing and adapting that code is allowed with attribution.
 - [x] Navigation 3 host: reports home root, report viewer pushed on top, and
       the permission screen on demand.
 - [x] Bottom `HorizontalFloatingToolbar` navigation in the viewer with icon +
-      selected label across the four tabs.
-- [x] Custom vector icons for Overview, Timeline, System, Apps.
+      selected label across the three tabs.
+- [x] Custom vector icons for Timeline, Apps, Other.
 - [x] Tonal surface cards and a bottom-sheet app detail treatment.
 - [x] Test tags on all toolbar tabs for `android input`/UIAutomator.
-- [x] Report viewer split into Overview, Timeline, System, Apps with their own
-      ViewModel state; the reports home owns capture, import, saved reports,
-      raw/share, and reset.
+- [x] Report viewer split into Timeline, Apps, and Other with their own
+      ViewModel state; Timeline is the default. The reports home owns capture,
+      import, saved reports, raw/share, and reset.
 - [x] Permission illustration: a `MaterialShapes.Sunny` hero with a
       state-specific icon.
 - [x] Stock Material `lightColorScheme()`/`darkColorScheme()`, default
       `Typography()` and `Shapes()`; the custom palette was removed.
+- [x] Fancy dialog and sheet surfaces ported from Traffic Light
+      (`ui/components/FancySurfaces.kt`): icon + Google Sans title headers,
+      rounded tonal cards, and end-aligned action rows. The reset/delete
+      confirmations, the timeline filter, the raw capture viewer and the app
+      detail sheet all use them. `res/font/google_sans_flex.ttf` is bundled
+      from Traffic Light and applied to those headers only; the rest of the app
+      keeps stock Material typography.
 
 ## Required (done)
 

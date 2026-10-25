@@ -88,7 +88,7 @@ for tag in btn_capture btn_import_report btn_reset_battery_stats saved_reports_h
   echo "$layout" | grep -q "\"resource-id\":\"$tag\"" || fail "$tag missing from reports home"
 done
 
-if echo "$layout" | grep -q '"resource-id":"tab_overview"'; then
+if echo "$layout" | grep -q '"resource-id":"tab_timeline"'; then
   fail "reports home should not show the viewer tab bar"
 fi
 
@@ -101,7 +101,7 @@ open_report() {
     || fail "could not open saved report $name"
   wait_for_pattern '"resource-id":"content_screen"' 20 >/dev/null \
     || fail "report viewer did not open"
-  wait_for_pattern '"resource-id":"capture_summary"' 30 >/dev/null \
+  wait_for_pattern '"resource-id":"timeline_screen"' 30 >/dev/null \
     || fail "saved report did not load"
 }
 
@@ -114,11 +114,16 @@ open_timeline() {
 
 report_name="${saved_reports[0]}"
 open_report "$report_name"
-layout="$(wait_for_pattern '"resource-id":"capture_summary"' 30)" || fail "saved report did not load"
+layout="$(wait_for_pattern '"resource-id":"timeline_screen"' 30)" || fail "saved report did not load"
 
-echo "$layout" | grep -q 'Report' || fail "report summary missing"
-echo "$layout" | grep -q 'Captured' || fail "captured timestamp missing"
-echo "$layout" | grep -q 'tab_timeline' || fail "viewer bottom navigation missing"
+for tag in tab_timeline tab_apps tab_other; do
+  echo "$layout" | grep -q "\"resource-id\":\"$tag\"" || fail "viewer bottom navigation missing $tag"
+done
+for legacy in tab_overview tab_system; do
+  if echo "$layout" | grep -q "\"resource-id\":\"$legacy\""; then
+    fail "removed tab is still present: $legacy"
+  fi
+done
 
 for legacy in 'Current capture' 'Ready to capture' 'Capture validated' 'Capture parsed' 'Live data from dumpsys batterystats'; do
   if echo "$layout" | grep -q "$legacy"; then
@@ -143,12 +148,15 @@ if echo "$layout" | grep -q 'discharge_intervals'; then
   fail "discharge intervals list should be removed"
 fi
 
-# System: capacity lives here, and parser internals are collapsed by default.
-"$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_system' >/dev/null 2>&1 || fail "could not open System tab"
-layout="$(wait_for_pattern '"resource-id":"system_summary"' 10)" || fail "system battery card missing"
+# Other: capacity lives here, and report details are always expanded.
+"$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_other' >/dev/null 2>&1 || fail "could not open Other tab"
+layout="$(wait_for_pattern '"resource-id":"other_screen"' 10)" || fail "other screen missing"
+echo "$layout" | grep -q '"resource-id":"system_summary"' || fail "system battery card missing"
 echo "$layout" | grep -q 'Capacity' || fail "battery capacity missing"
-"$ANDROID_CLI" input --device="$SERIAL" tap 'id=btn_report_details' >/dev/null 2>&1 || fail "could not expand report details"
-layout="$(wait_for_pattern 'Checkin version' 10)" || fail "report details did not expand"
+layout="$(wait_for_pattern 'Checkin version' 10)" || fail "report details are not expanded by default"
+if echo "$layout" | grep -q '"resource-id":"btn_report_details"'; then
+  fail "report details should not have an expand toggle"
+fi
 
 # Apps: searchable rows, pinning, and capacity is not repeated here.
 "$ANDROID_CLI" input --device="$SERIAL" tap 'id=tab_apps' >/dev/null 2>&1 || fail "could not open Apps tab"
@@ -191,13 +199,13 @@ fi
   || "$ADB" -s "$SERIAL" shell input keyevent 4 >/dev/null 2>&1 || true
 layout="$(wait_for_pattern '"resource-id":"reports_home"' 10)" || fail "did not return to reports home"
 for _ in $(seq 1 5); do
-  if ! echo "$layout" | grep -q '"resource-id":"tab_overview"'; then
+  if ! echo "$layout" | grep -q '"resource-id":"tab_timeline"'; then
     break
   fi
   sleep 1
   layout="$("$ANDROID_CLI" layout --device="$SERIAL" --flat --full 2>/dev/null || true)"
 done
-if echo "$layout" | grep -q '"resource-id":"tab_overview"'; then
+if echo "$layout" | grep -q '"resource-id":"tab_timeline"'; then
   fail "viewer tab bar should not be visible on reports home"
 fi
 
@@ -224,4 +232,4 @@ wait_for_app_windows 1 10 || fail "reset confirmation dialog did not close"
 layout="$(wait_for_pattern '"resource-id":"btn_reset_battery_stats"' 10)" \
   || fail "reset action missing after cancel"
 
-echo "OK: reports home, viewer tabs, timeline cursor, system details, apps, back, raw sheet, reset cancel"
+echo "OK: reports home, viewer tabs, timeline cursor, other details, apps, back, raw sheet, reset cancel"

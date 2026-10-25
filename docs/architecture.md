@@ -59,9 +59,9 @@ The parser must warn and degrade rather than crash on unknown sections.
   with open/raw/share/delete, and a destructive system battery-stats reset
   behind a confirmation dialog. It has no bottom navigation bar and is usable
   without Shizuku.
-- Report viewer: four tabs (Overview, Timeline, System, Apps), a back action,
-  and the `content_screen` host. It has no capture action; report contents load
-  only when the viewer destination opens.
+- Report viewer: three tabs (Timeline, Apps, Other) with Timeline as the default,
+  a back action, and the `content_screen` host. It has no capture action; report
+  contents load only when the viewer destination opens.
 - Capture or reset without Shizuku opens `PermissionKey`; once the state is
   Ready the deferred action runs and the app returns to the home.
 - Raw reports open in a modal sheet from the home (`raw_capture`), for saved

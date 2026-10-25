@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -31,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.leekleak.batteryarcheologist.R
 import com.leekleak.batteryarcheologist.data.ReportData
-import com.leekleak.batteryarcheologist.data.SharedPreferencesTimelineFilterStore
+import com.leekleak.batteryarcheologist.data.TimelineFilter
 import com.leekleak.batteryarcheologist.ui.components.NAVBAR_PADDING
 import com.leekleak.batteryarcheologist.ui.components.SectionCard
 
@@ -48,6 +47,10 @@ import com.leekleak.batteryarcheologist.ui.components.SectionCard
 fun TimelineTab(
     report: ReportData,
     contentPadding: PaddingValues,
+    filter: TimelineFilter,
+    filterSheetOpen: Boolean,
+    onFilterDismiss: () -> Unit,
+    onFilterApply: (TimelineFilter) -> Unit,
 ) {
     val history = report.history
     if (history == null) {
@@ -69,10 +72,6 @@ fun TimelineTab(
         return
     }
 
-    val context = LocalContext.current
-    val filterStore = remember(context) { SharedPreferencesTimelineFilterStore(context) }
-    var filter by remember { mutableStateOf(filterStore.load()) }
-    var filterSheetOpen by remember { mutableStateOf(false) }
     var readoutHeightPx by remember { mutableIntStateOf(0) }
 
     val reportEndMs = remember(history) {
@@ -132,11 +131,9 @@ fun TimelineTab(
             data = data,
             cursorMs = cursor,
             palette = palette,
-            filterActive = filter.active,
             onCursorMsChange = {
                 cursorMs = data.clampCursor(it) ?: it
             },
-            onFilterClick = { filterSheetOpen = true },
             onHeightChanged = { readoutHeightPx = it },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -152,12 +149,8 @@ fun TimelineTab(
             TimelineFilterSheet(
                 availableMetrics = data.availableMetrics,
                 initialFilter = filter,
-                onDismiss = { filterSheetOpen = false },
-                onApply = { applied ->
-                    filter = applied
-                    filterStore.save(applied)
-                    filterSheetOpen = false
-                },
+                onDismiss = onFilterDismiss,
+                onApply = onFilterApply,
             )
         }
     }

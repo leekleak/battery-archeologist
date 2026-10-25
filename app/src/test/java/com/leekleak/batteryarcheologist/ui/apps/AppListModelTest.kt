@@ -96,10 +96,7 @@ class AppListModelTest {
             uid = uid,
             devicePowerMah = 0f,
             devicePowerPct = 0f,
-            cpuPowerMah = 0f,
-            cpuPowerPct = 0f,
             hasDevicePower = false,
-            hasCpuPower = false,
         ),
     )
 }
